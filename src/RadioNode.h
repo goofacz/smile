@@ -15,9 +15,9 @@
 
 #pragma once
 
-#include "omnetpp.h"
-#include "inet/common/geometry/common/Coord.h"
 #include "Listener.h"
+#include "inet/common/geometry/common/Coord.h"
+#include "omnetpp.h"
 
 namespace smile {
 
@@ -38,6 +38,8 @@ class RadioNode : public omnetpp::cSimpleModule
   void initialize(int stage) override;
 
  private:
+  int numInitStages() const override;
+
   void setupMobilityListeners();
 
   void mobilityStateChangedCallback(omnetpp::cComponent* source,

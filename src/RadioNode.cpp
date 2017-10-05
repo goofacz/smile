@@ -29,6 +29,12 @@ void RadioNode::initialize(int stage)
     setupMobilityListeners();
   }
 }
+
+int RadioNode::numInitStages() const
+{
+  return inet::INITSTAGE_LINK_LAYER_2 + 1;
+}
+
 const inet::Coord& RadioNode::getCurrentPosition() const
 {
   return currentPosition;
