@@ -57,6 +57,7 @@ void RadioNode::mobilityStateChangedCallback(omnetpp::cComponent* source,
                                              omnetpp::cObject* details)
 {
   auto mobility = check_and_cast<inet::IMobility*>(value);
+  assert(mobility);
   currentPosition = mobility->getCurrentPosition();
 }
 
@@ -68,9 +69,11 @@ void RadioNode::setupMobilityListeners()
   mobilityStateChangedListener = handler;
 
   auto mobility = getModuleByPath(".mobility");
+  assert(mobility);
   mobility->subscribe("mobilityStateChanged", &mobilityStateChangedListener);
 
   auto iMobility = check_and_cast<inet::IMobility*>(mobility);
+  assert(mobility);
   currentPosition = iMobility->getCurrentPosition();
 }
 
