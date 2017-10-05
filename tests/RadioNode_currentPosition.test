@@ -1,0 +1,13 @@
+%description:
+Test current position handling in RadioNode
+
+%includes:
+#include <memory>
+#include "/home/goofy/Projects/omnetpp/smile/src/RadioNode.h"
+
+%activity:
+auto node = std::make_unique<smile::RadioNode>();
+EV << "Initial position: " << node->getCurrentPosition() << '\n';
+
+%contains: stdout
+Initial position: (0, 0, 0)
