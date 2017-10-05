@@ -1,12 +1,12 @@
 #
-# OMNeT++/OMNEST Makefile for $(LIB_PREFIX)ilms
+# OMNeT++/OMNEST Makefile for $(LIB_PREFIX)smile
 #
 # This file was generated with the command:
-#  opp_makemake --make-so -f --deep -o ilms -O out -KINET_PROJ=../../inet -DINET_IMPORT -I. -I$$\(INET_PROJ\)/src -L$$\(INET_PROJ\)/src -lINET$$\(D\)
+#  opp_makemake --make-so -f --deep -o smile -O out -KINET_PROJ=../../inet -DINET_IMPORT -I. -I$$\(INET_PROJ\)/src -L$$\(INET_PROJ\)/src -lINET$$\(D\)
 #
 
 # Name of target to be created (-o option)
-TARGET = $(LIB_PREFIX)ilms$(D)$(SHARED_LIB_SUFFIX)
+TARGET = $(LIB_PREFIX)smile$(D)$(SHARED_LIB_SUFFIX)
 TARGET_DIR = .
 
 # C++ include paths (with -I)

@@ -1,4 +1,4 @@
-package ilms;
+package smile;
 
 @license(GPL);
 

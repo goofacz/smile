@@ -1,3 +1,3 @@
-package ilms.simulations;
+package smile.simulations;
 
 @license(GPL);

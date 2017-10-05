@@ -17,7 +17,7 @@
 
 #include <omnetpp.h>
 
-namespace ilms {
+namespace smile {
 
 class RadioNode : public omnetpp::cSimpleModule {
  public:
@@ -30,4 +30,4 @@ class RadioNode : public omnetpp::cSimpleModule {
   RadioNode& operator=(RadioNode&& source) = delete;
 };
 
-}  // namespace ilms
+}  // namespace smile

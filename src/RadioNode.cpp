@@ -15,8 +15,8 @@
 
 #include "RadioNode.h"
 
-namespace ilms {
+namespace smile {
 
 Define_Module(RadioNode);
 
-}  // namespace ilms
+}  // namespace smile

@@ -129,13 +129,13 @@
 	</storageModule>
 	<storageModule moduleId="refreshScope" versionNumber="2">
 		<configuration configurationName="msvc-debug">
-			<resource resourceType="PROJECT" workspacePath="/ilms"/>
+			<resource resourceType="PROJECT" workspacePath="/smile"/>
 		</configuration>
 		<configuration configurationName="gcc-release">
-			<resource resourceType="PROJECT" workspacePath="/ilms"/>
+			<resource resourceType="PROJECT" workspacePath="/smile"/>
 		</configuration>
 		<configuration configurationName="gcc-debug">
-			<resource resourceType="PROJECT" workspacePath="/ilms"/>
+			<resource resourceType="PROJECT" workspacePath="/smile"/>
 		</configuration>
 	</storageModule>
 	<storageModule moduleId="scannerConfiguration">
