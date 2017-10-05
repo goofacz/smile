@@ -15,11 +15,14 @@
 
 #pragma once
 
-#include <omnetpp.h>
+#include "omnetpp.h"
+#include "inet/common/geometry/common/Coord.h"
+#include "Listener.h"
 
 namespace smile {
 
-class RadioNode : public omnetpp::cSimpleModule {
+class RadioNode : public omnetpp::cSimpleModule
+{
  public:
   RadioNode() = default;
   RadioNode(const RadioNode& source) = delete;
@@ -28,6 +31,22 @@ class RadioNode : public omnetpp::cSimpleModule {
 
   RadioNode& operator=(const RadioNode& source) = delete;
   RadioNode& operator=(RadioNode&& source) = delete;
+
+  const inet::Coord& getCurrentPosition() const;
+
+ protected:
+  void initialize(int stage) override;
+
+ private:
+  void setupMobilityListeners();
+
+  void mobilityStateChangedCallback(omnetpp::cComponent* source,
+                                    simsignal_t signalID,
+                                    omnetpp::cObject* value,
+                                    omnetpp::cObject* details);
+
+  Listener<omnetpp::cObject*> mobilityStateChangedListener;
+  inet::Coord currentPosition;
 };
 
 }  // namespace smile

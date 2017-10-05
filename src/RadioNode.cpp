@@ -13,10 +13,48 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 //
 
+#include "inet/common/INETDefs.h"
+#include "inet/physicallayer/contract/packetlevel/IRadio.h"
+
 #include "RadioNode.h"
 
 namespace smile {
 
 Define_Module(RadioNode);
+
+void RadioNode::initialize(int stage)
+{
+  cModule::initialize(stage);
+  if (stage == inet::INITSTAGE_PHYSICAL_ENVIRONMENT_2) {
+    setupMobilityListeners();
+  }
+}
+const inet::Coord& RadioNode::getCurrentPosition() const
+{
+  return currentPosition;
+}
+
+void RadioNode::mobilityStateChangedCallback(omnetpp::cComponent* source,
+                                             simsignal_t signalID,
+                                             omnetpp::cObject* value,
+                                             omnetpp::cObject* details)
+{
+  auto mobility = check_and_cast<inet::IMobility*>(value);
+  currentPosition = mobility->getCurrentPosition();
+}
+
+void RadioNode::setupMobilityListeners()
+{
+  auto handler = [this](auto source, auto signalID, auto value, auto details) {
+    this->mobilityStateChangedCallback(source, signalID, value, details);
+  };
+  mobilityStateChangedListener = handler;
+
+  auto mobility = getModuleByPath(".mobility");
+  mobility->subscribe("mobilityStateChanged", &mobilityStateChangedListener);
+
+  auto iMobility = check_and_cast<inet::IMobility*>(mobility);
+  currentPosition = iMobility->getCurrentPosition();
+}
 
 }  // namespace smile
