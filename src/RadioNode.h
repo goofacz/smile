@@ -17,6 +17,7 @@
 
 #include "Listener.h"
 #include "inet/common/geometry/common/Coord.h"
+#include "inet/linklayer/common/MACAddress.h"
 #include "omnetpp.h"
 
 namespace smile {
@@ -32,6 +33,7 @@ class RadioNode : public omnetpp::cSimpleModule
   RadioNode& operator=(const RadioNode& source) = delete;
   RadioNode& operator=(RadioNode&& source) = delete;
 
+  inet::MACAddress getMACAddress() const;
   const inet::Coord& getCurrentPosition() const;
 
  protected:

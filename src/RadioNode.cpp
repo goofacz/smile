@@ -13,6 +13,8 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 //
 
+#include <cassert>
+
 #include "inet/common/INETDefs.h"
 #include "inet/physicallayer/contract/packetlevel/IRadio.h"
 
@@ -33,6 +35,15 @@ void RadioNode::initialize(int stage)
 int RadioNode::numInitStages() const
 {
   return inet::INITSTAGE_LINK_LAYER_2 + 1;
+}
+
+inet::MACAddress RadioNode::getMACAddress() const
+{
+  const auto mac = getModuleByPath(".nic.mac");
+  assert(mac);
+  const auto& address = mac->par("address");
+  assert(address.getType() == cPar::STRING);
+  return inet::MACAddress(address.stringValue());
 }
 
 const inet::Coord& RadioNode::getCurrentPosition() const
