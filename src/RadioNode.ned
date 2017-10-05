@@ -16,8 +16,30 @@
 package smile;
 
 import inet.examples.mobility.MobileHost;
+import inet.linklayer.ideal.IdealWirelessNic;
+import inet.networklayer.common.InterfaceTable;
+import inet.networklayer.generic.GenericRoutingTable;
 
 module RadioNode extends MobileHost
 {
+    parameters:
+        @class(RadioNode);
+        @networkNode();
+        
+        *.interfaceTableModule = default(absPath(".interfaceTable"));
+        string applicationType = default("");
     
+    gates:
+        input radioIn @directIn;
+
+    submodules:
+        interfaceTable: InterfaceTable;
+        routingTable: GenericRoutingTable;
+        nic: IdealWirelessNic;
+        application: <applicationType> like IApplivation;
+
+    connections:
+        radioIn --> nic.radioIn;        
+        nic.upperLayerIn <-- application.out;
+        nic.upperLayerOut --> application.in;
 }
