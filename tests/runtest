@@ -12,7 +12,7 @@ opp_test gen -v *.test || exit 1
 	opp_makemake --make-so -o smile_mocks -f --deep -KINET_PROJ=../../../inet -DINET_IMPORT -I. \
 	             -I$\(INET_PROJ\)/src -L$\(INET_PROJ\)/out/$\(CONFIGNAME\)/src -L../../out//$\(CONFIGNAME\)/src \
 	             -lINET_dbg -lsmile_dbg;
-	$MAKE V=1
+	$MAKE
 ) || exit 1
 
 (
@@ -20,7 +20,7 @@ opp_test gen -v *.test || exit 1
 	opp_makemake -f --deep -KINET_PROJ=../../../inet -DINET_IMPORT -I. -I$\(INET_PROJ\)/src \
 	             -L$\(INET_PROJ\)/out/$\(CONFIGNAME\)/src -L../../out//$\(CONFIGNAME\)/src -lINET_dbg \
 	             -L../mocks -lsmile_dbg -lsmile_mocks_dbg;
-    $MAKE V=1
+    $MAKE
 ) || exit 1
 
 export NEDPATH=.:`pwd`/../src:`pwd`/../../inet/src:`pwd`/mocks
