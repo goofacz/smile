@@ -26,8 +26,8 @@ template <typename T>
 class Listener : public omnetpp::cListener
 {
  public:
-  using Callback = std::function<void(
-      omnetpp::cComponent*, omnetpp::simsignal_t, T, omnetpp::cObject*)>;
+  using Callback =
+      std::function<void(omnetpp::cComponent*, omnetpp::simsignal_t, T, omnetpp::cObject*)>;
 
  public:
   Listener();
@@ -39,8 +39,8 @@ class Listener : public omnetpp::cListener
   Listener& operator=(Listener&& source) = delete;
   Listener& operator=(Callback newCallback);
 
-  void receiveSignal(omnetpp::cComponent* source, omnetpp::simsignal_t signalID,
-                     T value, omnetpp::cObject* details) override;
+  void receiveSignal(omnetpp::cComponent* source, omnetpp::simsignal_t signalID, T value,
+                     omnetpp::cObject* details) override;
 
  private:
   Callback callback;
@@ -62,8 +62,7 @@ Listener<T>& Listener<T>::operator=(Callback source)
 }
 
 template <typename T>
-void Listener<T>::receiveSignal(omnetpp::cComponent* source,
-                                omnetpp::simsignal_t signalID, T value,
+void Listener<T>::receiveSignal(omnetpp::cComponent* source, omnetpp::simsignal_t signalID, T value,
                                 omnetpp::cObject* details)
 {
   assert(callback);

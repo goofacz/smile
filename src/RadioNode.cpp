@@ -55,18 +55,16 @@ const inet::Coord& RadioNode::getCurrentPosition() const
 
 void RadioNode::addTxStateChangedCallback(TxStateChangedCallback callback)
 {
-    txStateChangedcallbacks.emplace_back (std::move (callback));
+  txStateChangedcallbacks.emplace_back(std::move(callback));
 }
 
 void RadioNode::addRxStateChangedCallback(RxStateChangedCallback callback)
 {
-    rxStateChangedcallbacks.emplace_back (std::move (callback));
+  rxStateChangedcallbacks.emplace_back(std::move(callback));
 }
 
-void RadioNode::mobilityStateChangedCallback(omnetpp::cComponent* source,
-                                             simsignal_t signalID,
-                                             omnetpp::cObject* value,
-                                             omnetpp::cObject* details)
+void RadioNode::mobilityStateChangedCallback(omnetpp::cComponent* source, simsignal_t signalID,
+                                             omnetpp::cObject* value, omnetpp::cObject* details)
 {
   auto mobility = check_and_cast<inet::IMobility*>(value);
   assert(mobility);
@@ -74,22 +72,20 @@ void RadioNode::mobilityStateChangedCallback(omnetpp::cComponent* source,
   EV_DETAIL << "Current position: " << currentPosition << endl;
 }
 
-void RadioNode::txStateChangedCallback(cComponent* source, simsignal_t signalID,
-                                       long value, cObject* details)
+void RadioNode::txStateChangedCallback(cComponent* source, simsignal_t signalID, long value,
+                                       cObject* details)
 {
-  const auto state =
-      static_cast<inet::physicallayer::IRadio::TransmissionState>(value);
+  const auto state = static_cast<inet::physicallayer::IRadio::TransmissionState>(value);
   for (const auto& callback : txStateChangedcallbacks) {
     assert(callback);
     callback(state);
   }
 }
 
-void RadioNode::rxStateChangedCallback(cComponent* source, simsignal_t signalID,
-                                       long value, cObject* details)
+void RadioNode::rxStateChangedCallback(cComponent* source, simsignal_t signalID, long value,
+                                       cObject* details)
 {
-  const auto state =
-      static_cast<inet::physicallayer::IRadio::ReceptionState>(value);
+  const auto state = static_cast<inet::physicallayer::IRadio::ReceptionState>(value);
   for (const auto& callback : rxStateChangedcallbacks) {
     assert(callback);
     callback(state);
@@ -115,18 +111,15 @@ void RadioNode::setupMobilityListeners()
 
 void RadioNode::setupNicListeners()
 {
-  const auto radio = check_and_cast<inet::physicallayer::Radio*>(
-      getModuleByPath(".nic.radio"));
+  const auto radio = check_and_cast<inet::physicallayer::Radio*>(getModuleByPath(".nic.radio"));
   assert(radio);
 
-  txStateChangedListener = [this](auto source, auto signalID, auto value,
-                                  auto details) {
+  txStateChangedListener = [this](auto source, auto signalID, auto value, auto details) {
     this->txStateChangedCallback(source, signalID, value, details);
   };
   radio->subscribe("transmissionStateChanged", &txStateChangedListener);
 
-  rxStateChangedListener = [this](auto source, auto signalID, auto value,
-                                  auto details) {
+  rxStateChangedListener = [this](auto source, auto signalID, auto value, auto details) {
     this->rxStateChangedCallback(source, signalID, value, details);
   };
   radio->subscribe("receptionStateChanged", &rxStateChangedListener);

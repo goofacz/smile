@@ -16,5 +16,6 @@ IndentWidth: '2'
 Language: Cpp
 NamespaceIndentation: None
 Standard: Cpp11
+ColumnLimit: 100
 
 ...

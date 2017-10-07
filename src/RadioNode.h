@@ -27,8 +27,7 @@ class RadioNode : public omnetpp::cSimpleModule
  public:
   using TxStateChangedCallback =
       std::function<void(inet::physicallayer::IRadio::TransmissionState)>;
-  using RxStateChangedCallback =
-      std::function<void(inet::physicallayer::IRadio::ReceptionState)>;
+  using RxStateChangedCallback = std::function<void(inet::physicallayer::IRadio::ReceptionState)>;
 
  public:
   RadioNode() = default;
@@ -54,16 +53,14 @@ class RadioNode : public omnetpp::cSimpleModule
   void setupMobilityListeners();
   void setupNicListeners();
 
-  void mobilityStateChangedCallback(omnetpp::cComponent* source,
-                                    simsignal_t signalID,
-                                    omnetpp::cObject* value,
-                                    omnetpp::cObject* details);
+  void mobilityStateChangedCallback(omnetpp::cComponent* source, simsignal_t signalID,
+                                    omnetpp::cObject* value, omnetpp::cObject* details);
 
-  void txStateChangedCallback(cComponent* source, simsignal_t signalID,
-                              long value, cObject* details);
+  void txStateChangedCallback(cComponent* source, simsignal_t signalID, long value,
+                              cObject* details);
 
-  void rxStateChangedCallback(cComponent* source, simsignal_t signalID,
-                              long value, cObject* details);
+  void rxStateChangedCallback(cComponent* source, simsignal_t signalID, long value,
+                              cObject* details);
 
   Listener<omnetpp::cObject*> mobilityStateChangedListener;
   Listener<long> txStateChangedListener;
