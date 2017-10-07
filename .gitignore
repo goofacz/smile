@@ -34,6 +34,7 @@
 # Files
 src/Makefile
 tests/Makefile
+tests/mocks/Makefile
 run_clang_format.sh
 
 # Directories
