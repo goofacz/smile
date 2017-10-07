@@ -13,22 +13,14 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 //
 
-#pragma once
+#include <cassert>
 
-#include "omnetpp.h"
+#include "MockWirelessNic.h"
 
 namespace smile {
+namespace mocks {
 
-class MockWirelessNic : public omnetpp::cSimpleModule
-{
- public:
-  MockWirelessNic() = default;
-  MockWirelessNic(const MockWirelessNic& source) = delete;
-  MockWirelessNic(MockWirelessNic&& source) = delete;
-  ~MockWirelessNic() override = default;
+Define_Module(MockWirelessNic);
 
-  MockWirelessNic& operator=(const MockWirelessNic& source) = delete;
-  MockWirelessNic& operator=(MockWirelessNic&& source) = delete;
-};
-
+}  // namespace mocks
 }  // namespace smile

@@ -3,9 +3,6 @@ Test current position handling in RadioNode
 
 %file: test.ned
 import smile.RadioNode;
-import inet.networklayer.configurator.generic.GenericNetworkConfigurator;
-import inet.physicallayer.idealradio.IdealRadioMedium;
-import inet.visualizer.integrated.IntegratedCanvasVisualizer;
 
 network Test
 {

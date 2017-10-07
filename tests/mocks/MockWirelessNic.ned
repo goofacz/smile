@@ -13,13 +13,13 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-package smile;
+package smile.mocks;
 
 import inet.linklayer.contract.IWirelessNic;
 
 simple MockWirelessNic like IWirelessNic
 {
-    @class(smile::MockWirelessNic);
+    @class(smile::mocks::MockWirelessNic);
         
     gates:
         input upperLayerIn;

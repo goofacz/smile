@@ -13,12 +13,24 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 //
 
-#include <cassert>
+#pragma once
 
-#include "MockApplication.h"
+#include "omnetpp.h"
 
 namespace smile {
+namespace mocks {
 
-Define_Module(MockApplication);
+class MockApplication : public omnetpp::cSimpleModule
+{
+ public:
+  MockApplication() = default;
+  MockApplication(const MockApplication& source) = delete;
+  MockApplication(MockApplication&& source) = delete;
+  ~MockApplication() override = default;
 
+  MockApplication& operator=(const MockApplication& source) = delete;
+  MockApplication& operator=(MockApplication&& source) = delete;
+};
+
+}  // namespace mocks
 }  // namespace smile
