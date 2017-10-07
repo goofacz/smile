@@ -25,6 +25,12 @@ namespace smile {
 class RadioNode : public omnetpp::cSimpleModule
 {
  public:
+  using TxStateChangedCallback =
+      std::function<void(inet::physicallayer::IRadio::TransmissionState)>;
+  using RxStateChangedCallback =
+      std::function<void(inet::physicallayer::IRadio::ReceptionState)>;
+
+ public:
   RadioNode() = default;
   RadioNode(const RadioNode& source) = delete;
   RadioNode(RadioNode&& source) = delete;
@@ -36,6 +42,9 @@ class RadioNode : public omnetpp::cSimpleModule
   inet::MACAddress getMACAddress() const;
   const inet::Coord& getCurrentPosition() const;
 
+  void addTxStateChangedCallback(TxStateChangedCallback callback);
+  void addRxStateChangedCallback(RxStateChangedCallback callback);
+
  protected:
   void initialize(int stage) override;
 
@@ -43,13 +52,25 @@ class RadioNode : public omnetpp::cSimpleModule
   int numInitStages() const override;
 
   void setupMobilityListeners();
+  void setupNicListeners();
 
   void mobilityStateChangedCallback(omnetpp::cComponent* source,
                                     simsignal_t signalID,
                                     omnetpp::cObject* value,
                                     omnetpp::cObject* details);
 
+  void txStateChangedCallback(cComponent* source, simsignal_t signalID,
+                              long value, cObject* details);
+
+  void rxStateChangedCallback(cComponent* source, simsignal_t signalID,
+                              long value, cObject* details);
+
   Listener<omnetpp::cObject*> mobilityStateChangedListener;
+  Listener<long> txStateChangedListener;
+  Listener<long> rxStateChangedListener;
+
+  std::vector<TxStateChangedCallback> txStateChangedcallbacks;
+  std::vector<RxStateChangedCallback> rxStateChangedcallbacks;
   inet::Coord currentPosition;
 };
 

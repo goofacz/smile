@@ -16,6 +16,7 @@
 #include <cassert>
 
 #include "inet/common/INETDefs.h"
+#include "inet/physicallayer/common/packetlevel/Radio.h"
 #include "inet/physicallayer/contract/packetlevel/IRadio.h"
 
 #include "RadioNode.h"
@@ -29,6 +30,7 @@ void RadioNode::initialize(int stage)
   cModule::initialize(stage);
   if (stage == inet::INITSTAGE_PHYSICAL_ENVIRONMENT_2) {
     setupMobilityListeners();
+    setupNicListeners();
   }
 }
 
@@ -51,6 +53,16 @@ const inet::Coord& RadioNode::getCurrentPosition() const
   return currentPosition;
 }
 
+void RadioNode::addTxStateChangedCallback(TxStateChangedCallback callback)
+{
+    txStateChangedcallbacks.emplace_back (std::move (callback));
+}
+
+void RadioNode::addRxStateChangedCallback(RxStateChangedCallback callback)
+{
+    rxStateChangedcallbacks.emplace_back (std::move (callback));
+}
+
 void RadioNode::mobilityStateChangedCallback(omnetpp::cComponent* source,
                                              simsignal_t signalID,
                                              omnetpp::cObject* value,
@@ -60,6 +72,28 @@ void RadioNode::mobilityStateChangedCallback(omnetpp::cComponent* source,
   assert(mobility);
   currentPosition = mobility->getCurrentPosition();
   EV_DETAIL << "Current position: " << currentPosition << endl;
+}
+
+void RadioNode::txStateChangedCallback(cComponent* source, simsignal_t signalID,
+                                       long value, cObject* details)
+{
+  const auto state =
+      static_cast<inet::physicallayer::IRadio::TransmissionState>(value);
+  for (const auto& callback : txStateChangedcallbacks) {
+    assert(callback);
+    callback(state);
+  }
+}
+
+void RadioNode::rxStateChangedCallback(cComponent* source, simsignal_t signalID,
+                                       long value, cObject* details)
+{
+  const auto state =
+      static_cast<inet::physicallayer::IRadio::ReceptionState>(value);
+  for (const auto& callback : rxStateChangedcallbacks) {
+    assert(callback);
+    callback(state);
+  }
 }
 
 void RadioNode::setupMobilityListeners()
@@ -77,6 +111,25 @@ void RadioNode::setupMobilityListeners()
   assert(mobility);
   currentPosition = iMobility->getCurrentPosition();
   EV_DETAIL << "Current position: " << currentPosition << endl;
+}
+
+void RadioNode::setupNicListeners()
+{
+  const auto radio = check_and_cast<inet::physicallayer::Radio*>(
+      getModuleByPath(".nic.radio"));
+  assert(radio);
+
+  txStateChangedListener = [this](auto source, auto signalID, auto value,
+                                  auto details) {
+    this->txStateChangedCallback(source, signalID, value, details);
+  };
+  radio->subscribe("transmissionStateChanged", &txStateChangedListener);
+
+  rxStateChangedListener = [this](auto source, auto signalID, auto value,
+                                  auto details) {
+    this->rxStateChangedCallback(source, signalID, value, details);
+  };
+  radio->subscribe("receptionStateChanged", &rxStateChangedListener);
 }
 
 }  // namespace smile
