@@ -51,6 +51,7 @@ class RadioNode : public omnetpp::cSimpleModule
   int numInitStages() const override;
 
   void setupMobilityListeners();
+
   void setupNicListeners();
 
   void mobilityStateChangedCallback(omnetpp::cComponent* source, simsignal_t signalID,

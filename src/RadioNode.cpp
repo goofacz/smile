@@ -25,20 +25,6 @@ namespace smile {
 
 Define_Module(RadioNode);
 
-void RadioNode::initialize(int stage)
-{
-  cModule::initialize(stage);
-  if (stage == inet::INITSTAGE_PHYSICAL_ENVIRONMENT_2) {
-    setupMobilityListeners();
-    setupNicListeners();
-  }
-}
-
-int RadioNode::numInitStages() const
-{
-  return inet::INITSTAGE_LINK_LAYER_2 + 1;
-}
-
 inet::MACAddress RadioNode::getMACAddress() const
 {
   const auto mac = getModuleByPath(".nic.mac");
@@ -63,33 +49,18 @@ void RadioNode::addRxStateChangedCallback(RxStateChangedCallback callback)
   rxStateChangedcallbacks.emplace_back(std::move(callback));
 }
 
-void RadioNode::mobilityStateChangedCallback(omnetpp::cComponent* source, simsignal_t signalID,
-                                             omnetpp::cObject* value, omnetpp::cObject* details)
+void RadioNode::initialize(int stage)
 {
-  auto mobility = check_and_cast<inet::IMobility*>(value);
-  assert(mobility);
-  currentPosition = mobility->getCurrentPosition();
-  EV_DETAIL << "Current position: " << currentPosition << endl;
-}
-
-void RadioNode::txStateChangedCallback(cComponent* source, simsignal_t signalID, long value,
-                                       cObject* details)
-{
-  const auto state = static_cast<inet::physicallayer::IRadio::TransmissionState>(value);
-  for (const auto& callback : txStateChangedcallbacks) {
-    assert(callback);
-    callback(state);
+  cModule::initialize(stage);
+  if (stage == inet::INITSTAGE_PHYSICAL_ENVIRONMENT_2) {
+    setupMobilityListeners();
+    setupNicListeners();
   }
 }
 
-void RadioNode::rxStateChangedCallback(cComponent* source, simsignal_t signalID, long value,
-                                       cObject* details)
+int RadioNode::numInitStages() const
 {
-  const auto state = static_cast<inet::physicallayer::IRadio::ReceptionState>(value);
-  for (const auto& callback : rxStateChangedcallbacks) {
-    assert(callback);
-    callback(state);
-  }
+  return inet::INITSTAGE_LINK_LAYER_2 + 1;
 }
 
 void RadioNode::setupMobilityListeners()
@@ -123,6 +94,35 @@ void RadioNode::setupNicListeners()
     this->rxStateChangedCallback(source, signalID, value, details);
   };
   radio->subscribe("receptionStateChanged", &rxStateChangedListener);
+}
+
+void RadioNode::mobilityStateChangedCallback(omnetpp::cComponent* source, simsignal_t signalID,
+                                             omnetpp::cObject* value, omnetpp::cObject* details)
+{
+  auto mobility = check_and_cast<inet::IMobility*>(value);
+  assert(mobility);
+  currentPosition = mobility->getCurrentPosition();
+  EV_DETAIL << "Current position: " << currentPosition << endl;
+}
+
+void RadioNode::txStateChangedCallback(cComponent* source, simsignal_t signalID, long value,
+                                       cObject* details)
+{
+  const auto state = static_cast<inet::physicallayer::IRadio::TransmissionState>(value);
+  for (const auto& callback : txStateChangedcallbacks) {
+    assert(callback);
+    callback(state);
+  }
+}
+
+void RadioNode::rxStateChangedCallback(cComponent* source, simsignal_t signalID, long value,
+                                       cObject* details)
+{
+  const auto state = static_cast<inet::physicallayer::IRadio::ReceptionState>(value);
+  for (const auto& callback : rxStateChangedcallbacks) {
+    assert(callback);
+    callback(state);
+  }
 }
 
 }  // namespace smile
