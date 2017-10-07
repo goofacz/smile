@@ -59,6 +59,7 @@ void RadioNode::mobilityStateChangedCallback(omnetpp::cComponent* source,
   auto mobility = check_and_cast<inet::IMobility*>(value);
   assert(mobility);
   currentPosition = mobility->getCurrentPosition();
+  EV_DETAIL << "Current position: " << currentPosition << endl;
 }
 
 void RadioNode::setupMobilityListeners()
@@ -75,6 +76,7 @@ void RadioNode::setupMobilityListeners()
   auto iMobility = check_and_cast<inet::IMobility*>(mobility);
   assert(mobility);
   currentPosition = iMobility->getCurrentPosition();
+  EV_DETAIL << "Current position: " << currentPosition << endl;
 }
 
 }  // namespace smile
