@@ -15,7 +15,7 @@
 
 package smile;
 
-moduleinterface IApplivation
+moduleinterface IApplication
 {
 	gates:
 	    input in;
