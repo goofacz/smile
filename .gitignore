@@ -31,6 +31,12 @@
 *.out
 *.app
 
+# Files
+src/Makefile
+tests/Makefile
+run_clang_format.sh
+
 # Directories
 out/*
 .settings/*
+tests/work/*
