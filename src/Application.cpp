@@ -13,15 +13,32 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 //
 
+#include "inet/common/INETDefs.h"
+#include "inet/common/ModuleAccess.h"
+
 #include "Application.h"
 
 namespace smile {
 
 Define_Module(Application);
 
+void Application::initialize(int stage)
+{
+  cModule::initialize(stage);
+  if (stage == inet::INITSTAGE_APPLICATION_LAYER) {
+    measurementsLogger =
+        inet::getModuleFromPar<MeasurementsLogger>(par("measurementsLogger"), this, true);
+  }
+}
+
 void Application::handleMessage(omnetpp::cMessage* message)
 {
   handleMessage(std::unique_ptr<omnetpp::cMessage>{message});
+}
+
+int Application::numInitStages() const
+{
+  return inet::INITSTAGE_APPLICATION_LAYER + 1;
 }
 
 void Application::handleMessage(std::unique_ptr<omnetpp::cMessage> msg)

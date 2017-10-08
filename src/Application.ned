@@ -20,4 +20,5 @@ simple Application like IApplication
     parameters:
         @class(smile::Application);
         string name = default("");
+        string measurementsLoggerModule = default("measurementsLogger");
 }
