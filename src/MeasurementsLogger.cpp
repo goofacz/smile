@@ -27,6 +27,22 @@ MeasurementsLogger::~MeasurementsLogger()
   logFile.flush();
 }
 
+MeasurementsLogger& MeasurementsLogger::operator<<(const Log& log)
+{
+  std::ostringstream buffer;
+  return *this;
+}
+
+std::string MeasurementsLogger::to_string(FrameDirection direction)
+{
+  switch (direction) {
+    case FrameDirection::TX:
+      return "TX";
+    case FrameDirection::RX:
+      return "RX";
+  }
+}
+
 void MeasurementsLogger::initialize(int stage)
 {
   cModule::initialize(stage);
@@ -80,6 +96,12 @@ void MeasurementsLogger::openFile()
   const auto mode = std::ios_base::out | (overwrite ? std::ios_base::trunc : std::ios_base::ate);
 
   logFile = std::fstream(filePath.str(), mode);
+  if (!logFile.is_open()) {
+    EV_ERROR << "MeasurementsLogger failed to open " << filePath.str() << endl;
+    endSimulation();
+  }
+
+  EV_INFO << "MeasurementsLogger will write logs to " << filePath.str() << endl;
 }
 
 }  // namespace smile

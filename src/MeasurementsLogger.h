@@ -24,10 +24,15 @@ namespace smile {
 class MeasurementsLogger : public omnetpp::cSimpleModule
 {
  public:
-  enum class MessageDirection
+  enum class FrameDirection
   {
     TX,
     RX
+  };
+
+  struct Log
+  {
+    FrameDirection direction;
   };
 
  public:
@@ -39,7 +44,11 @@ class MeasurementsLogger : public omnetpp::cSimpleModule
   MeasurementsLogger& operator=(const MeasurementsLogger& source) = delete;
   MeasurementsLogger& operator=(MeasurementsLogger&& source) = delete;
 
+  MeasurementsLogger& operator<<(const Log& log);
+
  private:
+  static std::string to_string(FrameDirection direction);
+
   void initialize(int stage) override;
 
   int numInitStages() const override;
