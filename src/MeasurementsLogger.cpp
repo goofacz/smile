@@ -47,6 +47,7 @@ void MeasurementsLogger::initialize(int stage)
 {
   cModule::initialize(stage);
   if (stage == inet::INITSTAGE_LOCAL) {
+    openFile();
   }
 }
 
@@ -69,24 +70,20 @@ void MeasurementsLogger::openFile()
 
   const auto directoryPath = directoryPathParameter.stdstringValue();
   if (directoryPath.empty()) {
-    EV_ERROR << "MeasurementsLogger.directoryPath cannot be empty" << endl;
-    endSimulation();
+    throw omnetpp::cRuntimeError{"MeasurementsLogger.directoryPath cannot be empty"};
   }
 
   const auto fileName = fileNameParameter.stdstringValue();
   if (fileName.empty()) {
-    EV_ERROR << "MeasurementsLogger.fileName cannot be empty" << endl;
-    endSimulation();
+    throw omnetpp::cRuntimeError{"MeasurementsLogger.fileName cannot be empty"};
   }
 
   const auto format = formatParameter.stdstringValue();
   if (format.empty()) {
-    EV_ERROR << "MeasurementsLogger.format cannot be empty" << endl;
-    endSimulation();
+    throw omnetpp::cRuntimeError{"MeasurementsLogger.format cannot be empty"};
   }
   if (format != "CSV") {
-    EV_ERROR << "MeasurementsLogger supports only CSV format" << endl;
-    endSimulation();
+    throw omnetpp::cRuntimeError{"MeasurementsLogger supports only CSV format"};
   }
 
   const auto overwrite = overwriteParameter.boolValue();
@@ -97,8 +94,7 @@ void MeasurementsLogger::openFile()
 
   logFile = std::fstream(filePath.str(), mode);
   if (!logFile.is_open()) {
-    EV_ERROR << "MeasurementsLogger failed to open " << filePath.str() << endl;
-    endSimulation();
+    throw omnetpp::cRuntimeError{"MeasurementsLogger failed to open %s", filePath.str().c_str()};
   }
 
   EV_INFO << "MeasurementsLogger will write logs to " << filePath.str() << endl;
