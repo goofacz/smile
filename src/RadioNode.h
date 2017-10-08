@@ -18,6 +18,7 @@
 #include "Listener.h"
 #include "inet/common/geometry/common/Coord.h"
 #include "inet/linklayer/common/MACAddress.h"
+#include "inet/physicallayer/contract/packetlevel/IRadio.h"
 #include "omnetpp.h"
 
 namespace smile {

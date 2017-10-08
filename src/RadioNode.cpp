@@ -17,7 +17,6 @@
 
 #include "inet/common/INETDefs.h"
 #include "inet/physicallayer/common/packetlevel/Radio.h"
-#include "inet/physicallayer/contract/packetlevel/IRadio.h"
 
 #include "RadioNode.h"
 
