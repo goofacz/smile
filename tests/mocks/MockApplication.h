@@ -15,8 +15,8 @@
 
 #pragma once
 
-#include "omnetpp.h"
 #include "Application.h"
+#include "omnetpp.h"
 
 namespace smile {
 namespace mocks {
