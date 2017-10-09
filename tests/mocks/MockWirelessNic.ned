@@ -16,13 +16,36 @@
 package smile.mocks;
 
 import inet.linklayer.contract.IWirelessNic;
+import inet.common.queue.DropTailQueue;
+import inet.linklayer.ideal.IdealMac;
+import inet.physicallayer.idealradio.IdealRadio;
 
-simple MockWirelessNic like IWirelessNic
-{
-    @class(smile::mocks::MockWirelessNic);
+module MockWirelessNic like IWirelessNic
+{        
+    parameters:
+    	@class(smile::mocks::MockWirelessNic);
+        string interfaceTableModule;
+        string energySourceModule = default("");
+        *.interfaceTableModule = default(absPath(interfaceTableModule));
+        *.energySourceModule = default(absPath(energySourceModule));
+        **.bitrate = 1bps;
+        **.communicationRange = 1m;
         
     gates:
         input upperLayerIn;
         output upperLayerOut;
         input radioIn @labels(IdealRadioFrame);
+        
+    submodules:
+        queue: DropTailQueue;
+        mac: IdealMac;
+        radio: IdealRadio;
+        
+    connections:
+        upperLayerIn --> { @display("m=n"); } --> queue.in;
+        queue.out --> mac.upperLayerIn;
+        mac.lowerLayerOut --> radio.upperLayerIn;
+        mac.upperLayerOut --> { @display("m=n"); } --> upperLayerOut;
+        radioIn --> { @display("m=s"); } --> radio.radioIn;
+        radio.upperLayerOut --> mac.lowerLayerIn;
 }
