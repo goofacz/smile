@@ -8,3 +8,10 @@ SMILe allows analyzing and evaluating arbitrary indoor localization methods util
 2. Install OMNeT++ 5.2 (or newer). After extracting tarball remember to edit file `configure.user`. Open it and uncomment variable `CXXFLAGS` and assign it with value `-std=c++14`.
 3. Install INET 3.6.2 (or newer).
 4. Install SMILe. **Important note:** Remember to checkout SMILe next to INET.
+
+## Authors
+
+Tomasz Jankowski, MSc
+Maciej Nikodem, PhD
+
+SMILe is developed at (Wrocław University of Science and Technology](http://pwr.edu.pl/).
