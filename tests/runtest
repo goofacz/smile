@@ -11,7 +11,7 @@ opp_test gen -v *.test || exit 1
 	cd mocks;
 	opp_makemake --make-so -o smile_mocks -f --deep -KINET_PROJ=../../../inet -DINET_IMPORT -I. \
 	             -I$\(INET_PROJ\)/src -L$\(INET_PROJ\)/out/$\(CONFIGNAME\)/src -L../../out//$\(CONFIGNAME\)/src \
-	             -lINET_dbg -lsmile_dbg;
+	             -I../../src -lINET_dbg -lsmile_dbg;
 	$MAKE
 ) || exit 1
 
