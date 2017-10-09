@@ -14,7 +14,7 @@
 
 package smile.mocks;
 
-simple MockApplication like smile.IApplication
+simple MockApplication extends smile.Application
 {
     @class(smile::mocks::MockApplication);
     

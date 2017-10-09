@@ -16,11 +16,12 @@
 #pragma once
 
 #include "omnetpp.h"
+#include "Application.h"
 
 namespace smile {
 namespace mocks {
 
-class MockApplication : public omnetpp::cSimpleModule
+class MockApplication : public Application
 {
  public:
   MockApplication() = default;
