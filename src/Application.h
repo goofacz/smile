@@ -16,9 +16,9 @@
 #pragma once
 
 #include <memory>
-#include "omnetpp.h"
-#include "MeasurementsLogger.h"
 #include "IApplication.h"
+#include "MeasurementsLogger.h"
+#include "omnetpp.h"
 
 namespace smile {
 

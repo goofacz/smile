@@ -27,7 +27,7 @@ void Application::initialize(int stage)
   cModule::initialize(stage);
   if (stage == inet::INITSTAGE_APPLICATION_LAYER) {
     measurementsLogger =
-        inet::getModuleFromPar<MeasurementsLogger>(par("measurementsLogger"), this, true);
+        inet::getModuleFromPar<MeasurementsLogger>(par("measurementsLoggerModule"), this, true);
   }
 }
 
