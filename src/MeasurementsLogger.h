@@ -17,6 +17,7 @@
 
 #include <fstream>
 #include <memory>
+#include "inet/common/geometry/common/Coord.h"
 #include "inet/linklayer/base/MACFrameBase_m.h"
 #include "omnetpp.h"
 
@@ -33,9 +34,15 @@ class MeasurementsLogger : public omnetpp::cSimpleModule
 
   struct Log
   {
-    omnetpp::SimTime timestamp;
-    inet::MACFrameBase& frame;
-    FrameDirection direction;
+    Log(const inet::MACFrameBase& initalFrame, const omnetpp::SimTime& initialSimulationTimestamp,
+        const omnetpp::SimTime& initialNodeTimestamp, const FrameDirection initialDirection,
+        const inet::Coord& initialTruePosition);
+
+    const inet::MACFrameBase& frame;
+    const omnetpp::SimTime simulationTimestamp;
+    const omnetpp::SimTime nodeTimestamp;
+    const FrameDirection direction;
+    const inet::Coord truePosition;
   };
 
  public:

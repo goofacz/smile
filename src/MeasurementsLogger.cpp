@@ -29,7 +29,28 @@ MeasurementsLogger::~MeasurementsLogger()
 
 MeasurementsLogger& MeasurementsLogger::operator<<(const Log& log)
 {
-  std::ostringstream buffer;
+  std::string buffer{50}; // TODO Set better initial size
+  buffer += std::to_string(log.frame.getSrcAddr().getInt());
+  buffer += ",";
+  buffer += std::to_string(log.frame.getDestAddr().getInt());
+  buffer += ",";
+  buffer += std::to_string(log.simulationTimestamp.inUnit(omnetpp::SIMTIME_AS));
+  buffer += ",";
+  buffer += std::to_string(log.nodeTimestamp.inUnit(omnetpp::SIMTIME_AS));
+  buffer += ",";
+  buffer += std::to_string(log.truePosition.x);
+  buffer += ",";
+  buffer += std::to_string(log.truePosition.y);
+  buffer += ",";
+  buffer += std::to_string(log.truePosition.z);
+  buffer += ",";
+  buffer += to_string(log.direction);
+  buffer += ",";
+  buffer += std::to_string(log.frame.getId());
+  buffer += "\n";
+
+  logFile << buffer;
+
   return *this;
 }
 
@@ -88,16 +109,29 @@ void MeasurementsLogger::openFile()
 
   const auto overwrite = overwriteParameter.boolValue();
 
-  std::ostringstream filePath;
-  filePath << directoryPath << '/' << fileName;
+  auto filePath{directoryPath};
+  filePath += "/"; // TODO What about win32's '\'?
+  filePath += fileName;
   const auto mode = std::ios_base::out | (overwrite ? std::ios_base::trunc : std::ios_base::ate);
 
-  logFile = std::fstream(filePath.str(), mode);
+  logFile = std::fstream(filePath, mode);
   if (!logFile.is_open()) {
-    throw omnetpp::cRuntimeError{"MeasurementsLogger failed to open %s", filePath.str().c_str()};
+    throw omnetpp::cRuntimeError{"MeasurementsLogger failed to open %s", filePath.c_str()};
   }
 
-  EV_INFO << "MeasurementsLogger will write logs to " << filePath.str() << endl;
+  EV_INFO << "MeasurementsLogger will write logs to " << filePath << endl;
 }
+
+MeasurementsLogger::Log::Log(const inet::MACFrameBase& initalFrame,
+                             const omnetpp::SimTime& initialSimulationTimestamp,
+                             const omnetpp::SimTime& initialNodeTimestamp,
+                             const FrameDirection initialDirection,
+                             const inet::Coord& initialTruePosition)
+    : frame{initalFrame},
+      simulationTimestamp{initialSimulationTimestamp},
+      nodeTimestamp{initialNodeTimestamp},
+      direction{initialDirection},
+      truePosition{initialTruePosition}
+{}
 
 }  // namespace smile
