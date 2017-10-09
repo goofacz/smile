@@ -21,4 +21,8 @@ simple Application like IApplication
         @class(smile::Application);
         string name = default("");
         string measurementsLoggerModule = default("measurementsLogger");
+
+	gates:
+	    input in;
+	    output out;
 }

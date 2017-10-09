@@ -15,35 +15,22 @@
 
 #pragma once
 
-#include <memory>
 #include "omnetpp.h"
-#include "MeasurementsLogger.h"
-#include "IApplication.h"
 
 namespace smile {
 
-class Application : public omnetpp::cSimpleModule, public IApplication
+class IApplication
 {
  public:
-  Application() = default;
-  Application(const Application& source) = delete;
-  Application(Application&& source) = delete;
-  ~Application() override = default;
+  IApplication(const IApplication& source) = delete;
+  IApplication(IApplication&& source) = delete;
+  virtual ~IApplication() = default;
 
-  Application& operator=(const Application& source) = delete;
-  Application& operator=(Application&& source) = delete;
+  IApplication& operator=(const IApplication& source) = delete;
+  IApplication& operator=(IApplication&& source) = delete;
 
  protected:
-  void initialize(int stage) override;
-
-  virtual void handleMessage(std::unique_ptr<omnetpp::cMessage> msg);
-
-  int numInitStages() const final;
-
-  void handleMessage(omnetpp::cMessage* msg) final;
-
- private:
-  MeasurementsLogger* measurementsLogger{nullptr};
+  IApplication() = default;
 };
 
 }  // namespace smile
