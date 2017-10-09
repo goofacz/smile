@@ -17,8 +17,4 @@ package smile.mocks;
 simple MockApplication extends smile.Application
 {
     @class(smile::mocks::MockApplication);
-    
-	gates:
-	    input in;
-	    output out;
 }

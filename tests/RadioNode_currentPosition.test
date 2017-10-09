@@ -3,12 +3,20 @@ Test current position handling in RadioNode
 
 %file: test.ned
 import smile.RadioNode;
+import smile.MeasurementsLogger;
+import inet.physicallayer.idealradio.IdealRadioMedium;
 
 network Test
 {
     submodules:
+        radioMedium: IdealRadioMedium;
+        measurementsLogger: MeasurementsLogger    {
+            directoryPath = ".";
+            fileName = "tmp";
+        }
+
         TestNode: RadioNode {
-            nicType = "MockWirelessNic";
+            nicType = "IdealWirelessNic";
             mobilityType = "LinearMobility";
             applicationType = "MockApplication";
         }
@@ -21,6 +29,8 @@ cmdenv-express-mode = false
 
 network = Test
 sim-time-limit = 1s
+**.bitrate = 1bps
+**.communicationRange = 1m
 **.mobility.initFromDisplayString = false
 **.mobility.initialX = 10m
 **.mobility.initialY = 10m
@@ -28,25 +38,22 @@ sim-time-limit = 1s
 **.mobility.angle = 0deg
 
 %contains: stdout
-** Event #1  t=0.1  10% completed  (10% total)   Test.TestNode.mobility (LinearMobility, id=6)
 Current position: (10.1, 10, 0)
-** Event #2  t=0.2  20% completed  (19% total)   Test.TestNode.mobility (LinearMobility, id=6)
+%contains: stdout
 Current position: (10.2, 10, 0)
-** Event #3  t=0.3  30% completed  (30% total)   Test.TestNode.mobility (LinearMobility, id=6)
+%contains: stdout
 Current position: (10.3, 10, 0)
-** Event #4  t=0.4  40% completed  (39% total)   Test.TestNode.mobility (LinearMobility, id=6)
+%contains: stdout
 Current position: (10.4, 10, 0)
-** Event #5  t=0.5  50% completed  (50% total)   Test.TestNode.mobility (LinearMobility, id=6)
+%contains: stdout
 Current position: (10.5, 10, 0)
-** Event #6  t=0.6  60% completed  (60% total)   Test.TestNode.mobility (LinearMobility, id=6)
+%contains: stdout
 Current position: (10.6, 10, 0)
-** Event #7  t=0.7  70% completed  (70% total)   Test.TestNode.mobility (LinearMobility, id=6)
+%contains: stdout
 Current position: (10.7, 10, 0)
-** Event #8  t=0.8  80% completed  (80% total)   Test.TestNode.mobility (LinearMobility, id=6)
+%contains: stdout
 Current position: (10.8, 10, 0)
-** Event #9  t=0.9  90% completed  (89% total)   Test.TestNode.mobility (LinearMobility, id=6)
+%contains: stdout
 Current position: (10.9, 10, 0)
-** Event #10  t=1  100% completed  (100% total)   Test.TestNode.mobility (LinearMobility, id=6)
+%contains: stdout
 Current position: (11, 10, 0)
-** Event #11  t=1  100% completed  (100% total)
-
