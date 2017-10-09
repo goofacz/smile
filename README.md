@@ -12,6 +12,8 @@ SMILe allows analyzing and evaluating arbitrary indoor localization methods util
 ## Authors
 
 Tomasz Jankowski, MSc
+
 Maciej Nikodem, PhD
 
-SMILe is developed at (Wrocław University of Science and Technology](http://pwr.edu.pl/).
+
+SMILe is developed at [Wrocław University of Science and Technology](http://pwr.edu.pl/).
