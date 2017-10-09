@@ -17,6 +17,7 @@
 
 #include <fstream>
 #include <memory>
+#include "inet/linklayer/base/MACFrameBase_m.h"
 #include "omnetpp.h"
 
 namespace smile {
@@ -32,6 +33,8 @@ class MeasurementsLogger : public omnetpp::cSimpleModule
 
   struct Log
   {
+    omnetpp::SimTime timestamp;
+    inet::MACFrameBase& frame;
     FrameDirection direction;
   };
 
