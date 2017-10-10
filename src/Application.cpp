@@ -33,7 +33,13 @@ void Application::initialize(int stage)
 
 void Application::handleMessage(omnetpp::cMessage* message)
 {
-  handleMessage(std::unique_ptr<omnetpp::cMessage>{message});
+  auto frame = dynamic_cast<inet::MACFrameBase*>(message);
+  if (frame) {
+    omnetpp::SimTime timestamp;  // TODO get from HW clock model
+    handleReceivedFrame(std::unique_ptr<inet::MACFrameBase>{frame}, timestamp);
+  } else {
+    handleMessage(std::unique_ptr<omnetpp::cMessage>{message});
+  }
 }
 
 int Application::numInitStages() const
@@ -45,6 +51,24 @@ void Application::handleMessage(std::unique_ptr<omnetpp::cMessage> msg)
 {
   EV_WARN << "Application::handleMessage(std::unique_ptr<omnetpp::cMessage>) should be overridden!"
           << std::endl;
+}
+
+void Application::handleReceivedFrame(std::unique_ptr<inet::MACFrameBase> frame,
+                                      const omnetpp::SimTime& receptionTimestamp)
+{
+  EV_DETAIL << "Application::handleReceivedFrame) should be overridden!" << endl;
+}
+
+void Application::handleTransmittedFrame(const std::unique_ptr<inet::MACFrameBase>& frame,
+                                         const omnetpp::SimTime& transmissionTimestamp)
+{
+  EV_DETAIL << "Application::handleReceivedFrame) should be overridden!" << endl;
+}
+
+void Application::scheduleFrameTransmission(std::unique_ptr<inet::MACFrameBase> frame,
+                                            const omnetpp::SimTime& delay)
+{
+  // TODO
 }
 
 }  // namespace smile

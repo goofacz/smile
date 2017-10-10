@@ -18,6 +18,7 @@
 #include <memory>
 #include "IApplication.h"
 #include "MeasurementsLogger.h"
+#include "inet/linklayer/base/MACFrameBase_m.h"
 #include "omnetpp.h"
 
 namespace smile {
@@ -37,6 +38,15 @@ class Application : public omnetpp::cSimpleModule, public IApplication
   void initialize(int stage) override;
 
   virtual void handleMessage(std::unique_ptr<omnetpp::cMessage> msg);
+
+  virtual void handleReceivedFrame(std::unique_ptr<inet::MACFrameBase> frame,
+                                   const omnetpp::SimTime& receptionTimestamp);
+
+  virtual void handleTransmittedFrame(const std::unique_ptr<inet::MACFrameBase>& frame,
+                                      const omnetpp::SimTime& transmissionTimestamp);
+
+  void scheduleFrameTransmission(std::unique_ptr<inet::MACFrameBase> frame,
+                                 const omnetpp::SimTime& delay);
 
   int numInitStages() const final;
 
