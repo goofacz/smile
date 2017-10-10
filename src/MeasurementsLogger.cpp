@@ -14,6 +14,7 @@
 //
 
 #include <cassert>
+#include <type_traits>
 #include "inet/common/INETDefs.h"
 
 #include "MeasurementsLogger.h"
@@ -29,7 +30,7 @@ MeasurementsLogger::~MeasurementsLogger()
 
 MeasurementsLogger& MeasurementsLogger::operator<<(const Log& log)
 {
-  std::string buffer{50}; // TODO Set better initial size
+  std::string buffer{50};  // TODO Set better initial size
   buffer += std::to_string(log.frame.getSrcAddr().getInt());
   buffer += ",";
   buffer += std::to_string(log.frame.getDestAddr().getInt());
@@ -61,6 +62,10 @@ std::string MeasurementsLogger::to_string(FrameDirection direction)
       return "TX";
     case FrameDirection::RX:
       return "RX";
+    default:
+      throw omnetpp::cRuntimeError(
+          "Unknown or invalid smile::MeasurementsLogger::FrameDirection value: %d",
+          static_cast<std::underlying_type<decltype(direction)>::type>(direction));
   }
 }
 
@@ -110,7 +115,7 @@ void MeasurementsLogger::openFile()
   const auto overwrite = overwriteParameter.boolValue();
 
   auto filePath{directoryPath};
-  filePath += "/"; // TODO What about win32's '\'?
+  filePath += "/";  // TODO What about win32's '\'?
   filePath += fileName;
   const auto mode = std::ios_base::out | (overwrite ? std::ios_base::trunc : std::ios_base::ate);
 
@@ -132,6 +137,7 @@ MeasurementsLogger::Log::Log(const inet::MACFrameBase& initalFrame,
       nodeTimestamp{initialNodeTimestamp},
       direction{initialDirection},
       truePosition{initialTruePosition}
-{}
+{
+}
 
 }  // namespace smile
