@@ -30,7 +30,9 @@ MeasurementsLogger::~MeasurementsLogger()
 
 MeasurementsLogger& MeasurementsLogger::operator<<(const Log& log)
 {
-  std::string buffer{50};  // TODO Set better initial size
+  std::string buffer;
+  buffer.reserve(128);
+
   buffer += std::to_string(log.frame.getSrcAddr().getInt());
   buffer += ",";
   buffer += std::to_string(log.frame.getDestAddr().getInt());
