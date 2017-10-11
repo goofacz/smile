@@ -1,0 +1,73 @@
+%includes:
+#include "../../src/MeasurementsLogger.h"
+
+%module: LogGenerator
+using namespace inet;
+using namespace smile;
+
+class LogGenerator : public cSimpleModule
+{
+  public:
+    LogGenerator() = default;
+    void initialize(int stage) override;
+    int numInitStages() const override;
+};
+
+Define_Module(LogGenerator);
+
+void LogGenerator::initialize(int stage)
+{
+	cSimpleModule::initialize(stage);
+	if(stage != INITSTAGE_APPLICATION_LAYER)	{
+		return;
+	}
+	
+    auto logger = check_and_cast<MeasurementsLogger*>(getModuleByPath("^.measurementsLogger"));
+
+    MACFrameBase frame1;
+    frame1.setSrcAddr(MACAddress{"aa:bb:cc:dd:ee:ff"});
+    frame1.setDestAddr(MACAddress{"11:22:33:44:55:66"});
+    
+    MACFrameBase frame2;
+    frame2.setSrcAddr(MACAddress{"11:22:33:44:55:66"});
+    frame2.setDestAddr(MACAddress{"aa:bb:cc:dd:ee:ff"});
+    
+    *logger << MeasurementsLogger::Log{frame1, SimTime{1.0}, SimTime{2.4}, MeasurementsLogger::FrameDirection::TX, Coord{1.0, 2.0, 3.0}};
+    *logger << MeasurementsLogger::Log{frame2, SimTime{1.1}, SimTime{1.4}, MeasurementsLogger::FrameDirection::RX, Coord{10.0, 20.0, 33.0}};
+
+}
+
+int LogGenerator::numInitStages() const
+{
+  return inet::INITSTAGE_APPLICATION_LAYER + 1;
+}
+
+%file: test.ned
+import smile.MeasurementsLogger;
+
+simple LogGenerator
+{
+
+}
+
+network Test
+{
+    submodules:
+        measurementsLogger: MeasurementsLogger    {
+            directoryPath = ".";
+            fileName = "log.csv";
+            format = "CSV";
+        }
+        
+        logGenerator: LogGenerator;
+}
+
+%inifile: omnet.ini
+[General]
+cmdenv-express-mode = false
+**.cmdenv-log-level = detail
+network = Test
+
+%contains: log.csv
+187723572702975,18838586676582,1000000000000000000,2400000000000000000,1.000000,2.000000,3.000000,TX,0
+18838586676582,187723572702975,1100000000000000000,1400000000000000000,10.000000,20.000000,33.000000,RX,1

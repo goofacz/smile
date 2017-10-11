@@ -1,0 +1,21 @@
+%file: test.ned
+import smile.MeasurementsLogger;
+
+network Test
+{
+    submodules:
+        measurementsLogger: MeasurementsLogger    {
+            directoryPath = ".";
+            fileName = "log.csv";
+            format = "CSV";
+        }
+}
+
+%inifile: omnet.ini
+[General]
+cmdenv-express-mode = false
+**.cmdenv-log-level = detail
+network = Test
+
+%contains: stdout
+MeasurementsLogger will write logs to ./log.csv
