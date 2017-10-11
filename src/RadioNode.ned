@@ -30,6 +30,7 @@ module RadioNode
         string nicType = default("");
         string mobilityType = default("");
         string applicationType = default("");
+        string clockType = default("IdealClock");
     
     gates:
         input radioIn @directIn;
@@ -40,6 +41,7 @@ module RadioNode
         nic: <nicType> like IWirelessNic;
         mobility: <mobilityType> like IMobility;
         application: <applicationType> like IApplication;
+        clock: <clockType> like IClock;
 
     connections:
         radioIn --> nic.radioIn;        
