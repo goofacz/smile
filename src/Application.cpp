@@ -26,8 +26,10 @@ void Application::initialize(int stage)
 {
   cModule::initialize(stage);
   if (stage == inet::INITSTAGE_APPLICATION_LAYER) {
-    measurementsLogger =
-        inet::getModuleFromPar<MeasurementsLogger>(par("measurementsLoggerModule"), this, true);
+    auto& measurementsLoggerParaeter = par("measurementsLoggerModule");
+    measurementsLogger = inet::getModuleFromPar<MeasurementsLogger>(measurementsLoggerParaeter, this, true);
+
+    clock = check_and_cast<IClock*>(getModuleByPath("^.clock"));
   }
 }
 
@@ -35,8 +37,8 @@ void Application::handleMessage(omnetpp::cMessage* message)
 {
   auto frame = dynamic_cast<inet::MACFrameBase*>(message);
   if (frame) {
-    omnetpp::SimTime timestamp;  // TODO get from HW clock model
-    handleReceivedFrame(std::unique_ptr<inet::MACFrameBase>{frame}, timestamp);
+    const auto clockTimestamp = clock->getClockTimestamp();
+    handleReceivedFrame(std::unique_ptr<inet::MACFrameBase>{frame}, clockTimestamp);
   } else {
     handleMessage(std::unique_ptr<omnetpp::cMessage>{message});
   }
@@ -68,7 +70,10 @@ void Application::handleTransmittedFrame(const std::unique_ptr<inet::MACFrameBas
 void Application::scheduleFrameTransmission(std::unique_ptr<inet::MACFrameBase> frame,
                                             const omnetpp::SimTime& delay)
 {
-  // TODO
+  const auto currentTimestamp = simTime();
+  const auto futureTimestamp = clock->getSimulationTimestamp(delay);
+  const auto correctedDelay = futureTimestamp - currentTimestamp;
+  sendDelayed(frame.release(), correctedDelay, "out");
 }
 
 }  // namespace smile

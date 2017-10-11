@@ -17,6 +17,7 @@
 
 #include <memory>
 #include "IApplication.h"
+#include "IClock.h"
 #include "MeasurementsLogger.h"
 #include "inet/linklayer/base/MACFrameBase_m.h"
 #include "omnetpp.h"
@@ -45,8 +46,7 @@ class Application : public omnetpp::cSimpleModule, public IApplication
   virtual void handleTransmittedFrame(const std::unique_ptr<inet::MACFrameBase>& frame,
                                       const omnetpp::SimTime& transmissionTimestamp);
 
-  void scheduleFrameTransmission(std::unique_ptr<inet::MACFrameBase> frame,
-                                 const omnetpp::SimTime& delay);
+  void scheduleFrameTransmission(std::unique_ptr<inet::MACFrameBase> frame, const omnetpp::SimTime& delay);
 
   int numInitStages() const final;
 
@@ -54,6 +54,7 @@ class Application : public omnetpp::cSimpleModule, public IApplication
 
  private:
   MeasurementsLogger* measurementsLogger{nullptr};
+  IClock* clock{nullptr};
 };
 
 }  // namespace smile
