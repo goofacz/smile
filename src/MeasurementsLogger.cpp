@@ -137,7 +137,6 @@ MeasurementsLogger::Log::Log(const inet::MACFrameBase& initalFrame,
       nodeTimestamp{initialNodeTimestamp},
       direction{initialDirection},
       truePosition{initialTruePosition}
-{
-}
+{}
 
 }  // namespace smile
