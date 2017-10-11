@@ -26,8 +26,7 @@ template <typename T>
 class Listener : public omnetpp::cListener
 {
  public:
-  using Callback =
-      std::function<void(omnetpp::cComponent*, omnetpp::simsignal_t, T, omnetpp::cObject*)>;
+  using Callback = std::function<void(omnetpp::cComponent*, omnetpp::simsignal_t, T, omnetpp::cObject*)>;
 
  public:
   Listener();

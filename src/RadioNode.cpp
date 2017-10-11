@@ -104,8 +104,7 @@ void RadioNode::mobilityStateChangedCallback(omnetpp::cComponent* source, simsig
   EV_DETAIL << "Current position: " << currentPosition << endl;
 }
 
-void RadioNode::txStateChangedCallback(cComponent* source, simsignal_t signalID, long value,
-                                       cObject* details)
+void RadioNode::txStateChangedCallback(cComponent* source, simsignal_t signalID, long value, cObject* details)
 {
   const auto state = static_cast<inet::physicallayer::IRadio::TransmissionState>(value);
   for (const auto& callback : txStateChangedcallbacks) {
@@ -114,8 +113,7 @@ void RadioNode::txStateChangedCallback(cComponent* source, simsignal_t signalID,
   }
 }
 
-void RadioNode::rxStateChangedCallback(cComponent* source, simsignal_t signalID, long value,
-                                       cObject* details)
+void RadioNode::rxStateChangedCallback(cComponent* source, simsignal_t signalID, long value, cObject* details)
 {
   const auto state = static_cast<inet::physicallayer::IRadio::ReceptionState>(value);
   for (const auto& callback : rxStateChangedcallbacks) {

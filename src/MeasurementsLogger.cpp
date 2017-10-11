@@ -63,9 +63,8 @@ std::string MeasurementsLogger::to_string(FrameDirection direction)
     case FrameDirection::RX:
       return "RX";
     default:
-      throw omnetpp::cRuntimeError(
-          "Unknown or invalid smile::MeasurementsLogger::FrameDirection value: %d",
-          static_cast<std::underlying_type<decltype(direction)>::type>(direction));
+      throw omnetpp::cRuntimeError("Unknown or invalid smile::MeasurementsLogger::FrameDirection value: %d",
+                                   static_cast<std::underlying_type<decltype(direction)>::type>(direction));
   }
 }
 
@@ -130,8 +129,7 @@ void MeasurementsLogger::openFile()
 MeasurementsLogger::Log::Log(const inet::MACFrameBase& initalFrame,
                              const omnetpp::SimTime& initialSimulationTimestamp,
                              const omnetpp::SimTime& initialNodeTimestamp,
-                             const FrameDirection initialDirection,
-                             const inet::Coord& initialTruePosition)
+                             const FrameDirection initialDirection, const inet::Coord& initialTruePosition)
     : frame{initalFrame},
       simulationTimestamp{initialSimulationTimestamp},
       nodeTimestamp{initialNodeTimestamp},
