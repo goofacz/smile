@@ -40,7 +40,7 @@ class MeasurementsLogger : public omnetpp::cSimpleModule
 
     const inet::MACFrameBase& frame;
     const omnetpp::SimTime simulationTimestamp;
-    const omnetpp::SimTime nodeTimestamp;
+    const omnetpp::SimTime clockTimestamp;
     const FrameDirection direction;
     const inet::Coord truePosition;
   };

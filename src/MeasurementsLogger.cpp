@@ -39,7 +39,7 @@ MeasurementsLogger& MeasurementsLogger::operator<<(const Log& log)
   buffer += ",";
   buffer += std::to_string(log.simulationTimestamp.inUnit(omnetpp::SIMTIME_AS));
   buffer += ",";
-  buffer += std::to_string(log.nodeTimestamp.inUnit(omnetpp::SIMTIME_AS));
+  buffer += std::to_string(log.clockTimestamp.inUnit(omnetpp::SIMTIME_AS));
   buffer += ",";
   buffer += std::to_string(log.truePosition.x);
   buffer += ",";
@@ -134,7 +134,7 @@ MeasurementsLogger::Log::Log(const inet::MACFrameBase& initalFrame,
                              const FrameDirection initialDirection, const inet::Coord& initialTruePosition)
     : frame{initalFrame},
       simulationTimestamp{initialSimulationTimestamp},
-      nodeTimestamp{initialNodeTimestamp},
+      clockTimestamp{initialNodeTimestamp},
       direction{initialDirection},
       truePosition{initialTruePosition}
 {}
