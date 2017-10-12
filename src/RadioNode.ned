@@ -30,7 +30,7 @@ module RadioNode
         string nicType = default("");
         string mobilityType = default("");
         string applicationType = default("");
-        string clockType = default("IdealClock");
+        string clockType = default("");
     
     gates:
         input radioIn @directIn;
