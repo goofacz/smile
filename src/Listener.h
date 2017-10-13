@@ -29,7 +29,7 @@ class Listener : public omnetpp::cListener
   using Callback = std::function<void(omnetpp::cComponent*, omnetpp::simsignal_t, T, omnetpp::cObject*)>;
 
  public:
-  Listener();
+  Listener() = default;;
   explicit Listener(Callback callback);
   Listener(Listener&& source) = delete;
   ~Listener() = default;
@@ -42,12 +42,8 @@ class Listener : public omnetpp::cListener
                      omnetpp::cObject* details) override;
 
  private:
-  Callback callback;
+  Callback callback{nullptr};
 };
-
-template <typename T>
-Listener<T>::Listener() : Listener(nullptr)
-{}
 
 template <typename T>
 Listener<T>::Listener(Callback callback) : callback{std::move(callback)}
