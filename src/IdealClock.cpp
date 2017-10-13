@@ -26,9 +26,9 @@ omnetpp::SimTime IdealClock::getClockTimestamp()
   return simTime();
 }
 
-omnetpp::SimTime IdealClock::getSimulationTimestamp(const omnetpp::SimTime& delay)
+IdealClock::OptionalSimTime IdealClock::convertToSimulationTimestamp(const omnetpp::SimTime& timestamp)
 {
-  return simTime() + delay;
+  return timestamp;
 }
 
 }  // namespace smile

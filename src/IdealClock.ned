@@ -15,7 +15,7 @@
 
 package smile;
 
-simple IdealClock like IClock
+simple IdealClock extends Clock
 {
     parameters:
         @class(smile::IdealClock);

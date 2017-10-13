@@ -15,12 +15,12 @@
 
 #pragma once
 
-#include "IClock.h"
+#include "Clock.h"
 #include "omnetpp.h"
 
 namespace smile {
 
-class IdealClock : public omnetpp::cSimpleModule, public IClock
+class IdealClock : public Clock
 {
  public:
   IdealClock() = default;
@@ -32,7 +32,7 @@ class IdealClock : public omnetpp::cSimpleModule, public IClock
   IdealClock& operator=(IdealClock&& source) = delete;
 
   omnetpp::SimTime getClockTimestamp() override;
-  omnetpp::SimTime getSimulationTimestamp(const omnetpp::SimTime& delay) override;
+  OptionalSimTime convertToSimulationTimestamp(const omnetpp::SimTime& timestamp) override;
 };
 
 }  // namespace smile
