@@ -15,12 +15,16 @@
 
 #pragma once
 
+#include <experimental/optional>
 #include "omnetpp.h"
 
 namespace smile {
 
 class IClock
 {
+ public:
+  using OptionalSimTime = std::experimental::optional<omnetpp::SimTime>;
+
  public:
   IClock(const IClock& source) = delete;
   IClock(IClock&& source) = delete;
@@ -30,7 +34,9 @@ class IClock
   IClock& operator=(IClock&& source) = delete;
 
   virtual omnetpp::SimTime getClockTimestamp() = 0;
-  virtual omnetpp::SimTime getSimulationTimestamp(const omnetpp::SimTime& delay) = 0;
+  virtual OptionalSimTime convertToSimulationTimestamp(const omnetpp::SimTime& timestamp) = 0;
+
+  static omnetpp::simsignal_t windowUpdateSignal;
 
  protected:
   IClock() = default;
