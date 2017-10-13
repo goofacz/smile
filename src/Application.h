@@ -16,6 +16,7 @@
 #pragma once
 
 #include <memory>
+#include <queue>
 #include "IApplication.h"
 #include "IClock.h"
 #include "MeasurementsLogger.h"
@@ -26,6 +27,23 @@ namespace smile {
 
 class Application : public omnetpp::cSimpleModule, public IApplication
 {
+ public:
+  struct PendingTxFrame
+  {
+    PendingTxFrame(std::unique_ptr<inet::MACFrameBase> newFrame, const omnetpp::SimTime& newClockTimestamp);
+    PendingTxFrame(const PendingTxFrame& source) = delete;
+    PendingTxFrame(PendingTxFrame&& source) = default;
+    ~PendingTxFrame() = default;
+
+    PendingTxFrame& operator=(const PendingTxFrame& source) = delete;
+    PendingTxFrame& operator=(PendingTxFrame&& source) = default;
+
+    bool operator<(const PendingTxFrame& instance) const noexcept;
+
+    std::unique_ptr<inet::MACFrameBase> frame;
+    omnetpp::SimTime clockTimestamp;
+  };
+
  public:
   Application() = default;
   Application(const Application& source) = delete;
@@ -55,6 +73,7 @@ class Application : public omnetpp::cSimpleModule, public IApplication
  private:
   MeasurementsLogger* measurementsLogger{nullptr};
   IClock* clock{nullptr};
+  std::priority_queue<PendingTxFrame> pendingTxFrames;
 };
 
 }  // namespace smile

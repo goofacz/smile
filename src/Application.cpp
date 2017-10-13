@@ -70,10 +70,25 @@ void Application::handleTransmittedFrame(const std::unique_ptr<inet::MACFrameBas
 void Application::scheduleFrameTransmission(std::unique_ptr<inet::MACFrameBase> frame,
                                             const omnetpp::SimTime& delay)
 {
-  const auto currentTimestamp = simTime();
-  const auto futureTimestamp = clock->getSimulationTimestamp(delay);
-  const auto correctedDelay = futureTimestamp - currentTimestamp;
-  sendDelayed(frame.release(), correctedDelay, "out");
+  const auto txClockTimestamp = clock->getClockTimestamp() + delay;
+  const auto txSimulationTimestamp = clock->convertToSimulationTimestamp(txClockTimestamp);
+  if (txSimulationTimestamp) {
+    const auto correctedDelay = *txSimulationTimestamp - simTime();
+    sendDelayed(frame.release(), correctedDelay, "out");
+  } else {
+    pendingTxFrames.emplace(std::move(frame), txClockTimestamp);
+    // TODO Subscribe to IClock:windowUpdate
+  }
+}
+
+Application::PendingTxFrame::PendingTxFrame(std::unique_ptr<inet::MACFrameBase> newFrame,
+                                            const omnetpp::SimTime& newClockTimestamp)
+    : frame{std::move(newFrame)}, clockTimestamp{newClockTimestamp}
+{}
+
+bool Application::PendingTxFrame::operator<(const PendingTxFrame& instance) const noexcept
+{
+  return clockTimestamp < instance.clockTimestamp;
 }
 
 }  // namespace smile
