@@ -15,7 +15,7 @@
 
 #pragma once
 
-#include "Listener.h"
+#include <functional>
 #include "inet/common/geometry/common/Coord.h"
 #include "inet/linklayer/common/MACAddress.h"
 #include "inet/physicallayer/contract/packetlevel/IRadio.h"
@@ -23,7 +23,7 @@
 
 namespace smile {
 
-class RadioNode : public omnetpp::cSimpleModule
+class RadioNode : public omnetpp::cSimpleModule, public omnetpp::cListener
 {
  public:
   using TxStateChangedCallback = std::function<void(inet::physicallayer::IRadio::TransmissionState)>;
@@ -47,23 +47,21 @@ class RadioNode : public omnetpp::cSimpleModule
  protected:
   void initialize(int stage) override;
 
+  void receiveSignal(omnetpp::cComponent* source, omnetpp::simsignal_t signalID, long value,
+                     omnetpp::cObject* details) override;
+
+  void receiveSignal(omnetpp::cComponent* source, omnetpp::simsignal_t signalID, omnetpp::cObject* value,
+                     omnetpp::cObject* details) override;
+
  private:
   int numInitStages() const override;
 
-  void setupMobilityListeners();
+  void mobilityStateChangedCallback(omnetpp::cComponent* source, simsignal_t signalID, omnetpp::cObject* value,
+                                    omnetpp::cObject* details);
 
-  void setupNicListeners();
+  void txStateChangedCallback(inet::physicallayer::IRadio::TransmissionState state);
 
-  void mobilityStateChangedCallback(omnetpp::cComponent* source, simsignal_t signalID,
-                                    omnetpp::cObject* value, omnetpp::cObject* details);
-
-  void txStateChangedCallback(cComponent* source, simsignal_t signalID, long value, cObject* details);
-
-  void rxStateChangedCallback(cComponent* source, simsignal_t signalID, long value, cObject* details);
-
-  Listener<omnetpp::cObject*> mobilityStateChangedListener;
-  Listener<long> txStateChangedListener;
-  Listener<long> rxStateChangedListener;
+  void rxStateChangedCallback(inet::physicallayer::IRadio::ReceptionState state);
 
   std::vector<TxStateChangedCallback> txStateChangedcallbacks;
   std::vector<RxStateChangedCallback> rxStateChangedcallbacks;
