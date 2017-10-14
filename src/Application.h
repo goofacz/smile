@@ -16,7 +16,7 @@
 #pragma once
 
 #include <memory>
-#include <queue>
+#include <vector>
 #include "IApplication.h"
 #include "IClock.h"
 #include "MeasurementsLogger.h"
@@ -25,27 +25,13 @@
 
 namespace smile {
 
-class Application : public omnetpp::cSimpleModule, public IApplication
+class Application : public omnetpp::cSimpleModule, public omnetpp::cListener, public IApplication
 {
- public:
-  struct PendingTxFrame
-  {
-    PendingTxFrame(std::unique_ptr<inet::MACFrameBase> newFrame, const omnetpp::SimTime& newClockTimestamp);
-    PendingTxFrame(const PendingTxFrame& source) = delete;
-    PendingTxFrame(PendingTxFrame&& source) = default;
-    ~PendingTxFrame() = default;
-
-    PendingTxFrame& operator=(const PendingTxFrame& source) = delete;
-    PendingTxFrame& operator=(PendingTxFrame&& source) = default;
-
-    bool operator<(const PendingTxFrame& instance) const noexcept;
-
-    std::unique_ptr<inet::MACFrameBase> frame;
-    omnetpp::SimTime clockTimestamp;
-  };
+ private:
+  using PendingTxFrame = std::pair<std::unique_ptr<inet::MACFrameBase>, omnetpp::SimTime>;
 
  public:
-  Application() = default;
+  Application();
   Application(const Application& source) = delete;
   Application(Application&& source) = delete;
   ~Application() override = default;
@@ -56,7 +42,14 @@ class Application : public omnetpp::cSimpleModule, public IApplication
  protected:
   void initialize(int stage) override;
 
-  virtual void handleMessage(std::unique_ptr<omnetpp::cMessage> msg);
+  int numInitStages() const final;
+
+  void handleMessage(omnetpp::cMessage* msg) final;
+
+  void receiveSignal(omnetpp::cComponent* source, omnetpp::simsignal_t signalID, const omnetpp::SimTime& value,
+                     omnetpp::cObject* details) override;
+
+  virtual void handleMessage(std::unique_ptr<omnetpp::cMessage> message);
 
   virtual void handleReceivedFrame(std::unique_ptr<inet::MACFrameBase> frame,
                                    const omnetpp::SimTime& receptionTimestamp);
@@ -66,14 +59,17 @@ class Application : public omnetpp::cSimpleModule, public IApplication
 
   void scheduleFrameTransmission(std::unique_ptr<inet::MACFrameBase> frame, const omnetpp::SimTime& delay);
 
-  int numInitStages() const final;
-
-  void handleMessage(omnetpp::cMessage* msg) final;
+  void processPendingTxMessages(const omnetpp::SimTime& clockWindowEndTimestamp);
 
  private:
+  void storePendingTxFrame(std::unique_ptr<inet::MACFrameBase> frame, const omnetpp::SimTime& txClockTimestamp);
+
+  void transmitFrame(std::unique_ptr<inet::MACFrameBase> frame, const omnetpp::SimTime& txSimulationTimestamp);
+
   MeasurementsLogger* measurementsLogger{nullptr};
   IClock* clock{nullptr};
-  std::priority_queue<PendingTxFrame> pendingTxFrames;
+  std::vector<PendingTxFrame> pendingTxFrames;
+  const std::unique_ptr<omnetpp::cMessage> processPendingTxFramesMessage;
 };
 
 }  // namespace smile
