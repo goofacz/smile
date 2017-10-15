@@ -107,7 +107,7 @@ void Application::storePendingTxFrame(std::unique_ptr<inet::MACFrameBase> frame,
   }
 
   const auto& destinationAddress = frame->getDestAddr();
-  EV_DETAIL << "Scheduling MAC frame ID" << frame->getId() << " addressed to " << destinationAddress.str()
+  EV_DETAIL << "Scheduling MAC frame ID " << frame->getId() << " addressed to " << destinationAddress.str()
             << " to be transmitted later" << endl;
 
   auto predicate = [](const auto& timestamp, const auto& pendingFrame) { return timestamp < pendingFrame.second; };
@@ -174,7 +174,7 @@ void Application::transmitFrame(std::unique_ptr<inet::MACFrameBase> frame,
                                 const omnetpp::SimTime& txSimulationTimestamp)
 {
   const auto& destinationAddress = frame->getDestAddr();
-  EV_DETAIL << "Passing MAC frame ID" << frame->getId() << " addressed to " << destinationAddress.str()
+  EV_DETAIL << "Passing MAC frame ID " << frame->getId() << " addressed to " << destinationAddress.str()
             << " down to NIC" << endl;
 
   const auto delay = txSimulationTimestamp - simTime();
