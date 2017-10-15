@@ -1,0 +1,48 @@
+
+%file: test.ned
+import smile.RadioNode;
+import smile.MeasurementsLogger;
+import inet.physicallayer.idealradio.IdealRadioMedium;
+
+network Test
+{
+    submodules:
+        radioMedium: IdealRadioMedium;
+        measurementsLogger: MeasurementsLogger    {
+            directoryPath = ".";
+            fileName = "tmp";
+        }
+
+        TestNode1: RadioNode {
+            nicType = "IdealWirelessNic";
+            mobilityType = "LinearMobility";
+            applicationType = "PeriodicSenderApplication";
+            clockType = "IdealClock";
+            
+            nic.mac.address = "DE-AD-BE-EF-10-01";
+        }
+        
+        TestNode2: RadioNode {
+            nicType = "IdealWirelessNic";
+            mobilityType = "LinearMobility";
+            applicationType = "ReceiverApplication";
+            clockType = "IdealClock";
+            
+            nic.mac.address = "DE-AD-BE-EF-10-02";
+            nic.mac.promiscuous = true;
+        }
+}
+
+%inifile: omnet.ini
+[General]
+cmdenv-express-mode = false
+**.cmdenv-log-level = detail
+
+network = Test
+sim-time-limit = 5s
+**.bitrate = 1Mbps
+**.communicationRange = 1m
+**.mobility.initFromDisplayString = false
+**.mobility.initialX = 10m
+**.mobility.initialY = 10m
+**.mobility.initialZ = 10m
