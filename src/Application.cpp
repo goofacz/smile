@@ -143,6 +143,8 @@ void Application::dispatchSelfMessage(omnetpp::cMessage* message)
     handleProcessPendingTxFramesMessage();
     return;
   }
+
+  handleMessage(std::unique_ptr<omnetpp::cMessage>{message});
 }
 
 void Application::dispatchMessage(omnetpp::cMessage* message)
