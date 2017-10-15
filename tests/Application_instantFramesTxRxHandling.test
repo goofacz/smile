@@ -46,3 +46,27 @@ sim-time-limit = 5s
 **.mobility.initialX = 10m
 **.mobility.initialY = 10m
 **.mobility.initialZ = 10m
+
+%contains: stdout
+TEST: Sending MAC frame to 00-00-00-00-00-01
+
+%contains: stdout
+TEST: Sending MAC frame to 00-00-00-00-00-02
+
+%contains: stdout
+TEST: Sending MAC frame to 00-00-00-00-00-03
+
+%contains: stdout
+TEST: Sending MAC frame to 00-00-00-00-00-04
+
+%contains: stdout
+TEST: Received MAC frame from DE-AD-BE-EF-10-01 addressed to 00-00-00-00-00-01
+
+%contains: stdout
+TEST: Received MAC frame from DE-AD-BE-EF-10-01 addressed to 00-00-00-00-00-02
+
+%contains: stdout
+TEST: Received MAC frame from DE-AD-BE-EF-10-01 addressed to 00-00-00-00-00-03
+
+%contains: stdout
+TEST: Received MAC frame from DE-AD-BE-EF-10-01 addressed to 00-00-00-00-00-04
