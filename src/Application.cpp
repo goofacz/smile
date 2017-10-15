@@ -28,6 +28,11 @@ Application::Application() :
     processPendingTxFramesMessage{std::make_unique<omnetpp::cMessage>("processPendingTxFrames")}
 {}
 
+Application::~Application()
+{
+  cancelEvent(processPendingTxFramesMessage.get());
+}
+
 void Application::initialize(int stage)
 {
   cModule::initialize(stage);

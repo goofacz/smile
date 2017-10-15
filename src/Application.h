@@ -36,7 +36,7 @@ class Application : public omnetpp::cSimpleModule, public omnetpp::cListener, pu
   Application();
   Application(const Application& source) = delete;
   Application(Application&& source) = delete;
-  ~Application() override = default;
+  ~Application();
 
   Application& operator=(const Application& source) = delete;
   Application& operator=(Application&& source) = delete;
