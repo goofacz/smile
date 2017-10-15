@@ -43,6 +43,7 @@ class PeriodicSenderApplication final : public Application
 
   const omnetpp::SimTime delay{1, omnetpp::SIMTIME_S};
   std::unique_ptr<omnetpp::cMessage> periodicTxMessage;
+  inet::MACAddress destinationAddress{1};
 };
 
 }  // namespace mocks

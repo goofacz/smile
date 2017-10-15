@@ -50,12 +50,15 @@ void PeriodicSenderApplication::handleMessage(std::unique_ptr<omnetpp::cMessage>
     throw omnetpp::cRuntimeError{"Received unexpected message"};
   }
 
-  const inet::MACAddress broadcastAddress{inet::MACAddress::BROADCAST_ADDRESS};
-  auto frame = createFrame<inet::MACFrameBase>(broadcastAddress);
+  auto frame = createFrame<inet::MACFrameBase>(destinationAddress);
   frame->setBitLength(10);
+
+  EV_DETAIL << "TEST: Sending MAC frame to " << destinationAddress.str() << endl;
 
   scheduleFrameTransmission(std::move(frame), 0);
   scheduleAt(simTime() + delay, message.release());
+
+  destinationAddress = inet::MACAddress{destinationAddress.getInt() + 1};
 }
 
 }  // namespace mocks

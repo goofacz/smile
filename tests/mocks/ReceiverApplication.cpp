@@ -25,8 +25,10 @@ Define_Module(ReceiverApplication);
 void ReceiverApplication::handleReceivedFrame(std::unique_ptr<inet::MACFrameBase> frame,
                                               const omnetpp::SimTime& receptionTimestamp)
 {
-    const auto& sourceAddress = frame->getSrcAddr();
-    EV_DETAIL << "Received MAC frame from " << sourceAddress.str() << endl;
+  const auto& sourceAddress = frame->getSrcAddr();
+  const auto& destinationAddress = frame->getDestAddr();
+  EV_DETAIL << "TEST: Received MAC frame from " << sourceAddress.str() << " addressed to " << destinationAddress.str()
+            << endl;
 }
 
 }  // namespace mocks
