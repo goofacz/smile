@@ -42,7 +42,7 @@ class Application : public omnetpp::cSimpleModule, public omnetpp::cListener, pu
   Application& operator=(Application&& source) = delete;
 
   template <typename Frame, typename... FrameArguments>
-  std::unique_ptr<Frame> createMACFrame(const inet::MACAddress& destinationAddress, FrameArguments&&... frameArguments);
+  std::unique_ptr<Frame> createFrame(const inet::MACAddress& destinationAddress, FrameArguments&&... frameArguments);
 
  protected:
   void initialize(int stage) override;
@@ -95,13 +95,13 @@ class Application : public omnetpp::cSimpleModule, public omnetpp::cListener, pu
 };
 
 template <typename Frame, typename... FrameArguments>
-std::unique_ptr<Frame> Application::createMACFrame(const inet::MACAddress& destinationAddress,
+std::unique_ptr<Frame> Application::createFrame(const inet::MACAddress& destinationAddress,
                                                    FrameArguments&&... frameArguments)
 {
   static_assert(std::is_base_of<inet::MACFrameBase, Frame>::value,
                 "Application::createMACFrame requires Frame to derive from inet::MACFrameBase");
 
-  auto frame = std::make_unique<Frame>(frameArguments...);
+  auto frame = std::make_unique<Frame>(std::forward<FrameArguments>(frameArguments)...);
   const auto& localAddress = radioNode->getMACAddress();
   prepareFrame(*frame, destinationAddress, localAddress);
   return frame;

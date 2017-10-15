@@ -51,7 +51,7 @@ void PeriodicSenderApplication::handleMessage(std::unique_ptr<omnetpp::cMessage>
   }
 
   const inet::MACAddress broadcastAddress{inet::MACAddress::BROADCAST_ADDRESS};
-  auto frame = createMACFrame<inet::MACFrameBase>(broadcastAddress);
+  auto frame = createFrame<inet::MACFrameBase>(broadcastAddress);
   frame->setBitLength(10);
 
   scheduleFrameTransmission(std::move(frame), 0);
