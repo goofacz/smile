@@ -16,9 +16,7 @@
 #include <cassert>
 
 #include "PeriodicSenderApplication.h"
-#include "RadioNode.h"
 #include "inet/linklayer/base/MACFrameBase_m.h"
-#include "inet/linklayer/common/Ieee802Ctrl.h"
 
 namespace smile {
 namespace mocks {
@@ -42,28 +40,21 @@ void PeriodicSenderApplication::initialize(int stage)
   }
 }
 
+void PeriodicSenderApplication::handleTransmittedFrame(const std::unique_ptr<inet::MACFrameBase>& frame,
+                                                       const omnetpp::SimTime& transmissionTimestamp)
+{}
+
 void PeriodicSenderApplication::handleMessage(std::unique_ptr<omnetpp::cMessage> message)
 {
   if (message.get() != periodicTxMessage.get()) {
     throw omnetpp::cRuntimeError{"Received unexpected message"};
   }
 
-  const auto radioNode = check_and_cast<smile::RadioNode*>(getParentModule());
-  const auto localAddress = radioNode->getMACAddress();
   const inet::MACAddress broadcastAddress{inet::MACAddress::BROADCAST_ADDRESS};
-
-  auto controlInformation = std::make_unique<inet::Ieee802Ctrl>();
-  controlInformation->setSourceAddress(localAddress);
-  controlInformation->setDest(broadcastAddress);
-
-  auto frame = std::make_unique<inet::MACFrameBase>();
-  frame->setSrcAddr(localAddress);
-  frame->setDestAddr(broadcastAddress);
-  frame->setControlInfo(controlInformation.release());
+  auto frame = createMACFrame<inet::MACFrameBase>(broadcastAddress);
   frame->setBitLength(10);
 
   scheduleFrameTransmission(std::move(frame), 0);
-
   scheduleAt(simTime() + delay, message.release());
 }
 

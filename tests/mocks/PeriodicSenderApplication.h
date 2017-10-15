@@ -35,6 +35,9 @@ class PeriodicSenderApplication final : public Application
  protected:
   void initialize(int stage) final;
 
+  void handleTransmittedFrame(const std::unique_ptr<inet::MACFrameBase>& frame,
+                              const omnetpp::SimTime& transmissionTimestamp) final;
+
  private:
   void handleMessage(std::unique_ptr<omnetpp::cMessage> message) final;
 
