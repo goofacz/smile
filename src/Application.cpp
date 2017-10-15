@@ -16,6 +16,7 @@
 #include <algorithm>
 #include "inet/common/INETDefs.h"
 #include "inet/common/ModuleAccess.h"
+#include "inet/linklayer/common/Ieee802Ctrl.h"
 
 #include "Application.h"
 
@@ -33,6 +34,7 @@ void Application::initialize(int stage)
   if (stage == inet::INITSTAGE_APPLICATION_LAYER) {
     measurementsLogger = inet::getModuleFromPar<MeasurementsLogger>(par("measurementsLoggerModule"), this);
     clock = check_and_cast<IClock*>(getModuleByPath("^.clock"));
+    radioNode = check_and_cast<smile::RadioNode*>(getParentModule());
   }
 }
 
@@ -96,6 +98,18 @@ void Application::scheduleFrameTransmission(std::unique_ptr<inet::MACFrameBase> 
   else {
     storePendingTxFrame(std::move(frame), txClockTimestamp);
   }
+}
+
+void Application::prepareFrame(inet::MACFrameBase& frame, const inet::MACAddress& destinationAddress,
+                               const inet::MACAddress& sourceAddress)
+{
+  auto controlInformation = std::make_unique<inet::Ieee802Ctrl>();
+  controlInformation->setSourceAddress(sourceAddress);
+  controlInformation->setDest(destinationAddress);
+
+  frame.setSrcAddr(sourceAddress);
+  frame.setDestAddr(destinationAddress);
+  frame.setControlInfo(controlInformation.release());
 }
 
 void Application::storePendingTxFrame(std::unique_ptr<inet::MACFrameBase> frame,

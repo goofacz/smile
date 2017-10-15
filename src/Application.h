@@ -16,10 +16,12 @@
 #pragma once
 
 #include <memory>
+#include <type_traits>
 #include <vector>
 #include "IApplication.h"
 #include "IClock.h"
 #include "MeasurementsLogger.h"
+#include "RadioNode.h"
 #include "inet/linklayer/base/MACFrameBase_m.h"
 #include "omnetpp.h"
 
@@ -38,6 +40,9 @@ class Application : public omnetpp::cSimpleModule, public omnetpp::cListener, pu
 
   Application& operator=(const Application& source) = delete;
   Application& operator=(Application&& source) = delete;
+
+  template <typename Frame, typename... FrameArguments>
+  std::unique_ptr<Frame> createMACFrame(const inet::MACAddress& destinationAddress, FrameArguments&&... frameArguments);
 
  protected:
   void initialize(int stage) override;
@@ -61,9 +66,15 @@ class Application : public omnetpp::cSimpleModule, public omnetpp::cListener, pu
   virtual void handleTransmittedFrame(const std::unique_ptr<inet::MACFrameBase>& frame,
                                       const omnetpp::SimTime& transmissionTimestamp);
 
+  template <typename Frame>
+  void scheduleFrameTransmission(std::unique_ptr<Frame> frame, const omnetpp::SimTime& delay);
+
   void scheduleFrameTransmission(std::unique_ptr<inet::MACFrameBase> frame, const omnetpp::SimTime& delay);
 
  private:
+  static void prepareFrame(inet::MACFrameBase& frame, const inet::MACAddress& destinationAddress,
+                           const inet::MACAddress& sourceAddress);
+
   void handleWindowUpdateSignal(const omnetpp::SimTime& clockWindowEndTimestamp);
 
   void handleProcessPendingTxFramesMessage();
@@ -78,8 +89,32 @@ class Application : public omnetpp::cSimpleModule, public omnetpp::cListener, pu
 
   MeasurementsLogger* measurementsLogger{nullptr};
   IClock* clock{nullptr};
+  RadioNode* radioNode{nullptr};
   std::vector<PendingTxFrame> pendingTxFrames;
   const std::unique_ptr<omnetpp::cMessage> processPendingTxFramesMessage;
 };
+
+template <typename Frame, typename... FrameArguments>
+std::unique_ptr<Frame> Application::createMACFrame(const inet::MACAddress& destinationAddress,
+                                                   FrameArguments&&... frameArguments)
+{
+  static_assert(std::is_base_of<inet::MACFrameBase, Frame>::value,
+                "Application::createMACFrame requires Frame to derive from inet::MACFrameBase");
+
+  auto frame = std::make_unique<Frame>(frameArguments...);
+  const auto& localAddress = radioNode->getMACAddress();
+  prepareFrame(*frame, destinationAddress, localAddress);
+  return frame;
+}
+
+template <typename Frame>
+void Application::scheduleFrameTransmission(std::unique_ptr<Frame> frame, const omnetpp::SimTime& delay)
+{
+  static_assert(std::is_base_of<inet::MACFrameBase, Frame>::value,
+                "Application::createMACFrame requires Frame to derive from inet::MACFrameBase");
+
+  std::unique_ptr<inet::MACFrameBase> baseFrame{static_cast<inet::MACFrameBase*>(frame.release())};
+  scheduleFrameTransmission(std::move(baseFrame), delay);
+}
 
 }  // namespace smile
