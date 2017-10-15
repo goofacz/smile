@@ -56,8 +56,7 @@ class RadioNode : public omnetpp::cSimpleModule, public omnetpp::cListener
  private:
   int numInitStages() const override;
 
-  void mobilityStateChangedCallback(omnetpp::cComponent* source, simsignal_t signalID, omnetpp::cObject* value,
-                                    omnetpp::cObject* details);
+  void mobilityStateChangedCallback(omnetpp::cObject* value);
 
   void txStateChangedCallback(inet::physicallayer::IRadio::TransmissionState state);
 

@@ -57,7 +57,7 @@ void RadioNode::initialize(int stage)
     radio->subscribe(inet::physicallayer::Radio::receptionStateChangedSignal, this);
 
     auto mobility = check_and_cast<omnetpp::cComponent*>(getModuleByPath(".mobility"));
-    mobility->subscribe("mobilityStateChanged", this);
+    mobility->subscribe(inet::IMobility::mobilityStateChangedSignal, this);
 
     auto iMobility = check_and_cast<inet::IMobility*>(mobility);
     currentPosition = iMobility->getCurrentPosition();
@@ -65,8 +65,7 @@ void RadioNode::initialize(int stage)
   }
 }
 
-void RadioNode::receiveSignal(omnetpp::cComponent* source, omnetpp::simsignal_t signalID, long value,
-                              omnetpp::cObject* details)
+void RadioNode::receiveSignal(omnetpp::cComponent*, omnetpp::simsignal_t signalID, long value, omnetpp::cObject*)
 {
   if (signalID == inet::physicallayer::Radio::transmissionStateChangedSignal) {
     txStateChangedCallback(static_cast<inet::physicallayer::IRadio::TransmissionState>(value));
@@ -76,17 +75,20 @@ void RadioNode::receiveSignal(omnetpp::cComponent* source, omnetpp::simsignal_t 
   }
 }
 
-void RadioNode::receiveSignal(omnetpp::cComponent* source, omnetpp::simsignal_t signalID, omnetpp::cObject* value,
-                              omnetpp::cObject* details)
-{}
+void RadioNode::receiveSignal(omnetpp::cComponent*, omnetpp::simsignal_t signalID, omnetpp::cObject* value,
+                              omnetpp::cObject*)
+{
+  if (signalID == inet::IMobility::mobilityStateChangedSignal) {
+    mobilityStateChangedCallback(value);
+  }
+}
 
 int RadioNode::numInitStages() const
 {
   return inet::INITSTAGE_LINK_LAYER_2 + 1;
 }
 
-void RadioNode::mobilityStateChangedCallback(omnetpp::cComponent* source, simsignal_t signalID, omnetpp::cObject* value,
-                                             omnetpp::cObject* details)
+void RadioNode::mobilityStateChangedCallback(omnetpp::cObject* value)
 {
   auto mobility = check_and_cast<inet::IMobility*>(value);
   assert(mobility);
