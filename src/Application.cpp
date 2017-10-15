@@ -100,8 +100,8 @@ void Application::scheduleFrameTransmission(std::unique_ptr<inet::MACFrameBase> 
   }
 }
 
-void Application::prepareFrame(inet::MACFrameBase& frame, const inet::MACAddress& destinationAddress,
-                               const inet::MACAddress& sourceAddress)
+void Application::initializeFrame(inet::MACFrameBase& frame, const inet::MACAddress& destinationAddress,
+                                  const inet::MACAddress& sourceAddress)
 {
   auto controlInformation = std::make_unique<inet::Ieee802Ctrl>();
   controlInformation->setSourceAddress(sourceAddress);

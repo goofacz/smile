@@ -72,8 +72,8 @@ class Application : public omnetpp::cSimpleModule, public omnetpp::cListener, pu
   void scheduleFrameTransmission(std::unique_ptr<inet::MACFrameBase> frame, const omnetpp::SimTime& delay);
 
  private:
-  static void prepareFrame(inet::MACFrameBase& frame, const inet::MACAddress& destinationAddress,
-                           const inet::MACAddress& sourceAddress);
+  static void initializeFrame(inet::MACFrameBase& frame, const inet::MACAddress& destinationAddress,
+                              const inet::MACAddress& sourceAddress);
 
   void handleWindowUpdateSignal(const omnetpp::SimTime& clockWindowEndTimestamp);
 
@@ -96,14 +96,14 @@ class Application : public omnetpp::cSimpleModule, public omnetpp::cListener, pu
 
 template <typename Frame, typename... FrameArguments>
 std::unique_ptr<Frame> Application::createFrame(const inet::MACAddress& destinationAddress,
-                                                   FrameArguments&&... frameArguments)
+                                                FrameArguments&&... frameArguments)
 {
   static_assert(std::is_base_of<inet::MACFrameBase, Frame>::value,
                 "Application::createMACFrame requires Frame to derive from inet::MACFrameBase");
 
   auto frame = std::make_unique<Frame>(std::forward<FrameArguments>(frameArguments)...);
   const auto& localAddress = radioNode->getMACAddress();
-  prepareFrame(*frame, destinationAddress, localAddress);
+  initializeFrame(*frame, destinationAddress, localAddress);
   return frame;
 }
 
@@ -111,7 +111,7 @@ template <typename Frame>
 void Application::scheduleFrameTransmission(std::unique_ptr<Frame> frame, const omnetpp::SimTime& delay)
 {
   static_assert(std::is_base_of<inet::MACFrameBase, Frame>::value,
-                "Application::createMACFrame requires Frame to derive from inet::MACFrameBase");
+                "Application::scheduleFrameTransmission requires Frame to derive from inet::MACFrameBase");
 
   std::unique_ptr<inet::MACFrameBase> baseFrame{static_cast<inet::MACFrameBase*>(frame.release())};
   scheduleFrameTransmission(std::move(baseFrame), delay);
