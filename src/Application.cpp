@@ -59,6 +59,16 @@ void Application::receiveSignal(omnetpp::cComponent* source, omnetpp::simsignal_
   }
 }
 
+void Application::handleTxStateChanged(inet::physicallayer::IRadio::TransmissionState state)
+{
+  EV_DETAIL << "Application::handleTxStateChanged) should be overridden!" << endl;
+}
+
+void Application::handleRxStateChanged(inet::physicallayer::IRadio::ReceptionState state)
+{
+  EV_DETAIL << "Application::handleRxStateChanged) should be overridden!" << endl;
+}
+
 void Application::handleMessage(std::unique_ptr<omnetpp::cMessage>)
 {
   EV_WARN << "Application::handleMessage(std::unique_ptr<omnetpp::cMessage>) should be overridden!" << std::endl;

@@ -49,6 +49,10 @@ class Application : public omnetpp::cSimpleModule, public omnetpp::cListener, pu
   void receiveSignal(omnetpp::cComponent* source, omnetpp::simsignal_t signalID, const omnetpp::SimTime& value,
                      omnetpp::cObject* details) override;
 
+  void handleTxStateChanged(inet::physicallayer::IRadio::TransmissionState state) override;
+
+  void handleRxStateChanged(inet::physicallayer::IRadio::ReceptionState state) override;
+
   virtual void handleMessage(std::unique_ptr<omnetpp::cMessage> message);
 
   virtual void handleReceivedFrame(std::unique_ptr<inet::MACFrameBase> frame,

@@ -16,19 +16,15 @@
 #pragma once
 
 #include <functional>
+#include "IApplication.h"
 #include "inet/common/geometry/common/Coord.h"
 #include "inet/linklayer/common/MACAddress.h"
-#include "inet/physicallayer/contract/packetlevel/IRadio.h"
 #include "omnetpp.h"
 
 namespace smile {
 
 class RadioNode : public omnetpp::cSimpleModule, public omnetpp::cListener
 {
- public:
-  using TxStateChangedCallback = std::function<void(inet::physicallayer::IRadio::TransmissionState)>;
-  using RxStateChangedCallback = std::function<void(inet::physicallayer::IRadio::ReceptionState)>;
-
  public:
   RadioNode() = default;
   RadioNode(const RadioNode& source) = delete;
@@ -40,9 +36,6 @@ class RadioNode : public omnetpp::cSimpleModule, public omnetpp::cListener
 
   inet::MACAddress getMACAddress() const;
   const inet::Coord& getCurrentPosition() const;
-
-  void addTxStateChangedCallback(TxStateChangedCallback callback);
-  void addRxStateChangedCallback(RxStateChangedCallback callback);
 
  protected:
   void initialize(int stage) override;
@@ -56,14 +49,9 @@ class RadioNode : public omnetpp::cSimpleModule, public omnetpp::cListener
  private:
   int numInitStages() const override;
 
-  void mobilityStateChangedCallback(omnetpp::cObject* value);
+  void handleMobilityStateChanged(omnetpp::cObject* value);
 
-  void txStateChangedCallback(inet::physicallayer::IRadio::TransmissionState state);
-
-  void rxStateChangedCallback(inet::physicallayer::IRadio::ReceptionState state);
-
-  std::vector<TxStateChangedCallback> txStateChangedcallbacks;
-  std::vector<RxStateChangedCallback> rxStateChangedcallbacks;
+  IApplication* iApplication{nullptr};
   inet::Coord currentPosition;
 };
 

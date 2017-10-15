@@ -38,16 +38,6 @@ const inet::Coord& RadioNode::getCurrentPosition() const
   return currentPosition;
 }
 
-void RadioNode::addTxStateChangedCallback(TxStateChangedCallback callback)
-{
-  txStateChangedcallbacks.emplace_back(std::move(callback));
-}
-
-void RadioNode::addRxStateChangedCallback(RxStateChangedCallback callback)
-{
-  rxStateChangedcallbacks.emplace_back(std::move(callback));
-}
-
 void RadioNode::initialize(int stage)
 {
   cModule::initialize(stage);
@@ -62,16 +52,18 @@ void RadioNode::initialize(int stage)
     auto iMobility = check_and_cast<inet::IMobility*>(mobility);
     currentPosition = iMobility->getCurrentPosition();
     EV_DETAIL << "Current position: " << currentPosition << endl;
+
+    iApplication = check_and_cast<IApplication*>(getModuleByPath(".application"));
   }
 }
 
 void RadioNode::receiveSignal(omnetpp::cComponent*, omnetpp::simsignal_t signalID, long value, omnetpp::cObject*)
 {
   if (signalID == inet::physicallayer::Radio::transmissionStateChangedSignal) {
-    txStateChangedCallback(static_cast<inet::physicallayer::IRadio::TransmissionState>(value));
+    iApplication->handleTxStateChanged(static_cast<inet::physicallayer::IRadio::TransmissionState>(value));
   }
   else if (signalID == inet::physicallayer::Radio::receptionStateChangedSignal) {
-    rxStateChangedCallback(static_cast<inet::physicallayer::IRadio::ReceptionState>(value));
+    iApplication->handleRxStateChanged(static_cast<inet::physicallayer::IRadio::ReceptionState>(value));
   }
 }
 
@@ -79,7 +71,7 @@ void RadioNode::receiveSignal(omnetpp::cComponent*, omnetpp::simsignal_t signalI
                               omnetpp::cObject*)
 {
   if (signalID == inet::IMobility::mobilityStateChangedSignal) {
-    mobilityStateChangedCallback(value);
+    handleMobilityStateChanged(value);
   }
 }
 
@@ -88,28 +80,12 @@ int RadioNode::numInitStages() const
   return inet::INITSTAGE_LINK_LAYER_2 + 1;
 }
 
-void RadioNode::mobilityStateChangedCallback(omnetpp::cObject* value)
+void RadioNode::handleMobilityStateChanged(omnetpp::cObject* value)
 {
   auto mobility = check_and_cast<inet::IMobility*>(value);
   assert(mobility);
   currentPosition = mobility->getCurrentPosition();
   EV_DETAIL << "Current position: " << currentPosition << endl;
-}
-
-void RadioNode::txStateChangedCallback(inet::physicallayer::IRadio::TransmissionState state)
-{
-  for (const auto& callback : txStateChangedcallbacks) {
-    assert(callback);
-    callback(state);
-  }
-}
-
-void RadioNode::rxStateChangedCallback(inet::physicallayer::IRadio::ReceptionState state)
-{
-  for (const auto& callback : rxStateChangedcallbacks) {
-    assert(callback);
-    callback(state);
-  }
 }
 
 }  // namespace smile
