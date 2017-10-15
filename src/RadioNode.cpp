@@ -16,8 +16,8 @@
 #include <cassert>
 
 #include "inet/common/INETDefs.h"
-#include "inet/physicallayer/common/packetlevel/Radio.h"
 #include "inet/linklayer/base/MACProtocolBase.h"
+#include "inet/physicallayer/common/packetlevel/Radio.h"
 
 #include "RadioNode.h"
 

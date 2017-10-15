@@ -77,13 +77,13 @@ void Application::handleMessage(std::unique_ptr<omnetpp::cMessage>)
 void Application::handleReceivedFrame(std::unique_ptr<inet::MACFrameBase> frame,
                                       const omnetpp::SimTime& receptionTimestamp)
 {
-  EV_DETAIL << "Application::handleReceivedFrame) should be overridden!" << endl;
+  EV_WARN << "Application::handleReceivedFrame) should be overridden!" << endl;
 }
 
 void Application::handleTransmittedFrame(const std::unique_ptr<inet::MACFrameBase>& frame,
                                          const omnetpp::SimTime& transmissionTimestamp)
 {
-  EV_DETAIL << "Application::handleReceivedFrame) should be overridden!" << endl;
+  EV_WARN << "Application::handleReceivedFrame) should be overridden!" << endl;
 }
 
 void Application::scheduleFrameTransmission(std::unique_ptr<inet::MACFrameBase> frame, const omnetpp::SimTime& delay)
@@ -106,10 +106,11 @@ void Application::storePendingTxFrame(std::unique_ptr<inet::MACFrameBase> frame,
     clockModule->subscribe(IClock::windowUpdateSignal, this);
   }
 
-  const auto predicate = [](const auto& timestamp, const auto& pendingFrame) {
-    return timestamp < pendingFrame.second;
-  };
+  const auto& destinationAddress = frame->getDestAddr();
+  EV_DETAIL << "Scheduling MAC frame ID" << frame->getId() << " addressed to " << destinationAddress.str()
+            << " to be transmitted later" << endl;
 
+  auto predicate = [](const auto& timestamp, const auto& pendingFrame) { return timestamp < pendingFrame.second; };
   auto nextFrame = std::upper_bound(pendingTxFrames.begin(), pendingTxFrames.end(), txClockTimestamp, predicate);
   pendingTxFrames.emplace(nextFrame, std::move(frame), txClockTimestamp);
 }
@@ -172,6 +173,10 @@ void Application::dispatchMessage(omnetpp::cMessage* message)
 void Application::transmitFrame(std::unique_ptr<inet::MACFrameBase> frame,
                                 const omnetpp::SimTime& txSimulationTimestamp)
 {
+  const auto& destinationAddress = frame->getDestAddr();
+  EV_DETAIL << "Passing MAC frame ID" << frame->getId() << " addressed to " << destinationAddress.str()
+            << " down to NIC" << endl;
+
   const auto delay = txSimulationTimestamp - simTime();
   sendDelayed(frame.release(), delay, "out");
 }
