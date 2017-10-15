@@ -79,13 +79,13 @@ void Application::handleMessage(std::unique_ptr<omnetpp::cMessage>)
 void Application::handleReceivedFrame(std::unique_ptr<inet::MACFrameBase> frame,
                                       const omnetpp::SimTime& receptionTimestamp)
 {
-  EV_WARN << "Application::handleReceivedFrame) should be overridden!" << endl;
+  EV_WARN << "Application::handleReceivedFrame() should be overridden!" << endl;
 }
 
 void Application::handleTransmittedFrame(const std::unique_ptr<inet::MACFrameBase>& frame,
                                          const omnetpp::SimTime& transmissionTimestamp)
 {
-  EV_WARN << "Application::handleReceivedFrame) should be overridden!" << endl;
+  EV_WARN << "Application::handleReceivedFrame() should be overridden!" << endl;
 }
 
 void Application::scheduleFrameTransmission(std::unique_ptr<inet::MACFrameBase> frame, const omnetpp::SimTime& delay)
