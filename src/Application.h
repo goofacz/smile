@@ -44,7 +44,7 @@ class Application : public omnetpp::cSimpleModule, public omnetpp::cListener, pu
 
   int numInitStages() const final;
 
-  void handleMessage(omnetpp::cMessage* msg) final;
+  void handleMessage(omnetpp::cMessage* message) final;
 
   void receiveSignal(omnetpp::cComponent* source, omnetpp::simsignal_t signalID, const omnetpp::SimTime& value,
                      omnetpp::cObject* details) override;
@@ -59,9 +59,15 @@ class Application : public omnetpp::cSimpleModule, public omnetpp::cListener, pu
 
   void scheduleFrameTransmission(std::unique_ptr<inet::MACFrameBase> frame, const omnetpp::SimTime& delay);
 
-  void processPendingTxMessages(const omnetpp::SimTime& clockWindowEndTimestamp);
-
  private:
+  void handleWindowUpdateSignal(const omnetpp::SimTime& clockWindowEndTimestamp);
+
+  void handleProcessPendingTxFramesMessage();
+
+  void dispatchSelfMessage(omnetpp::cMessage* message);
+
+  void dispatchMessage(omnetpp::cMessage* message);
+
   void storePendingTxFrame(std::unique_ptr<inet::MACFrameBase> frame, const omnetpp::SimTime& txClockTimestamp);
 
   void transmitFrame(std::unique_ptr<inet::MACFrameBase> frame, const omnetpp::SimTime& txSimulationTimestamp);

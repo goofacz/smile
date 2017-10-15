@@ -43,12 +43,10 @@ int Application::numInitStages() const
 
 void Application::handleMessage(omnetpp::cMessage* message)
 {
-  auto frame = dynamic_cast<inet::MACFrameBase*>(message);
-  if (frame) {
-    const auto clockTimestamp = clock->getClockTimestamp();
-    handleReceivedFrame(std::unique_ptr<inet::MACFrameBase>{frame}, clockTimestamp);
+  if (message->isSelfMessage()) {
+    dispatchSelfMessage(message);
   } else {
-    handleMessage(std::unique_ptr<omnetpp::cMessage>{message});
+    dispatchMessage(message);
   }
 }
 
@@ -56,7 +54,7 @@ void Application::receiveSignal(omnetpp::cComponent* source, omnetpp::simsignal_
                                 const omnetpp::SimTime& value, omnetpp::cObject* details)
 {
   if (signalID == IClock::windowUpdateSignal) {
-    processPendingTxMessages(value);
+    handleWindowUpdateSignal(value);
   }
 }
 
@@ -104,25 +102,56 @@ void Application::storePendingTxFrame(std::unique_ptr<inet::MACFrameBase> frame,
   pendingTxFrames.emplace(nextFrame, std::move(frame), txClockTimestamp);
 }
 
-void Application::processPendingTxMessages(const omnetpp::SimTime& clockWindowEndTimestamp)
+void Application::handleWindowUpdateSignal(const omnetpp::SimTime& clockWindowEndTimestamp)
 {
-  const auto predicate = [](const auto& timestamp, const auto& pendingFrame) {
-    return timestamp < pendingFrame.second;
-  };
+  try {
+    const auto& pendingFrame = pendingTxFrames.at(0);
+    if (pendingFrame.second <= clockWindowEndTimestamp) {
+      scheduleAt(0, processPendingTxFramesMessage.get());
+    }
+  } catch (const std::out_of_range&) {
+    throw omnetpp::cRuntimeError("Application got IClock::windowUpdateSignal but has no pending TX frames.");
+  }
+}
 
-  auto nextFame = std::upper_bound(pendingTxFrames.begin(), pendingTxFrames.end(), clockWindowEndTimestamp, predicate);
-  auto lastFrame = std::prev(nextFame);
-  const auto handler = [this](auto& pendingFrame) {
-    storePendingTxFrame(std::move(pendingFrame.first), pendingFrame.second);
-  };
+void Application::handleProcessPendingTxFramesMessage()
+{
+  for (auto pendingFrame{pendingTxFrames.begin()}; pendingFrame != pendingTxFrames.end(); ++pendingFrame) {
+    auto& frame = pendingFrame->first;
+    const auto& txClockTimestamp = pendingFrame->second;
+    const auto txSimulationTimestamp = clock->convertToSimulationTimestamp(txClockTimestamp);
+    if (!txSimulationTimestamp) {
+      break;
+    }
 
-  std::for_each(pendingTxFrames.begin(), lastFrame, handler);
-  pendingTxFrames.erase(pendingTxFrames.begin(), lastFrame);
+    transmitFrame(std::move(frame), *txSimulationTimestamp);
+    pendingFrame = pendingTxFrames.erase(pendingFrame);
+  }
 
   if (pendingTxFrames.empty()) {
     auto clockModule = check_and_cast<omnetpp::cComponent*>(clock);
     clockModule->unsubscribe(IClock::windowUpdateSignal, this);
   }
+}
+
+void Application::dispatchSelfMessage(omnetpp::cMessage* message)
+{
+  if (message == processPendingTxFramesMessage.get()) {
+    handleProcessPendingTxFramesMessage();
+    return;
+  }
+}
+
+void Application::dispatchMessage(omnetpp::cMessage* message)
+{
+  auto frame = dynamic_cast<inet::MACFrameBase*>(message);
+  if (frame) {
+    const auto clockTimestamp = clock->getClockTimestamp();
+    handleReceivedFrame(std::unique_ptr<inet::MACFrameBase>{frame}, clockTimestamp);
+    return;
+  }
+
+  handleMessage(std::unique_ptr<omnetpp::cMessage>{message});
 }
 
 void Application::transmitFrame(std::unique_ptr<inet::MACFrameBase> frame,
