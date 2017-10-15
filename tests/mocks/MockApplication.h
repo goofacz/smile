@@ -27,7 +27,7 @@ class MockApplication : public Application
   MockApplication() = default;
   MockApplication(const MockApplication& source) = delete;
   MockApplication(MockApplication&& source) = delete;
-  ~MockApplication() override = default;
+  ~MockApplication() = default;
 
   MockApplication& operator=(const MockApplication& source) = delete;
   MockApplication& operator=(MockApplication&& source) = delete;
