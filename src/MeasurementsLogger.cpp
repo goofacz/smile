@@ -128,15 +128,14 @@ void MeasurementsLogger::openFile()
   EV_INFO << "MeasurementsLogger will write logs to " << filePath << endl;
 }
 
-MeasurementsLogger::Log::Log(const inet::MACFrameBase& initalFrame,
-                             const omnetpp::SimTime& initialSimulationTimestamp,
-                             const omnetpp::SimTime& initialNodeTimestamp,
-                             const FrameDirection initialDirection, const inet::Coord& initialTruePosition)
-    : frame{initalFrame},
-      simulationTimestamp{initialSimulationTimestamp},
-      clockTimestamp{initialNodeTimestamp},
-      direction{initialDirection},
-      truePosition{initialTruePosition}
+MeasurementsLogger::Log::Log(const inet::MACFrameBase& initalFrame, const omnetpp::SimTime& initialSimulationTimestamp,
+                             const omnetpp::SimTime& initialNodeTimestamp, const FrameDirection initialDirection,
+                             const inet::Coord& initialTruePosition) :
+    frame{initalFrame},
+    simulationTimestamp{initialSimulationTimestamp},
+    clockTimestamp{initialNodeTimestamp},
+    direction{initialDirection},
+    truePosition{initialTruePosition}
 {}
 
 }  // namespace smile

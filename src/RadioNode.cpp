@@ -70,7 +70,8 @@ void RadioNode::receiveSignal(omnetpp::cComponent* source, omnetpp::simsignal_t 
 {
   if (signalID == inet::physicallayer::Radio::transmissionStateChangedSignal) {
     txStateChangedCallback(static_cast<inet::physicallayer::IRadio::TransmissionState>(value));
-  } else if (signalID == inet::physicallayer::Radio::receptionStateChangedSignal) {
+  }
+  else if (signalID == inet::physicallayer::Radio::receptionStateChangedSignal) {
     rxStateChangedCallback(static_cast<inet::physicallayer::IRadio::ReceptionState>(value));
   }
 }

@@ -23,8 +23,8 @@ namespace smile {
 
 Define_Module(Application);
 
-Application::Application()
-    : processPendingTxFramesMessage{std::make_unique<omnetpp::cMessage>("processPendingTxFrames")}
+Application::Application() :
+    processPendingTxFramesMessage{std::make_unique<omnetpp::cMessage>("processPendingTxFrames")}
 {}
 
 void Application::initialize(int stage)
@@ -45,7 +45,8 @@ void Application::handleMessage(omnetpp::cMessage* message)
 {
   if (message->isSelfMessage()) {
     dispatchSelfMessage(message);
-  } else {
+  }
+  else {
     dispatchMessage(message);
   }
 }
@@ -81,7 +82,8 @@ void Application::scheduleFrameTransmission(std::unique_ptr<inet::MACFrameBase> 
   const auto txSimulationTimestamp = clock->convertToSimulationTimestamp(txClockTimestamp);
   if (txSimulationTimestamp) {
     transmitFrame(std::move(frame), *txSimulationTimestamp);
-  } else {
+  }
+  else {
     storePendingTxFrame(std::move(frame), txClockTimestamp);
   }
 }
@@ -109,7 +111,8 @@ void Application::handleWindowUpdateSignal(const omnetpp::SimTime& clockWindowEn
     if (pendingFrame.second <= clockWindowEndTimestamp) {
       scheduleAt(0, processPendingTxFramesMessage.get());
     }
-  } catch (const std::out_of_range&) {
+  }
+  catch (const std::out_of_range&) {
     throw omnetpp::cRuntimeError("Application got IClock::windowUpdateSignal but has no pending TX frames.");
   }
 }
