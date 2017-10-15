@@ -17,6 +17,7 @@
 
 #include "inet/common/INETDefs.h"
 #include "inet/physicallayer/common/packetlevel/Radio.h"
+#include "inet/linklayer/base/MACProtocolBase.h"
 
 #include "RadioNode.h"
 
@@ -26,10 +27,8 @@ Define_Module(RadioNode);
 
 inet::MACAddress RadioNode::getMACAddress() const
 {
-  const auto mac = getModuleByPath(".nic.mac");
-  assert(mac);
+  const auto mac = check_and_cast<inet::MACProtocolBase*>(getModuleByPath(".nic.mac"));
   const auto& address = mac->par("address");
-  assert(address.getType() == cPar::STRING);
   return inet::MACAddress(address.stringValue());
 }
 
