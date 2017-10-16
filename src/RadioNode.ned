@@ -23,18 +23,16 @@ import inet.mobility.contract.IMobility;
 module RadioNode
 {
     parameters:
-        @class(smile::RadioNode);
         @networkNode();
-        
         *.interfaceTableModule = default(absPath(".interfaceTable"));
         string nicType = default("");
         string mobilityType = default("");
         string applicationType = default("");
         string clockType = default("");
-    
+
     gates:
         input radioIn @directIn;
-
+ 
     submodules:
         interfaceTable: InterfaceTable;
         routingTable: GenericRoutingTable;
