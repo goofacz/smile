@@ -25,11 +25,9 @@ namespace smile {
 
 Define_Module(RadioNode);
 
-inet::MACAddress RadioNode::getMACAddress() const
+const inet::MACAddress& RadioNode::getMacAddress() const
 {
-  const auto mac = check_and_cast<inet::MACProtocolBase*>(getModuleByPath(".nic.mac"));
-  const auto& address = mac->par("address");
-  return inet::MACAddress(address.stringValue());
+  return address;
 }
 
 const inet::Coord& RadioNode::getCurrentPosition() const
@@ -41,9 +39,12 @@ void RadioNode::initialize(int stage)
 {
   cModule::initialize(stage);
   if (stage == inet::INITSTAGE_PHYSICAL_ENVIRONMENT_2) {
-    auto radio = check_and_cast<inet::physicallayer::Radio*>(getModuleByPath(".nic.radio"));
+    radio = check_and_cast<inet::physicallayer::Radio*>(getModuleByPath(".nic.radio"));
     radio->subscribe(inet::physicallayer::Radio::transmissionStateChangedSignal, this);
     radio->subscribe(inet::physicallayer::Radio::receptionStateChangedSignal, this);
+
+    mac = check_and_cast<inet::IdealMac*>(getModuleByPath(".nic.mac"));
+    address.setAddress(mac->par("address").stringValue());
 
     auto mobility = check_and_cast<omnetpp::cComponent*>(getModuleByPath(".mobility"));
     mobility->subscribe(inet::IMobility::mobilityStateChangedSignal, this);
@@ -51,19 +52,12 @@ void RadioNode::initialize(int stage)
     auto iMobility = check_and_cast<inet::IMobility*>(mobility);
     currentPosition = iMobility->getCurrentPosition();
     EV_DETAIL << "Current position: " << currentPosition << endl;
-
-    iApplication = check_and_cast<IApplication*>(getModuleByPath(".application"));
   }
 }
 
 void RadioNode::receiveSignal(omnetpp::cComponent*, omnetpp::simsignal_t signalID, long value, omnetpp::cObject*)
 {
-  if (signalID == inet::physicallayer::Radio::transmissionStateChangedSignal) {
-    iApplication->handleTxStateChanged(static_cast<inet::physicallayer::IRadio::TransmissionState>(value));
-  }
-  else if (signalID == inet::physicallayer::Radio::receptionStateChangedSignal) {
-    iApplication->handleRxStateChanged(static_cast<inet::physicallayer::IRadio::ReceptionState>(value));
-  }
+  // TODO
 }
 
 void RadioNode::receiveSignal(omnetpp::cComponent*, omnetpp::simsignal_t signalID, omnetpp::cObject* value,

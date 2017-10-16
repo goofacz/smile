@@ -16,9 +16,9 @@
 #pragma once
 
 #include <functional>
-#include "IApplication.h"
 #include "inet/common/geometry/common/Coord.h"
-#include "inet/linklayer/common/MACAddress.h"
+#include "inet/linklayer/ideal/IdealMac.h"
+#include "inet/physicallayer/common/packetlevel/Radio.h"
 #include "omnetpp.h"
 
 namespace smile {
@@ -34,7 +34,7 @@ class RadioNode : public omnetpp::cSimpleModule, public omnetpp::cListener
   RadioNode& operator=(const RadioNode& source) = delete;
   RadioNode& operator=(RadioNode&& source) = delete;
 
-  inet::MACAddress getMACAddress() const;
+  const inet::MACAddress& getMacAddress() const;
   const inet::Coord& getCurrentPosition() const;
 
  protected:
@@ -47,12 +47,14 @@ class RadioNode : public omnetpp::cSimpleModule, public omnetpp::cListener
                      omnetpp::cObject* details) override;
 
  private:
-  int numInitStages() const override;
+  int numInitStages() const override final;
 
   void handleMobilityStateChanged(omnetpp::cObject* value);
 
-  IApplication* iApplication{nullptr};
+  inet::physicallayer::Radio* radio{nullptr};
+  inet::IdealMac* mac{nullptr};
   inet::Coord currentPosition;
+  inet::MACAddress address;
 };
 
 }  // namespace smile
