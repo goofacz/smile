@@ -16,7 +16,9 @@
 #pragma once
 
 #include <functional>
+#include "Clock.h"
 #include "inet/common/geometry/common/Coord.h"
+#include "inet/linklayer/base/MACFrameBase_m.h"
 #include "inet/linklayer/ideal/IdealMac.h"
 #include "inet/physicallayer/common/packetlevel/Radio.h"
 #include "omnetpp.h"
@@ -25,6 +27,9 @@ namespace smile {
 
 class RadioNode : public omnetpp::cSimpleModule, public omnetpp::cListener
 {
+ private:
+  using ScheduledTxFrame = std::pair<std::unique_ptr<inet::MACFrameBase>, omnetpp::SimTime>;
+
  public:
   RadioNode() = default;
   RadioNode(const RadioNode& source) = delete;
@@ -36,6 +41,9 @@ class RadioNode : public omnetpp::cSimpleModule, public omnetpp::cListener
 
   const inet::MACAddress& getMacAddress() const;
   const inet::Coord& getCurrentPosition() const;
+
+  bool transmitFrame(std::unique_ptr<inet::MACFrameBase> frame, const omnetpp::SimTime& clockTimestamp,
+                     bool cancelScheduledFrame = false);
 
  protected:
   void initialize(int stage) override;
@@ -51,10 +59,19 @@ class RadioNode : public omnetpp::cSimpleModule, public omnetpp::cListener
 
   void handleMobilityStateChanged(omnetpp::cObject* value);
 
+  void setScheduledTxFrame(std::unique_ptr<inet::MACFrameBase> frame, const omnetpp::SimTime& clockTimestamp);
+
+  bool hasScheduledTxFrame() const;
+
+  ScheduledTxFrame takeScheduledTxFrame();
+
   inet::physicallayer::Radio* radio{nullptr};
   inet::IdealMac* mac{nullptr};
+  Clock* clock{nullptr};
   inet::Coord currentPosition;
   inet::MACAddress address;
+
+  ScheduledTxFrame scheduledTxFrame;
 };
 
 }  // namespace smile

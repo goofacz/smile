@@ -35,6 +35,18 @@ const inet::Coord& RadioNode::getCurrentPosition() const
   return currentPosition;
 }
 
+bool RadioNode::transmitFrame(std::unique_ptr<inet::MACFrameBase> frame, const omnetpp::SimTime& clockTimestamp,
+                              bool cancelScheduledFrame)
+{
+    if(!cancelScheduledFrame && hasScheduledTxFrame())  {
+        return false;
+    }
+
+    // TODO
+
+    return true;
+}
+
 void RadioNode::initialize(int stage)
 {
   cModule::initialize(stage);
@@ -46,6 +58,8 @@ void RadioNode::initialize(int stage)
     mac = check_and_cast<inet::IdealMac*>(getModuleByPath(".nic.mac"));
     address.setAddress(mac->par("address").stringValue());
     EV_DETAIL << "Radio node MAC address: " << address << endl;
+
+    clock = check_and_cast<Clock*>(getModuleByPath(".clock"));
 
     auto mobility = check_and_cast<omnetpp::cComponent*>(getModuleByPath(".mobility"));
     mobility->subscribe(inet::IMobility::mobilityStateChangedSignal, this);
@@ -80,6 +94,22 @@ void RadioNode::handleMobilityStateChanged(omnetpp::cObject* value)
   assert(mobility);
   currentPosition = mobility->getCurrentPosition();
   EV_DETAIL << "Current position: " << currentPosition << endl;
+}
+
+void RadioNode::setScheduledTxFrame(std::unique_ptr<inet::MACFrameBase> frame, const omnetpp::SimTime& clockTimestamp)
+{
+  scheduledTxFrame.first = std::move(frame);
+  scheduledTxFrame.second = clockTimestamp;
+}
+
+bool RadioNode::hasScheduledTxFrame() const
+{
+  return scheduledTxFrame.first && scheduledTxFrame.second != omnetpp::SimTime{};
+}
+
+RadioNode::ScheduledTxFrame RadioNode::takeScheduledTxFrame()
+{
+  return std::move(scheduledTxFrame);
 }
 
 }  // namespace smile
