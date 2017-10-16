@@ -21,4 +21,17 @@ namespace smile {
 
 Define_Module(RangingWirelessNic);
 
+void RangingWirelessNic::initialize(int stage)
+{
+  cSimpleModule::initialize(stage);
+
+  if(stage == inet::INITSTAGE_LOCAL)   {
+    radio = check_and_cast<inet::physicallayer::IRadio*>(getModuleByPath(".nic.radio"));
+    mac = check_and_cast<inet::IdealMac*>(getModuleByPath(".nic.mac"));
+  }
+  else if(stage == inet::INITSTAGE_ROUTING_PROTOCOLS){
+    address.setAddress(mac->par("address").stringValue());
+  }
+}
+
 } // namespace smile

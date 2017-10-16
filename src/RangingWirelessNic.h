@@ -16,6 +16,8 @@
 #pragma once
 
 #include "omnetpp.h"
+#include "inet/physicallayer/contract/packetlevel/IRadio.h"
+#include "inet/linklayer/ideal/IdealMac.h"
 
 namespace smile {
 
@@ -29,6 +31,14 @@ class RangingWirelessNic : public omnetpp::cSimpleModule
 
   RangingWirelessNic& operator=(const RangingWirelessNic& source) = delete;
   RangingWirelessNic& operator=(RangingWirelessNic&& source) = delete;
+
+ protected:
+  void initialize(int stage) override;
+
+ private:
+  inet::physicallayer::IRadio* radio{nullptr};
+  inet::IdealMac* mac{nullptr};
+  inet::MACAddress address;
 };
 
 }  // namespace smile
