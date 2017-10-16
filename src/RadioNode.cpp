@@ -45,6 +45,7 @@ void RadioNode::initialize(int stage)
 
     mac = check_and_cast<inet::IdealMac*>(getModuleByPath(".nic.mac"));
     address.setAddress(mac->par("address").stringValue());
+    EV_DETAIL << "Radio node MAC address: " << address << endl;
 
     auto mobility = check_and_cast<omnetpp::cComponent*>(getModuleByPath(".mobility"));
     mobility->subscribe(inet::IMobility::mobilityStateChangedSignal, this);
