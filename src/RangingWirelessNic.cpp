@@ -33,6 +33,12 @@ const inet::MACAddress& RangingWirelessNic::getMacAddress() const
 bool RangingWirelessNic::transmitFrame(std::unique_ptr<inet::MACFrameBase> frame,
                                        const omnetpp::SimTime& clockTimestamp, bool cancelScheduledFrame)
 {
+  if (!cancelScheduledFrame && scheduledTxFrame.isSet()) {
+    return false;
+  }
+
+  scheduledTxFrame.set(std::move(frame), clockTimestamp);
+
   // TODO
 
   return true;
@@ -49,7 +55,6 @@ void RangingWirelessNic::initialize(int stage)
 
     mac = check_and_cast<inet::IdealMac*>(getModuleByPath(".nic.mac"));
     address.setAddress(mac->par("address").stringValue());
-    EV_DETAIL << "Radio node MAC address: " << address << endl;
 
     clock = check_and_cast<Clock*>(getModuleByPath(".clock"));
 
