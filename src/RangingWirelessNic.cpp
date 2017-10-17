@@ -73,4 +73,38 @@ int RangingWirelessNic::numInitStages() const
   return inet::INITSTAGE_LINK_LAYER_2 + 1;
 }
 
+void RangingWirelessNic::FrameHolder::set(std::unique_ptr<inet::MACFrameBase> newFrame)
+{
+  frame = std::move(newFrame);
+}
+
+void RangingWirelessNic::FrameHolder::set(const omnetpp::SimTime& newTimestamp)
+{
+  timestamp = newTimestamp;
+}
+
+void RangingWirelessNic::FrameHolder::set(std::unique_ptr<inet::MACFrameBase> newFrame,
+                                          const omnetpp::SimTime& newTimestamp)
+{
+  set(std::move(newFrame));
+  set(newTimestamp);
+}
+
+bool RangingWirelessNic::FrameHolder::isSet() const
+{
+  return frame && timestamp > 0;
+}
+
+RangingWirelessNic::FrameHolder::Pair RangingWirelessNic::FrameHolder::release()
+{
+  auto result = std::make_pair(std::move(frame), timestamp);
+  clear();
+  return result;
+}
+
+void RangingWirelessNic::FrameHolder::clear()
+{
+  set(nullptr, 0);
+}
+
 }  // namespace smile

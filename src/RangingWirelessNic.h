@@ -28,19 +28,19 @@ namespace smile {
 class RangingWirelessNic : public omnetpp::cSimpleModule, public omnetpp::cListener
 {
  private:
-  class Frame
+  class FrameHolder
   {
    public:
     using Pair = std::pair<std::unique_ptr<inet::MACFrameBase>, omnetpp::SimTime>;
 
    public:
-    Frame() = default;
-    Frame(const Frame& source) = delete;
-    Frame(Frame&& source) = delete;
-    ~Frame() = default;
+    FrameHolder() = default;
+    FrameHolder(const FrameHolder& source) = delete;
+    FrameHolder(FrameHolder&& source) = delete;
+    ~FrameHolder() = default;
 
-    Frame& operator=(const Frame& source) = delete;
-    Frame& operator=(Frame&& source) = delete;
+    FrameHolder& operator=(const FrameHolder& source) = delete;
+    FrameHolder& operator=(FrameHolder&& source) = delete;
 
     void set(std::unique_ptr<inet::MACFrameBase> newFrame);
     void set(const omnetpp::SimTime& newTimestamp);
@@ -52,8 +52,8 @@ class RangingWirelessNic : public omnetpp::cSimpleModule, public omnetpp::cListe
     void clear();
 
    private:
-    std::unique_ptr<inet::MACFrameBase> frame{nullptr};
-    omnetpp::SimTime timestamp{0};
+    std::unique_ptr<inet::MACFrameBase> frame;
+    omnetpp::SimTime timestamp;
   };
 
  public:
@@ -87,9 +87,9 @@ class RangingWirelessNic : public omnetpp::cSimpleModule, public omnetpp::cListe
   Clock* clock{nullptr};
   inet::Coord currentPosition;
   inet::MACAddress address;
-  Frame scheduledTxFrame;
-  Frame lastRxFrame;
-  Frame lastTxFrame;
+  FrameHolder scheduledTxFrame;
+  FrameHolder lastRxFrame;
+  FrameHolder lastTxFrame;
 };
 
 }  // namespace smile
