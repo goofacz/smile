@@ -26,7 +26,7 @@ module RadioNode
         @networkNode();
         
         *.interfaceTableModule = default(absPath(".interfaceTable"));
-        string nicType = default("");
+        string physicalNicType = default("");
         string mobilityType = default("");
         string applicationType = default("");
         string clockType = default("");
@@ -37,10 +37,12 @@ module RadioNode
     submodules:
         interfaceTable: InterfaceTable;
         routingTable: GenericRoutingTable;
-        nic: <nicType> like IWirelessNic;
         mobility: <mobilityType> like IMobility;
         application: <applicationType> like IApplication;
-        clock: <clockType> like IClock;
+        clock: <clockType> like IClock;        
+        nic: RangingWirelessNic	{
+            nicType = physicalNicType;
+        };
 
     connections:
         radioIn --> nic.radioIn;        
