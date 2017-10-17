@@ -21,7 +21,7 @@
 #include "IApplication.h"
 #include "IClock.h"
 #include "MeasurementsLogger.h"
-#include "RadioNode.h"
+#include "RangingWirelessNic.h"
 #include "inet/linklayer/base/MACFrameBase_m.h"
 #include "omnetpp.h"
 
@@ -89,7 +89,7 @@ class Application : public omnetpp::cSimpleModule, public omnetpp::cListener, pu
 
   MeasurementsLogger* measurementsLogger{nullptr};
   IClock* clock{nullptr};
-  RadioNode* radioNode{nullptr};
+  RangingWirelessNic* nic{nullptr};
   std::vector<PendingTxFrame> pendingTxFrames;
   const std::unique_ptr<omnetpp::cMessage> processPendingTxFramesMessage;
 };
@@ -102,7 +102,7 @@ std::unique_ptr<Frame> Application::createFrame(const inet::MACAddress& destinat
                 "Application::createMACFrame requires Frame to derive from inet::MACFrameBase");
 
   auto frame = std::make_unique<Frame>(std::forward<FrameArguments>(frameArguments)...);
-  const auto& localAddress = radioNode->getMacAddress();
+  const auto& localAddress = nic->getMacAddress();
   initializeFrame(*frame, destinationAddress, localAddress);
   return frame;
 }

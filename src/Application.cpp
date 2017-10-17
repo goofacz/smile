@@ -39,7 +39,7 @@ void Application::initialize(int stage)
   if (stage == inet::INITSTAGE_APPLICATION_LAYER) {
     measurementsLogger = inet::getModuleFromPar<MeasurementsLogger>(par("measurementsLoggerModule"), this);
     clock = check_and_cast<IClock*>(getModuleByPath("^.clock"));
-    radioNode = check_and_cast<RadioNode*>(getParentModule());
+    nic = check_and_cast<RangingWirelessNic*>(getModuleByPath("^.nic"));
   }
 }
 
