@@ -75,7 +75,45 @@ void RangingWirelessNic::initialize(int stage)
 void RangingWirelessNic::receiveSignal(omnetpp::cComponent*, omnetpp::simsignal_t signalID, long value,
                                        omnetpp::cObject*)
 {
-  // TODO
+  if (signalID == inet::physicallayer::Radio::transmissionStateChangedSignal) {
+    handleTransmissionStateChangedSignal(static_cast<inet::physicallayer::IRadio::TransmissionState>(value));
+  }
+  else if (signalID == inet::physicallayer::Radio::receptionStateChangedSignal) {
+    handleReceptionStateChangedSignal(static_cast<inet::physicallayer::IRadio::ReceptionState>(value));
+  }
+}
+
+void RangingWirelessNic::handleTransmissionStateChangedSignal(inet::physicallayer::IRadio::TransmissionState newState)
+{
+  switch (newState) {
+    case inet::physicallayer::IRadio::TRANSMISSION_STATE_TRANSMITTING:
+      lastTxFrame.set(clock->getClockTimestamp());
+      break;
+    case inet::physicallayer::IRadio::TRANSMISSION_STATE_IDLE:
+      // TODO
+      break;
+    case inet::physicallayer::IRadio::TRANSMISSION_STATE_UNDEFINED:
+      lastTxFrame.set(omnetpp::SimTime{0});
+      break;
+  }
+}
+
+void RangingWirelessNic::handleReceptionStateChangedSignal(inet::physicallayer::IRadio::ReceptionState newState)
+{
+  switch (newState) {
+    case inet::physicallayer::IRadio::RECEPTION_STATE_RECEIVING:
+      lastRxFrame.set(clock->getClockTimestamp());
+      break;
+    case inet::physicallayer::IRadio::RECEPTION_STATE_BUSY:
+      lastRxFrame.set(omnetpp::SimTime{0});
+      break;
+    case inet::physicallayer::IRadio::RECEPTION_STATE_IDLE:
+      // TODO
+      break;
+    case inet::physicallayer::IRadio::RECEPTION_STATE_UNDEFINED:
+      lastRxFrame.set(omnetpp::SimTime{0});
+      break;
+  }
 }
 
 int RangingWirelessNic::numInitStages() const

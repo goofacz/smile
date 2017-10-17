@@ -85,6 +85,10 @@ class RangingWirelessNic : public omnetpp::cSimpleModule, public omnetpp::cListe
  private:
   int numInitStages() const override final;
 
+  void handleTransmissionStateChangedSignal(inet::physicallayer::IRadio::TransmissionState newState);
+
+  void handleReceptionStateChangedSignal(inet::physicallayer::IRadio::ReceptionState newState);
+
   inet::physicallayer::Radio* radio{nullptr};
   inet::IdealMac* mac{nullptr};
   Clock* clock{nullptr};
