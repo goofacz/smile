@@ -21,6 +21,8 @@ module RangingWirelessNic
 {
     parameters:
         @class(RangingWirelessNic);
+        @signal[transmissionCompleted]();
+        @signal[receptionCompleted]();
         string nicType = default("");
 
     gates:

@@ -70,6 +70,9 @@ class RangingWirelessNic : public omnetpp::cSimpleModule, public omnetpp::cListe
   bool transmitFrame(std::unique_ptr<inet::MACFrameBase> frame, const omnetpp::SimTime& clockTimestamp,
                      bool cancelScheduledFrame = false);
 
+  static const omnetpp::simsignal_t transmissionCompletedSignal;
+  static const omnetpp::simsignal_t receptionCompletedSignal;
+
  protected:
   void initialize(int stage) override;
 

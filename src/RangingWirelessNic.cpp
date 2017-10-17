@@ -25,6 +25,11 @@ namespace smile {
 
 Define_Module(RangingWirelessNic);
 
+const omnetpp::simsignal_t RangingWirelessNic::transmissionCompletedSignal{
+    omnetpp::cComponent::registerSignal("transmissionCompleted")};
+const omnetpp::simsignal_t RangingWirelessNic::receptionCompletedSignal{
+    omnetpp::cComponent::registerSignal("receptionCompletedSignal")};
+
 const inet::MACAddress& RangingWirelessNic::getMacAddress() const
 {
   return address;
