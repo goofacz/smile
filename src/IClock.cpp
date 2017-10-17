@@ -17,6 +17,6 @@
 
 namespace smile {
 
-omnetpp::simsignal_t IClock::windowUpdateSignal{omnetpp::cComponent::registerSignal("windowUpdate")};
+const omnetpp::simsignal_t IClock::windowUpdateSignal{omnetpp::cComponent::registerSignal("windowUpdate")};
 
 }  // namespace smile

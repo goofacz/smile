@@ -36,7 +36,7 @@ class IClock
   virtual omnetpp::SimTime getClockTimestamp() = 0;
   virtual OptionalSimTime convertToSimulationTimestamp(const omnetpp::SimTime& timestamp) = 0;
 
-  static omnetpp::simsignal_t windowUpdateSignal;
+  static const omnetpp::simsignal_t windowUpdateSignal;
 
  protected:
   IClock() = default;
