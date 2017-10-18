@@ -17,6 +17,7 @@
 
 #include <functional>
 #include "Clock.h"
+#include "FrameTuple.h"
 #include "inet/common/geometry/common/Coord.h"
 #include "inet/linklayer/base/MACFrameBase_m.h"
 #include "inet/linklayer/ideal/IdealMac.h"
@@ -30,9 +31,6 @@ class RangingWirelessNic : public omnetpp::cSimpleModule, public omnetpp::cListe
  private:
   class FrameHolder
   {
-   public:
-    using Pair = std::pair<std::unique_ptr<inet::MACFrameBase>, omnetpp::SimTime>;
-
    public:
     FrameHolder() = default;
     FrameHolder(const FrameHolder& source) = delete;
@@ -48,7 +46,7 @@ class RangingWirelessNic : public omnetpp::cSimpleModule, public omnetpp::cListe
 
     bool isSet() const;
 
-    Pair release();
+    FrameTuple release();
     void clear();
 
    private:

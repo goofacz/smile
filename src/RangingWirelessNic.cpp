@@ -143,9 +143,9 @@ bool RangingWirelessNic::FrameHolder::isSet() const
   return frame && timestamp > 0;
 }
 
-RangingWirelessNic::FrameHolder::Pair RangingWirelessNic::FrameHolder::release()
+FrameTuple RangingWirelessNic::FrameHolder::release()
 {
-  auto result = std::make_pair(std::move(frame), timestamp);
+  FrameTuple result{std::move(frame), timestamp};
   clear();
   return result;
 }
