@@ -59,21 +59,10 @@ void RangingWirelessNic::initialize(int stage)
   cSimpleModule::initialize(stage);
 
   if (stage == inet::INITSTAGE_PHYSICAL_ENVIRONMENT_2) {
-    radio = check_and_cast<inet::physicallayer::Radio *>(getModuleByPath(".nic.radio"));
-    radio->subscribe(inet::physicallayer::Radio::transmissionStateChangedSignal, this);
-    radio->subscribe(inet::physicallayer::Radio::receptionStateChangedSignal, this);
-
-    mac = check_and_cast<inet::IdealMac *>(getModuleByPath(".nic.mac"));
-    address.setAddress(mac->par("address").stringValue());
-
-    clock = check_and_cast<Clock *>(getModuleByPath(".clock"));
-
-    auto mobility = check_and_cast<omnetpp::cComponent *>(getModuleByPath(".mobility"));
-    mobility->subscribe(inet::IMobility::mobilityStateChangedSignal, this);
-
-    auto iMobility = check_and_cast<inet::IMobility *>(mobility);
-    currentPosition = iMobility->getCurrentPosition();
-    EV_DETAIL << "Current position: " << currentPosition << endl;
+    initializeClock();
+    initializeRadio();
+    initializeMac();
+    initializeMobility();
   }
 }
 
@@ -230,6 +219,34 @@ void RangingWirelessNic::handleMessage(omnetpp::cMessage *message)
   }
 }
 
+void RangingWirelessNic::initializeRadio()
+{
+  radio = check_and_cast<inet::physicallayer::Radio *>(getModuleByPath(".nic.radio"));
+  radio->subscribe(inet::physicallayer::Radio::transmissionStateChangedSignal, this);
+  radio->subscribe(inet::physicallayer::Radio::receptionStateChangedSignal, this);
+}
+
+void RangingWirelessNic::initializeMac()
+{
+  mac = check_and_cast<inet::IdealMac *>(getModuleByPath(".nic.mac"));
+  address.setAddress(mac->par("address").stringValue());
+}
+
+void RangingWirelessNic::initializeClock()
+{
+  clock = check_and_cast<Clock *>(getModuleByPath(".clock"));
+}
+
+void RangingWirelessNic::initializeMobility()
+{
+  auto mobility = check_and_cast<omnetpp::cComponent *>(getModuleByPath(".mobility"));
+  mobility->subscribe(inet::IMobility::mobilityStateChangedSignal, this);
+
+  auto iMobility = check_and_cast<inet::IMobility *>(mobility);
+  currentPosition = iMobility->getCurrentPosition();
+  EV_DETAIL << "Current position: " << currentPosition << endl;
+}
+
 RangingWirelessNic::Operation::operator bool() const
 {
   return frame && timestamp > 0;
@@ -258,20 +275,19 @@ RangingWirelessNic::Operation::Type RangingWirelessNic::Operation::getType() con
   return type;
 }
 
-const char* RangingWirelessNic::Operation::getTypeAsString() const
+const char *RangingWirelessNic::Operation::getTypeAsString() const
 {
-    {
-      switch (type) {
-        case Operation::Type::TX:
-          return "TX";
-        case Operation::Type::RX:
-          return "RX";
-        default:
-          throw omnetpp::cRuntimeError(
-              "Cannot convert unknown RangingWirelessNic::Operation::Type (int) %x to string",
-              static_cast<int>(type));
-      }
+  {
+    switch (type) {
+      case Operation::Type::TX:
+        return "TX";
+      case Operation::Type::RX:
+        return "RX";
+      default:
+        throw omnetpp::cRuntimeError("Cannot convert unknown RangingWirelessNic::Operation::Type (int) %x to string",
+                                     static_cast<int>(type));
     }
+  }
 }
 
 inet::physicallayer::Radio::RadioMode RangingWirelessNic::Operation::getRadioMode() const

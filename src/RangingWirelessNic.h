@@ -99,6 +99,14 @@ class RangingWirelessNic : public omnetpp::cSimpleModule, public omnetpp::cListe
 
   void handleMessage(omnetpp::cMessage* message) final;
 
+  void initializeRadio();
+
+  void initializeMac();
+
+  void initializeClock();
+
+  void initializeMobility();
+
   void handleTransmissionStateChangedSignal(inet::physicallayer::IRadio::TransmissionState newState);
 
   void handleReceptionStateChangedSignal(inet::physicallayer::IRadio::ReceptionState newState);
