@@ -35,17 +35,24 @@ const inet::MACAddress& RangingWirelessNic::getMacAddress() const
   return address;
 }
 
-bool RangingWirelessNic::transmitFrame(std::unique_ptr<inet::MACFrameBase> frame,
-                                       const omnetpp::SimTime& clockTimestamp, bool cancelScheduledFrame)
+bool RangingWirelessNic::scheduleFrameTransmission(std::unique_ptr<inet::MACFrameBase> frame, const omnetpp::SimTime &delay,
+                                                   bool cancelScheduledFrame)
 {
-  if (!cancelScheduledFrame && scheduledTxFrame.isSet()) {
+  if (!cancelScheduledFrame && scheduledTxFrame) {
     return false;
   }
 
+  const auto clockTimestamp = clock->getClockTimestamp() + delay;
   scheduledTxFrame.set(std::move(frame), clockTimestamp);
 
   // TODO
 
+  return true;
+}
+
+bool RangingWirelessNic::scheduleFrameReception(const omnetpp::SimTime& delay)
+{
+  // TODO
   return true;
 }
 
@@ -78,7 +85,7 @@ void RangingWirelessNic::receiveSignal(omnetpp::cComponent*, omnetpp::simsignal_
   if (signalID == inet::physicallayer::Radio::transmissionStateChangedSignal) {
     handleTransmissionStateChangedSignal(static_cast<inet::physicallayer::IRadio::TransmissionState>(value));
   }
-  else if (signalID == inet::physicallayer::Radio::receptionStateChangedSignal) {
+  else if (signalID ==  inet::physicallayer::Radio::receptionStateChangedSignal) {
     handleReceptionStateChangedSignal(static_cast<inet::physicallayer::IRadio::ReceptionState>(value));
   }
 }
@@ -88,12 +95,16 @@ void RangingWirelessNic::handleTransmissionStateChangedSignal(inet::physicallaye
   switch (newState) {
     case inet::physicallayer::IRadio::TRANSMISSION_STATE_TRANSMITTING:
       lastTxFrame.set(clock->getClockTimestamp());
+      EV_DETAIL << "Transmission started at " << lastTxFrame.getTimestamp() << endl;
       break;
     case inet::physicallayer::IRadio::TRANSMISSION_STATE_IDLE:
-      // TODO
+      if (radio->getTransmissionState() == inet::physicallayer::IRadio::TRANSMISSION_STATE_TRANSMITTING) {
+        handleTransmisionCompletion();
+        EV_DETAIL << "Transmission finished at " << clock->getClockTimestamp() << endl;
+      }
       break;
     case inet::physicallayer::IRadio::TRANSMISSION_STATE_UNDEFINED:
-      lastTxFrame.set(omnetpp::SimTime{0});
+      lastTxFrame.clear();
       break;
   }
 }
@@ -103,17 +114,35 @@ void RangingWirelessNic::handleReceptionStateChangedSignal(inet::physicallayer::
   switch (newState) {
     case inet::physicallayer::IRadio::RECEPTION_STATE_RECEIVING:
       lastRxFrame.set(clock->getClockTimestamp());
+      EV_DETAIL << "Reception started at " << lastTxFrame.getTimestamp() << endl;
       break;
     case inet::physicallayer::IRadio::RECEPTION_STATE_BUSY:
       lastRxFrame.set(omnetpp::SimTime{0});
       break;
     case inet::physicallayer::IRadio::RECEPTION_STATE_IDLE:
-      // TODO
+      if (radio->getReceptionState() == inet::physicallayer::IRadio::RECEPTION_STATE_RECEIVING) {
+        handleReceptionCompletion();
+        EV_DETAIL << "Reception finished at " << clock->getClockTimestamp() << endl;
+      }
       break;
     case inet::physicallayer::IRadio::RECEPTION_STATE_UNDEFINED:
-      lastRxFrame.set(omnetpp::SimTime{0});
+      lastRxFrame.clear();
       break;
   }
+}
+
+void RangingWirelessNic::handleTransmisionCompletion()
+{
+  assert(lastTxFrame);
+  auto frameTuple = lastTxFrame.release();
+  emit(transmissionCompletedSignal, frameTuple.release());
+}
+
+void RangingWirelessNic::handleReceptionCompletion()
+{
+  assert(lastRxFrame);
+  auto frameTuple = lastRxFrame.release();
+  emit(receptionCompletedSignal, frameTuple.release());
 }
 
 int RangingWirelessNic::numInitStages() const
@@ -121,12 +150,17 @@ int RangingWirelessNic::numInitStages() const
   return inet::INITSTAGE_LINK_LAYER_2 + 1;
 }
 
+RangingWirelessNic::FrameHolder::operator bool() const
+        {
+  return frame && timestamp > 0;
+}
+
 void RangingWirelessNic::FrameHolder::set(std::unique_ptr<inet::MACFrameBase> newFrame)
 {
   frame = std::move(newFrame);
 }
 
-void RangingWirelessNic::FrameHolder::set(const omnetpp::SimTime& newTimestamp)
+void RangingWirelessNic::FrameHolder::set(const omnetpp::SimTime &newTimestamp)
 {
   timestamp = newTimestamp;
 }
@@ -138,14 +172,19 @@ void RangingWirelessNic::FrameHolder::set(std::unique_ptr<inet::MACFrameBase> ne
   set(newTimestamp);
 }
 
-bool RangingWirelessNic::FrameHolder::isSet() const
+const std::unique_ptr<inet::MACFrameBase> &RangingWirelessNic::FrameHolder::getFrame() const
 {
-  return frame && timestamp > 0;
+  return frame;
 }
 
-FrameTuple RangingWirelessNic::FrameHolder::release()
+const omnetpp::SimTime &RangingWirelessNic::FrameHolder::getTimestamp() const
 {
-  FrameTuple result{std::move(frame), timestamp};
+  return timestamp;
+}
+
+std::unique_ptr<FrameTuple> RangingWirelessNic::FrameHolder::release()
+{
+  auto result = std::make_unique<FrameTuple>(std::move(frame), timestamp);
   clear();
   return result;
 }
@@ -155,4 +194,4 @@ void RangingWirelessNic::FrameHolder::clear()
   set(nullptr, 0);
 }
 
-}  // namespace smile
+} // namespace smile

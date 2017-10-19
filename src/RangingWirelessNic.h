@@ -39,14 +39,16 @@ class RangingWirelessNic : public omnetpp::cSimpleModule, public omnetpp::cListe
 
     FrameHolder& operator=(const FrameHolder& source) = delete;
     FrameHolder& operator=(FrameHolder&& source) = delete;
+    explicit operator bool() const;
 
     void set(std::unique_ptr<inet::MACFrameBase> newFrame);
     void set(const omnetpp::SimTime& newTimestamp);
     void set(std::unique_ptr<inet::MACFrameBase> newFrame, const omnetpp::SimTime& newTimestamp);
 
-    bool isSet() const;
+    const std::unique_ptr<inet::MACFrameBase>& getFrame() const;
+    const omnetpp::SimTime& getTimestamp() const;
 
-    FrameTuple release();
+    std::unique_ptr<FrameTuple> release();
     void clear();
 
    private:
@@ -65,8 +67,10 @@ class RangingWirelessNic : public omnetpp::cSimpleModule, public omnetpp::cListe
 
   const inet::MACAddress& getMacAddress() const;
 
-  bool transmitFrame(std::unique_ptr<inet::MACFrameBase> frame, const omnetpp::SimTime& clockTimestamp,
-                     bool cancelScheduledFrame = false);
+  bool scheduleFrameTransmission(std::unique_ptr<inet::MACFrameBase> frame, const omnetpp::SimTime& delay,
+                                 bool cancelScheduledFrame = false);
+
+  bool scheduleFrameReception(const omnetpp::SimTime& delay);
 
   static const omnetpp::simsignal_t transmissionCompletedSignal;
   static const omnetpp::simsignal_t receptionCompletedSignal;
@@ -87,6 +91,10 @@ class RangingWirelessNic : public omnetpp::cSimpleModule, public omnetpp::cListe
 
   void handleReceptionStateChangedSignal(inet::physicallayer::IRadio::ReceptionState newState);
 
+  void handleTransmisionCompletion();
+
+  void handleReceptionCompletion();
+
   inet::physicallayer::Radio* radio{nullptr};
   inet::IdealMac* mac{nullptr};
   Clock* clock{nullptr};
@@ -97,4 +105,4 @@ class RangingWirelessNic : public omnetpp::cSimpleModule, public omnetpp::cListe
   FrameHolder lastTxFrame;
 };
 
-}  // namespace smile
+} // namespace smile
