@@ -29,22 +29,31 @@ namespace smile {
 class RangingWirelessNic : public omnetpp::cSimpleModule, public omnetpp::cListener
 {
  private:
-  class FrameHolder
+  class Operation
   {
    public:
-    FrameHolder() = default;
-    FrameHolder(const FrameHolder& source) = delete;
-    FrameHolder(FrameHolder&& source) = delete;
-    ~FrameHolder() = default;
+    enum class Type
+    {
+      TX,
+      RX
+    };
 
-    FrameHolder& operator=(const FrameHolder& source) = delete;
-    FrameHolder& operator=(FrameHolder&& source) = delete;
+   public:
+    Operation() = default;
+    Operation(const Operation& source) = delete;
+    Operation(Operation&& source) = delete;
+    ~Operation() = default;
+
+    Operation& operator=(const Operation& source) = delete;
+    Operation& operator=(Operation&& source) = delete;
     explicit operator bool() const;
 
     void set(std::unique_ptr<inet::MACFrameBase> newFrame);
     void set(const omnetpp::SimTime& newTimestamp);
-    void set(std::unique_ptr<inet::MACFrameBase> newFrame, const omnetpp::SimTime& newTimestamp);
+    void set(Type newType, std::unique_ptr<inet::MACFrameBase> newFrame, const omnetpp::SimTime& newTimestamp);
 
+    Type getType() const;
+    inet::physicallayer::Radio::RadioMode getRadioMode() const;
     const std::unique_ptr<inet::MACFrameBase>& getFrame() const;
     const omnetpp::SimTime& getTimestamp() const;
 
@@ -52,57 +61,69 @@ class RangingWirelessNic : public omnetpp::cSimpleModule, public omnetpp::cListe
     void clear();
 
    private:
+    Type type{Type::TX};
     std::unique_ptr<inet::MACFrameBase> frame;
     omnetpp::SimTime timestamp;
   };
 
  public:
-  RangingWirelessNic() = default;
+  RangingWirelessNic();
   RangingWirelessNic(const RangingWirelessNic& source) = delete;
   RangingWirelessNic(RangingWirelessNic&& source) = delete;
-  ~RangingWirelessNic() override = default;
+  ~RangingWirelessNic();
 
   RangingWirelessNic& operator=(const RangingWirelessNic& source) = delete;
   RangingWirelessNic& operator=(RangingWirelessNic&& source) = delete;
 
   const inet::MACAddress& getMacAddress() const;
 
-  bool scheduleFrameTransmission(std::unique_ptr<inet::MACFrameBase> frame, const omnetpp::SimTime& delay,
-                                 bool cancelScheduledFrame = false);
+  bool scheduleTransmission(std::unique_ptr<inet::MACFrameBase> frame, const omnetpp::SimTime& delay,
+                            bool cancelScheduledOperation = false);
 
-  bool scheduleFrameReception(const omnetpp::SimTime& delay);
+  bool scheduleReception(const omnetpp::SimTime& delay, bool cancelScheduledOperation = false);
 
   static const omnetpp::simsignal_t transmissionCompletedSignal;
   static const omnetpp::simsignal_t receptionCompletedSignal;
 
- protected:
+ private:
   void initialize(int stage) override;
 
   void receiveSignal(omnetpp::cComponent* source, omnetpp::simsignal_t signalID, long value,
                      omnetpp::cObject* details) override;
 
-  void receiveSignal(omnetpp::cComponent* source, omnetpp::simsignal_t signalID, omnetpp::cObject* value,
+  void receiveSignal(omnetpp::cComponent* source, omnetpp::simsignal_t signalID, const omnetpp::SimTime&,
                      omnetpp::cObject* details) override;
 
- private:
   int numInitStages() const override final;
+
+  void handleMessage(omnetpp::cMessage* message) final;
 
   void handleTransmissionStateChangedSignal(inet::physicallayer::IRadio::TransmissionState newState);
 
   void handleReceptionStateChangedSignal(inet::physicallayer::IRadio::ReceptionState newState);
 
+  bool scheduleOperation(Operation::Type type, std::unique_ptr<inet::MACFrameBase> frame, const omnetpp::SimTime& delay,
+                         bool cancelScheduledOperation);
+
   void handleTransmisionCompletion();
 
   void handleReceptionCompletion();
+
+  void handleStartScheduleOperationMessage();
+
+  void handleWindowUpdateSignal(const omnetpp::SimTime& windowEndClockTimestamp);
 
   inet::physicallayer::Radio* radio{nullptr};
   inet::IdealMac* mac{nullptr};
   Clock* clock{nullptr};
   inet::Coord currentPosition;
   inet::MACAddress address;
-  FrameHolder scheduledTxFrame;
-  FrameHolder lastRxFrame;
-  FrameHolder lastTxFrame;
+
+  Operation scheduledOperation;
+  Operation lastRxOperation;
+  Operation lastTxOperation;
+
+  std::unique_ptr<omnetpp::cMessage> startScheduleOperationMessage;
 };
 
-} // namespace smile
+}  // namespace smile
