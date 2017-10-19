@@ -166,6 +166,8 @@ bool RangingWirelessNic::scheduleOperation(Operation::Type type, std::unique_ptr
     radio->subscribe(IClock::windowUpdateSignal, this);
   }
 
+  EV_DETAIL << scheduledOperation.getTypeAsString() << " operation was scheduled" << endl;
+
   return true;
 }
 
@@ -174,6 +176,8 @@ void RangingWirelessNic::handleTransmisionCompletion()
   assert(lastTxOperation);
   auto frameTuple = lastTxOperation.release();
   emit(transmissionCompletedSignal, frameTuple.release());
+
+  EV_DETAIL << "TX operation was completed" << endl;
 }
 
 void RangingWirelessNic::handleReceptionCompletion()
@@ -181,12 +185,16 @@ void RangingWirelessNic::handleReceptionCompletion()
   assert(lastRxOperation);
   auto frameTuple = lastRxOperation.release();
   emit(receptionCompletedSignal, frameTuple.release());
+
+  EV_DETAIL << "RX operation was completed" << endl;
 }
 
 void RangingWirelessNic::handleStartScheduleOperationMessage()
 {
   const auto mode = scheduledOperation.getRadioMode();
   radio->setRadioMode(mode);
+
+  EV_DETAIL << "Enable NIC's radio for scheduled " << scheduledOperation.getTypeAsString() << " operation" << endl;
 }
 
 void RangingWirelessNic::handleWindowUpdateSignal(const omnetpp::SimTime &windowEndClockTimestamp)
@@ -250,6 +258,22 @@ RangingWirelessNic::Operation::Type RangingWirelessNic::Operation::getType() con
   return type;
 }
 
+const char* RangingWirelessNic::Operation::getTypeAsString() const
+{
+    {
+      switch (type) {
+        case Operation::Type::TX:
+          return "TX";
+        case Operation::Type::RX:
+          return "RX";
+        default:
+          throw omnetpp::cRuntimeError(
+              "Cannot convert unknown RangingWirelessNic::Operation::Type (int) %x to string",
+              static_cast<int>(type));
+      }
+    }
+}
+
 inet::physicallayer::Radio::RadioMode RangingWirelessNic::Operation::getRadioMode() const
 {
   switch (type) {
@@ -259,7 +283,7 @@ inet::physicallayer::Radio::RadioMode RangingWirelessNic::Operation::getRadioMod
       return inet::physicallayer::Radio::RADIO_MODE_RECEIVER;
     default:
       throw omnetpp::cRuntimeError(
-          "Cannot cast RangingWirelessNic::Operation::Type (int) %x to inet::physicallayer::Radio::RadioMode",
+          "Cannot cast unknown RangingWirelessNic::Operation::Type (int) %x to inet::physicallayer::Radio::RadioMode",
           static_cast<int>(type));
   }
 }

@@ -53,6 +53,7 @@ class RangingWirelessNic : public omnetpp::cSimpleModule, public omnetpp::cListe
     void set(Type newType, std::unique_ptr<inet::MACFrameBase> newFrame, const omnetpp::SimTime& newTimestamp);
 
     Type getType() const;
+    const char* getTypeAsString() const;
     inet::physicallayer::Radio::RadioMode getRadioMode() const;
     const std::unique_ptr<inet::MACFrameBase>& getFrame() const;
     const omnetpp::SimTime& getTimestamp() const;
