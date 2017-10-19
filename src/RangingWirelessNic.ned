@@ -24,6 +24,7 @@ module RangingWirelessNic
         @signal[transmissionCompleted](type=FrameTuple);
         @signal[receptionCompleted](type=FrameTuple);
         string nicType = default("");
+        bool enableReceiverOnStart = default(false);
 
     gates:
         input upperLayerIn;

@@ -224,6 +224,11 @@ void RangingWirelessNic::initializeRadio()
   radio = check_and_cast<inet::physicallayer::Radio *>(getModuleByPath(".nic.radio"));
   radio->subscribe(inet::physicallayer::Radio::transmissionStateChangedSignal, this);
   radio->subscribe(inet::physicallayer::Radio::receptionStateChangedSignal, this);
+
+  const auto enableReceiverOnStart = par("enableReceiverOnStart").boolValue();
+  if(enableReceiverOnStart) {
+      scheduleReception(0);
+  }
 }
 
 void RangingWirelessNic::initializeMac()
