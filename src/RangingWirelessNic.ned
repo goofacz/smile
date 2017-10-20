@@ -29,11 +29,9 @@ module RangingWirelessNic
     gates:
         input upperLayerIn;
         output upperLayerOut;
-        input radioIn;
+        input lowerLayerIn;
+        output lowerLayerOut;
 
     submodules:
         nic: <nicType> like IWirelessNic;
-
-    connections:
-        radioIn --> nic.radioIn;
 }

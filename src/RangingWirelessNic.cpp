@@ -69,11 +69,14 @@ void RangingWirelessNic::initialize(int stage)
 void RangingWirelessNic::receiveSignal(omnetpp::cComponent *, omnetpp::simsignal_t signalID, long value,
                                        omnetpp::cObject *)
 {
-  if (signalID == inet::physicallayer::Radio::transmissionStateChangedSignal) {
+  if (signalID == inet::physicallayer::IRadio::transmissionStateChangedSignal) {
     handleTransmissionStateChangedSignal(static_cast<inet::physicallayer::IRadio::TransmissionState>(value));
   }
-  else if (signalID == inet::physicallayer::Radio::receptionStateChangedSignal) {
+  else if (signalID == inet::physicallayer::IRadio::receptionStateChangedSignal) {
     handleReceptionStateChangedSignal(static_cast<inet::physicallayer::IRadio::ReceptionState>(value));
+  }
+  else if (signalID == inet::physicallayer::IRadio::radioModeChangedSignal) {
+    handleradioModeChangedSignal(static_cast<inet::physicallayer::IRadio::RadioMode>(value));
   }
   else {
     throw omnetpp::cRuntimeError{"Received unexpected signal: \"%s\"", getSignalName(signalID)};
@@ -101,6 +104,7 @@ void RangingWirelessNic::handleTransmissionStateChangedSignal(inet::physicallaye
     case inet::physicallayer::IRadio::TRANSMISSION_STATE_IDLE:
       if (radio->getTransmissionState() == inet::physicallayer::IRadio::TRANSMISSION_STATE_TRANSMITTING) {
         handleTransmisionCompletion();
+        radio->setRadioMode(inet::physicallayer::IRadio::RADIO_MODE_OFF);
         EV_DETAIL << "Transmission finished at " << clock->getClockTimestamp() << endl;
       }
       break;
@@ -123,6 +127,7 @@ void RangingWirelessNic::handleReceptionStateChangedSignal(inet::physicallayer::
     case inet::physicallayer::IRadio::RECEPTION_STATE_IDLE:
       if (radio->getReceptionState() == inet::physicallayer::IRadio::RECEPTION_STATE_RECEIVING) {
         handleReceptionCompletion();
+        radio->setRadioMode(inet::physicallayer::IRadio::RADIO_MODE_OFF);
         EV_DETAIL << "Reception finished at " << clock->getClockTimestamp() << endl;
       }
       break;
@@ -130,6 +135,49 @@ void RangingWirelessNic::handleReceptionStateChangedSignal(inet::physicallayer::
       lastRxOperation.clear();
       break;
   }
+}
+
+void RangingWirelessNic::handleradioModeChangedSignal(inet::physicallayer::IRadio::RadioMode newMode)
+{
+  if (radio->getRadioMode() != inet::physicallayer::IRadio::RADIO_MODE_OFF) {
+    return;
+  }
+
+  if (!scheduledOperation) {
+    throw omnetpp::cRuntimeError{"RangingWirelessNic failed to find scheduled operation after switching to TX/RX"};
+  }
+
+  const auto operationType = scheduledOperation.getType();
+  if (operationType == Operation::Type::TX) {
+    if (newMode != inet::physicallayer::IRadio::RADIO_MODE_TRANSMITTER) {
+      throw omnetpp::cRuntimeError{
+          "RangingWirelessNic has scheduled TX operation, but radio switched to different mode "
+          "(inet::physicallayer::IRadio): 0x%x",
+          static_cast<int>(newMode)};
+    }
+
+    lastTxOperation = std::move(scheduledOperation);
+    lastTxOperation.set(omnetpp::SimTime{});
+
+    const auto &frame = lastTxOperation.getFrame();
+    sendDelayed(frame->dup(), 0, "lowerLayerIn");
+  }
+  else if (operationType == Operation::Type::RX) {
+    if (newMode != inet::physicallayer::IRadio::RADIO_MODE_RECEIVER) {
+      throw omnetpp::cRuntimeError{
+          "RangingWirelessNic has scheduled RX operation, but radio switched to different mode "
+          "(inet::physicallayer::IRadio): 0x%x",
+          static_cast<int>(newMode)};
+    }
+
+    lastRxOperation.clear();
+  }
+  else {
+    throw omnetpp::cRuntimeError{
+        "RangingWirelessNic encountered invalid type of scheduled operation (Operation::Type): 0x%x", operationType};
+  }
+
+  scheduledOperation.clear();
 }
 
 bool RangingWirelessNic::scheduleOperation(Operation::Type type, std::unique_ptr<inet::MACFrameBase> frame,
@@ -214,20 +262,32 @@ void RangingWirelessNic::handleMessage(omnetpp::cMessage *message)
     }
   }
   else {
-    std::unique_ptr<omnetpp::cMessage>{message};
-    // TODO
+    if (message->getArrivalGate() == gate("lowerLayerIn")) {
+      std::unique_ptr<inet::MACFrameBase> frame{check_and_cast<inet::MACFrameBase *>(message)};
+      handleReceivedFrame(std::move(frame));
+    }
   }
+}
+
+void RangingWirelessNic::handleReceivedFrame(std::unique_ptr<inet::MACFrameBase> frame)
+{
+  lastRxOperation.set(std::move(frame));
+
+  assert(lastTxOperation);
+  auto frameTuple = lastRxOperation.release();
+  emit(receptionCompletedSignal, frameTuple.release());
 }
 
 void RangingWirelessNic::initializeRadio()
 {
   radio = check_and_cast<inet::physicallayer::Radio *>(getModuleByPath(".nic.radio"));
-  radio->subscribe(inet::physicallayer::Radio::transmissionStateChangedSignal, this);
-  radio->subscribe(inet::physicallayer::Radio::receptionStateChangedSignal, this);
+  radio->subscribe(inet::physicallayer::IRadio::transmissionStateChangedSignal, this);
+  radio->subscribe(inet::physicallayer::IRadio::receptionStateChangedSignal, this);
+  radio->subscribe(inet::physicallayer::IRadio::radioModeChangedSignal, this);
 
   const auto enableReceiverOnStart = par("enableReceiverOnStart").boolValue();
-  if(enableReceiverOnStart) {
-      scheduleReception(0);
+  if (enableReceiverOnStart) {
+    scheduleReception(0);
   }
 }
 

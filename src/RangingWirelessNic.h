@@ -45,7 +45,7 @@ class RangingWirelessNic : public omnetpp::cSimpleModule, public omnetpp::cListe
     ~Operation() = default;
 
     Operation& operator=(const Operation& source) = delete;
-    Operation& operator=(Operation&& source) = delete;
+    Operation& operator=(Operation&& source) = default;
     explicit operator bool() const;
 
     void set(std::unique_ptr<inet::MACFrameBase> newFrame);
@@ -99,6 +99,8 @@ class RangingWirelessNic : public omnetpp::cSimpleModule, public omnetpp::cListe
 
   void handleMessage(omnetpp::cMessage* message) final;
 
+  void handleReceivedFrame(std::unique_ptr<inet::MACFrameBase> frame);
+
   void initializeRadio();
 
   void initializeMac();
@@ -110,6 +112,8 @@ class RangingWirelessNic : public omnetpp::cSimpleModule, public omnetpp::cListe
   void handleTransmissionStateChangedSignal(inet::physicallayer::IRadio::TransmissionState newState);
 
   void handleReceptionStateChangedSignal(inet::physicallayer::IRadio::ReceptionState newState);
+
+  void handleradioModeChangedSignal(inet::physicallayer::IRadio::RadioMode newMode);
 
   bool scheduleOperation(Operation::Type type, std::unique_ptr<inet::MACFrameBase> frame, const omnetpp::SimTime& delay,
                          bool cancelScheduledOperation);
