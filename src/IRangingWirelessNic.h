@@ -15,6 +15,8 @@
 
 #pragma once
 
+#include <memory>
+#include "inet/linklayer/base/MACFrameBase_m.h"
 #include "omnetpp.h"
 
 namespace smile {
@@ -29,8 +31,29 @@ class IRangingWirelessNic
   IRangingWirelessNic& operator=(const IRangingWirelessNic& source) = delete;
   IRangingWirelessNic& operator=(IRangingWirelessNic&& source) = delete;
 
+  virtual bool scheduleTransmission(std::unique_ptr<inet::MACFrameBase> frame, const omnetpp::SimTime& delay,
+                                    bool cancelScheduledOperation) = 0;
+
+  virtual bool scheduleReception(const omnetpp::SimTime& delay, bool cancelScheduledOperation) = 0;
+
+  const inet::MACAddress& getMacAddress() const;
+  const omnetpp::SimTime& getTransmissionBeginClockTimestamp() const;
+  const omnetpp::SimTime& getReceptionBeginClockTimestamp() const;
+
+  static const omnetpp::simsignal_t transmissionCompletedSignal;
+  static const omnetpp::simsignal_t receptionCompletedSignal;
+
  protected:
   IRangingWirelessNic() = default;
+
+  void setAddress(const inet::MACAddress& newAddress);
+  void setTransmissionBeginClockTimestamp(const omnetpp::SimTime& newTimestamp);
+  void setReceptionBeginClockTimestamp(const omnetpp::SimTime& newTimestamp);
+
+ private:
+  inet::MACAddress address;
+  omnetpp::SimTime txBeginClockTimestamp;
+  omnetpp::SimTime rxBeginClockTimestamp;
 };
 
 }  // namespace smile

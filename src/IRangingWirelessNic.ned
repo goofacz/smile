@@ -15,10 +15,11 @@
 
 package smile;
 
-moduleinterface IRangingWirelessNic
+import inet.linklayer.contract.IWirelessNic;
+
+moduleinterface IRangingWirelessNic extends IWirelessNic
 {
-    gates:
-        input upperLayerIn;
-        output upperLayerOut;
-        input radioIn @directIn;
+    parameters:
+        @signal[transmissionCompleted](type=FrameTuple);
+        @signal[receptionCompleted](type=FrameTuple);
 }
