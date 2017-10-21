@@ -24,12 +24,12 @@ module RadioNode
 {
     parameters:
         @networkNode();
-        
         *.interfaceTableModule = default(absPath(".interfaceTable"));
         string physicalNicType = default("");
         string mobilityType = default("");
         string applicationType = default("");
         string clockType = default("");
+        string nicType = default("");
     
     gates:
         input radioIn @directIn;
@@ -40,9 +40,7 @@ module RadioNode
         mobility: <mobilityType> like IMobility;
         application: <applicationType> like IApplication;
         clock: <clockType> like IClock;        
-        nic: RangingWirelessNic	{
-            nicType = physicalNicType;
-        };
+        nic: <nicType> like IRangingWirelessNic;
 
     connections:
         radioIn --> nic.radioIn;        

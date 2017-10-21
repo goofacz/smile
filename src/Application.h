@@ -21,9 +21,10 @@
 #include "IApplication.h"
 #include "IClock.h"
 #include "MeasurementsLogger.h"
-#include "RangingWirelessNic.h"
 #include "inet/linklayer/base/MACFrameBase_m.h"
 #include "omnetpp.h"
+
+#include "IdealNic.h"
 
 namespace smile {
 
@@ -89,7 +90,7 @@ class Application : public omnetpp::cSimpleModule, public omnetpp::cListener, pu
 
   MeasurementsLogger* measurementsLogger{nullptr};
   IClock* clock{nullptr};
-  RangingWirelessNic* nic{nullptr};
+  IdealNic* nic{nullptr};
   std::vector<PendingTxFrame> pendingTxFrames;
   const std::unique_ptr<omnetpp::cMessage> processPendingTxFramesMessage;
 };
