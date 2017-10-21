@@ -13,48 +13,47 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 //
 
+#include "IdealNic.h"
+
 #include <cassert>
 
 #include "inet/common/INETDefs.h"
 #include "inet/linklayer/base/MACProtocolBase.h"
 
-#include "RangingWirelessNic.h"
-
 namespace smile {
 
-Define_Module(RangingWirelessNic);
+Define_Module(IdealNic);
 
-const omnetpp::simsignal_t RangingWirelessNic::transmissionCompletedSignal{
+const omnetpp::simsignal_t IdealNic::transmissionCompletedSignal{
     omnetpp::cComponent::registerSignal("transmissionCompleted")};
-const omnetpp::simsignal_t RangingWirelessNic::receptionCompletedSignal{
+const omnetpp::simsignal_t IdealNic::receptionCompletedSignal{
     omnetpp::cComponent::registerSignal("receptionCompletedSignal")};
 
-RangingWirelessNic::RangingWirelessNic() :
-    startScheduleOperationMessage{std::make_unique<omnetpp::cMessage>("Start scheduled operation")}
+IdealNic::IdealNic() : startScheduleOperationMessage{std::make_unique<omnetpp::cMessage>("Start scheduled operation")}
 {}
 
-RangingWirelessNic::~RangingWirelessNic()
+IdealNic::~IdealNic()
 {
   cancelEvent(startScheduleOperationMessage.get());
 }
 
-const inet::MACAddress &RangingWirelessNic::getMacAddress() const
+const inet::MACAddress &IdealNic::getMacAddress() const
 {
   return address;
 }
 
-bool RangingWirelessNic::scheduleTransmission(std::unique_ptr<inet::MACFrameBase> frame, const omnetpp::SimTime &delay,
-                                              bool cancelScheduledOperation)
+bool IdealNic::scheduleTransmission(std::unique_ptr<inet::MACFrameBase> frame, const omnetpp::SimTime &delay,
+                                    bool cancelScheduledOperation)
 {
   return scheduleOperation(Operation::Type::TX, std::move(frame), delay, cancelScheduledOperation);
 }
 
-bool RangingWirelessNic::scheduleReception(const omnetpp::SimTime &delay, bool cancelScheduledOperation)
+bool IdealNic::scheduleReception(const omnetpp::SimTime &delay, bool cancelScheduledOperation)
 {
   return scheduleOperation(Operation::Type::RX, nullptr, delay, cancelScheduledOperation);
 }
 
-void RangingWirelessNic::initialize(int stage)
+void IdealNic::initialize(int stage)
 {
   cSimpleModule::initialize(stage);
 
@@ -66,8 +65,7 @@ void RangingWirelessNic::initialize(int stage)
   }
 }
 
-void RangingWirelessNic::receiveSignal(omnetpp::cComponent *, omnetpp::simsignal_t signalID, long value,
-                                       omnetpp::cObject *)
+void IdealNic::receiveSignal(omnetpp::cComponent *, omnetpp::simsignal_t signalID, long value, omnetpp::cObject *)
 {
   if (signalID == inet::physicallayer::IRadio::transmissionStateChangedSignal) {
     handleTransmissionStateChangedSignal(static_cast<inet::physicallayer::IRadio::TransmissionState>(value));
@@ -83,8 +81,8 @@ void RangingWirelessNic::receiveSignal(omnetpp::cComponent *, omnetpp::simsignal
   }
 }
 
-void RangingWirelessNic::receiveSignal(omnetpp::cComponent *, omnetpp::simsignal_t signalID,
-                                       const omnetpp::SimTime &value, omnetpp::cObject *)
+void IdealNic::receiveSignal(omnetpp::cComponent *, omnetpp::simsignal_t signalID, const omnetpp::SimTime &value,
+                             omnetpp::cObject *)
 {
   if (signalID == IClock::windowUpdateSignal) {
     handleWindowUpdateSignal(value);
@@ -94,7 +92,7 @@ void RangingWirelessNic::receiveSignal(omnetpp::cComponent *, omnetpp::simsignal
   }
 }
 
-void RangingWirelessNic::handleTransmissionStateChangedSignal(inet::physicallayer::IRadio::TransmissionState newState)
+void IdealNic::handleTransmissionStateChangedSignal(inet::physicallayer::IRadio::TransmissionState newState)
 {
   switch (newState) {
     case inet::physicallayer::IRadio::TRANSMISSION_STATE_TRANSMITTING:
@@ -114,7 +112,7 @@ void RangingWirelessNic::handleTransmissionStateChangedSignal(inet::physicallaye
   }
 }
 
-void RangingWirelessNic::handleReceptionStateChangedSignal(inet::physicallayer::IRadio::ReceptionState newState)
+void IdealNic::handleReceptionStateChangedSignal(inet::physicallayer::IRadio::ReceptionState newState)
 {
   switch (newState) {
     case inet::physicallayer::IRadio::RECEPTION_STATE_RECEIVING:
@@ -137,7 +135,7 @@ void RangingWirelessNic::handleReceptionStateChangedSignal(inet::physicallayer::
   }
 }
 
-void RangingWirelessNic::handleradioModeChangedSignal(inet::physicallayer::IRadio::RadioMode newMode)
+void IdealNic::handleradioModeChangedSignal(inet::physicallayer::IRadio::RadioMode newMode)
 {
   if (radio->getRadioMode() != inet::physicallayer::IRadio::RADIO_MODE_OFF) {
     return;
@@ -180,8 +178,8 @@ void RangingWirelessNic::handleradioModeChangedSignal(inet::physicallayer::IRadi
   scheduledOperation.clear();
 }
 
-bool RangingWirelessNic::scheduleOperation(Operation::Type type, std::unique_ptr<inet::MACFrameBase> frame,
-                                           const omnetpp::SimTime &delay, bool cancelScheduledOperation)
+bool IdealNic::scheduleOperation(Operation::Type type, std::unique_ptr<inet::MACFrameBase> frame,
+                                 const omnetpp::SimTime &delay, bool cancelScheduledOperation)
 {
   if (radio->getRadioMode() != inet::physicallayer::Radio::RADIO_MODE_OFF ||
       radio->getRadioMode() != inet::physicallayer::Radio::RADIO_MODE_SLEEP) {
@@ -208,7 +206,7 @@ bool RangingWirelessNic::scheduleOperation(Operation::Type type, std::unique_ptr
   return true;
 }
 
-void RangingWirelessNic::handleTransmisionCompletion()
+void IdealNic::handleTransmisionCompletion()
 {
   assert(lastTxOperation);
   auto frameTuple = lastTxOperation.release();
@@ -217,7 +215,7 @@ void RangingWirelessNic::handleTransmisionCompletion()
   EV_DETAIL << "TX operation was completed" << endl;
 }
 
-void RangingWirelessNic::handleReceptionCompletion()
+void IdealNic::handleReceptionCompletion()
 {
   assert(lastRxOperation);
   auto frameTuple = lastRxOperation.release();
@@ -226,7 +224,7 @@ void RangingWirelessNic::handleReceptionCompletion()
   EV_DETAIL << "RX operation was completed" << endl;
 }
 
-void RangingWirelessNic::handleStartScheduleOperationMessage()
+void IdealNic::handleStartScheduleOperationMessage()
 {
   const auto mode = scheduledOperation.getRadioMode();
   radio->setRadioMode(mode);
@@ -234,7 +232,7 @@ void RangingWirelessNic::handleStartScheduleOperationMessage()
   EV_DETAIL << "Enable NIC's radio for scheduled " << scheduledOperation.getTypeAsString() << " operation" << endl;
 }
 
-void RangingWirelessNic::handleWindowUpdateSignal(const omnetpp::SimTime &windowEndClockTimestamp)
+void IdealNic::handleWindowUpdateSignal(const omnetpp::SimTime &windowEndClockTimestamp)
 {
   bool releaseSubscription{true};
   if (scheduledOperation) {
@@ -246,12 +244,12 @@ void RangingWirelessNic::handleWindowUpdateSignal(const omnetpp::SimTime &window
   }
 }
 
-int RangingWirelessNic::numInitStages() const
+int IdealNic::numInitStages() const
 {
   return inet::INITSTAGE_LINK_LAYER_2 + 1;
 }
 
-void RangingWirelessNic::handleMessage(omnetpp::cMessage *message)
+void IdealNic::handleMessage(omnetpp::cMessage *message)
 {
   if (message->isSelfMessage()) {
     if (message == startScheduleOperationMessage.get()) {
@@ -269,7 +267,7 @@ void RangingWirelessNic::handleMessage(omnetpp::cMessage *message)
   }
 }
 
-void RangingWirelessNic::handleReceivedFrame(std::unique_ptr<inet::MACFrameBase> frame)
+void IdealNic::handleReceivedFrame(std::unique_ptr<inet::MACFrameBase> frame)
 {
   lastRxOperation.set(std::move(frame));
 
@@ -278,7 +276,7 @@ void RangingWirelessNic::handleReceivedFrame(std::unique_ptr<inet::MACFrameBase>
   emit(receptionCompletedSignal, frameTuple.release());
 }
 
-void RangingWirelessNic::initializeRadio()
+void IdealNic::initializeRadio()
 {
   radio = check_and_cast<inet::physicallayer::Radio *>(getModuleByPath(".nic.radio"));
   radio->subscribe(inet::physicallayer::IRadio::transmissionStateChangedSignal, this);
@@ -291,18 +289,18 @@ void RangingWirelessNic::initializeRadio()
   }
 }
 
-void RangingWirelessNic::initializeMac()
+void IdealNic::initializeMac()
 {
   mac = check_and_cast<inet::IdealMac *>(getModuleByPath(".nic.mac"));
   address.setAddress(mac->par("address").stringValue());
 }
 
-void RangingWirelessNic::initializeClock()
+void IdealNic::initializeClock()
 {
   clock = check_and_cast<Clock *>(getModuleByPath(".clock"));
 }
 
-void RangingWirelessNic::initializeMobility()
+void IdealNic::initializeMobility()
 {
   auto mobility = check_and_cast<omnetpp::cComponent *>(getModuleByPath(".mobility"));
   mobility->subscribe(inet::IMobility::mobilityStateChangedSignal, this);
@@ -312,35 +310,35 @@ void RangingWirelessNic::initializeMobility()
   EV_DETAIL << "Current position: " << currentPosition << endl;
 }
 
-RangingWirelessNic::Operation::operator bool() const
+IdealNic::Operation::operator bool() const
 {
   return frame && timestamp > 0;
 }
 
-void RangingWirelessNic::Operation::set(std::unique_ptr<inet::MACFrameBase> newFrame)
+void IdealNic::Operation::set(std::unique_ptr<inet::MACFrameBase> newFrame)
 {
   frame = std::move(newFrame);
 }
 
-void RangingWirelessNic::Operation::set(const omnetpp::SimTime &newTimestamp)
+void IdealNic::Operation::set(const omnetpp::SimTime &newTimestamp)
 {
   timestamp = newTimestamp;
 }
 
-void RangingWirelessNic::Operation::set(Operation::Type newType, std::unique_ptr<inet::MACFrameBase> newFrame,
-                                        const omnetpp::SimTime &newTimestamp)
+void IdealNic::Operation::set(Operation::Type newType, std::unique_ptr<inet::MACFrameBase> newFrame,
+                              const omnetpp::SimTime &newTimestamp)
 {
   type = newType;
   set(std::move(newFrame));
   set(newTimestamp);
 }
 
-RangingWirelessNic::Operation::Type RangingWirelessNic::Operation::getType() const
+IdealNic::Operation::Type IdealNic::Operation::getType() const
 {
   return type;
 }
 
-const char *RangingWirelessNic::Operation::getTypeAsString() const
+const char *IdealNic::Operation::getTypeAsString() const
 {
   {
     switch (type) {
@@ -355,7 +353,7 @@ const char *RangingWirelessNic::Operation::getTypeAsString() const
   }
 }
 
-inet::physicallayer::Radio::RadioMode RangingWirelessNic::Operation::getRadioMode() const
+inet::physicallayer::Radio::RadioMode IdealNic::Operation::getRadioMode() const
 {
   switch (type) {
     case Operation::Type::TX:
@@ -369,24 +367,24 @@ inet::physicallayer::Radio::RadioMode RangingWirelessNic::Operation::getRadioMod
   }
 }
 
-const std::unique_ptr<inet::MACFrameBase> &RangingWirelessNic::Operation::getFrame() const
+const std::unique_ptr<inet::MACFrameBase> &IdealNic::Operation::getFrame() const
 {
   return frame;
 }
 
-const omnetpp::SimTime &RangingWirelessNic::Operation::getTimestamp() const
+const omnetpp::SimTime &IdealNic::Operation::getTimestamp() const
 {
   return timestamp;
 }
 
-std::unique_ptr<FrameTuple> RangingWirelessNic::Operation::release()
+std::unique_ptr<FrameTuple> IdealNic::Operation::release()
 {
   auto result = std::make_unique<FrameTuple>(std::move(frame), timestamp);
   clear();
   return result;
 }
 
-void RangingWirelessNic::Operation::clear()
+void IdealNic::Operation::clear()
 {
   set(Type::TX, nullptr, 0);
 }

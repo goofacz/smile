@@ -15,23 +15,13 @@
 
 package smile;
 
-import inet.linklayer.contract.IWirelessNic;
+import inet.linklayer.ideal.IdealWirelessNic;
 
-module RangingWirelessNic
+module IdealNic extends IdealWirelessNic like IRangingWirelessNic
 {
     parameters:
-        @class(RangingWirelessNic);
-        @signal[transmissionCompleted](type=FrameTuple);
-        @signal[receptionCompleted](type=FrameTuple);
-        string nicType = default("");
-        bool enableReceiverOnStart = default(false);
-
-    gates:
-        input upperLayerIn;
-        output upperLayerOut;
-        input lowerLayerIn;
-        output lowerLayerOut;
-
-    submodules:
-        nic: <nicType> like IWirelessNic;
+        @class(smile::IdealNic);
+        
+    connections:
+        upperLayerIn --> mac.upperLayerIn;
 }

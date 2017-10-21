@@ -18,6 +18,7 @@
 #include <functional>
 #include "Clock.h"
 #include "FrameTuple.h"
+#include "IRangingWirelessNic.h"
 #include "inet/common/geometry/common/Coord.h"
 #include "inet/linklayer/base/MACFrameBase_m.h"
 #include "inet/linklayer/ideal/IdealMac.h"
@@ -26,7 +27,7 @@
 
 namespace smile {
 
-class RangingWirelessNic : public omnetpp::cSimpleModule, public omnetpp::cListener
+class IdealNic : public omnetpp::cSimpleModule, public omnetpp::cListener, public IRangingWirelessNic
 {
  private:
   class Operation
@@ -68,13 +69,13 @@ class RangingWirelessNic : public omnetpp::cSimpleModule, public omnetpp::cListe
   };
 
  public:
-  RangingWirelessNic();
-  RangingWirelessNic(const RangingWirelessNic& source) = delete;
-  RangingWirelessNic(RangingWirelessNic&& source) = delete;
-  ~RangingWirelessNic();
+  IdealNic();
+  IdealNic(const IdealNic& source) = delete;
+  IdealNic(IdealNic&& source) = delete;
+  ~IdealNic();
 
-  RangingWirelessNic& operator=(const RangingWirelessNic& source) = delete;
-  RangingWirelessNic& operator=(RangingWirelessNic&& source) = delete;
+  IdealNic& operator=(const IdealNic& source) = delete;
+  IdealNic& operator=(IdealNic&& source) = delete;
 
   const inet::MACAddress& getMacAddress() const;
 
