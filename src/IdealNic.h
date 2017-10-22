@@ -86,8 +86,6 @@ class IdealNic : public omnetpp::cSimpleModule, public omnetpp::cListener, publi
 
   void initializeClock();
 
-  void initializeMobility();
-
   void handleTransmissionStateChangedSignal(inet::physicallayer::IRadio::TransmissionState newState);
 
   void handleReceptionStateChangedSignal(inet::physicallayer::IRadio::ReceptionState newState);

@@ -21,7 +21,4 @@ module IdealNic extends IdealWirelessNic like IRangingWirelessNic
 {
     parameters:
         @class(smile::IdealNic);
-        
-    connections:
-        upperLayerIn --> mac.upperLayerIn;
 }

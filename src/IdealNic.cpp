@@ -58,7 +58,6 @@ void IdealNic::initialize(int stage)
     initializeClock();
     initializeRadio();
     initializeMac();
-    initializeMobility();
   }
 }
 
@@ -135,7 +134,7 @@ void IdealNic::handleUpperLayerInFrame(std::unique_ptr<inet::MACFrameBase> frame
 void IdealNic::initializeRadio()
 {
   using inet::physicallayer::IRadio;
-  radio = check_and_cast<inet::physicallayer::Radio *>(getModuleByPath(".nic.radio"));
+  radio = check_and_cast<inet::physicallayer::Radio *>(getModuleByPath(".radio"));
   radio->subscribe(IRadio::transmissionStateChangedSignal, this);
   radio->subscribe(IRadio::receptionStateChangedSignal, this);
   radio->subscribe(IRadio::radioModeChangedSignal, this);
@@ -148,23 +147,13 @@ void IdealNic::initializeRadio()
 
 void IdealNic::initializeMac()
 {
-  mac = check_and_cast<inet::IdealMac *>(getModuleByPath(".nic.mac"));
+  mac = check_and_cast<inet::IdealMac *>(getModuleByPath(".mac"));
   setAddress(inet::MACAddress{mac->par("address").stringValue()});
 }
 
 void IdealNic::initializeClock()
 {
-  clock = check_and_cast<Clock *>(getModuleByPath(".clock"));
-}
-
-void IdealNic::initializeMobility()
-{
-  auto mobility = check_and_cast<omnetpp::cComponent *>(getModuleByPath(".mobility"));
-  mobility->subscribe(inet::IMobility::mobilityStateChangedSignal, this);
-
-  auto iMobility = check_and_cast<inet::IMobility *>(mobility);
-  currentPosition = iMobility->getCurrentPosition();
-  EV_DETAIL << "Current position: " << currentPosition << endl;
+  clock = check_and_cast<Clock *>(getModuleByPath("^.clock"));
 }
 
 void IdealNic::handleTransmissionStateChangedSignal(inet::physicallayer::IRadio::TransmissionState newState)
