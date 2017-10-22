@@ -13,12 +13,12 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 //
 
+#include "Application.h"
 #include <algorithm>
 #include "inet/common/INETDefs.h"
 #include "inet/common/ModuleAccess.h"
 #include "inet/linklayer/common/Ieee802Ctrl.h"
-
-#include "Application.h"
+#include "utilities.h"
 
 namespace smile {
 
@@ -31,6 +31,20 @@ void Application::initialize(int stage)
     measurementsLogger = inet::getModuleFromPar<MeasurementsLogger>(par("measurementsLoggerModule"), this);
     clock = check_and_cast<IClock*>(getModuleByPath("^.clock"));
     nic = check_and_cast<IRangingWirelessNic*>(getModuleByPath("^.nic"));
+    subscribe(IRangingWirelessNic::transmissionCompletedSignal, this);
+  }
+}
+
+void Application::receiveSignal(cComponent*, simsignal_t signalID, cObject* value, cObject*)
+{
+  std::unique_ptr<omnetpp::cObject> valueGuard{value};
+  if (signalID == IRangingWirelessNic::transmissionCompletedSignal) {
+    auto frame = dynamic_unique_ptr_cast<inet::MACFrameBase>(std::move(valueGuard));
+    const auto clockTimestamp = nic->getTransmissionBeginClockTimestamp();
+    handleTransmissionCompleted(std::move(frame), clockTimestamp);
+  }
+  else {
+    throw omnetpp::cRuntimeError{"Received unexpected signal: \"%s\"", getSignalName(signalID)};
   }
 }
 
@@ -45,7 +59,16 @@ void Application::handleMessage(omnetpp::cMessage* message)
     handleSelfMessage(message);
   }
   else {
-    handleMessage(std::unique_ptr<omnetpp::cMessage>{message});
+    std::unique_ptr<omnetpp::cMessage> messageGuard{message};
+    const auto& messageGate = message->getArrivalGate();
+    if (messageGate == gate("in")) {
+      auto frame = dynamic_unique_ptr_cast<inet::MACFrameBase>(std::move(messageGuard));
+      const auto& clockTimestamp = nic->getReceptionBeginClockTimestamp();
+      handleReceptionCompleted(std::move(frame), clockTimestamp);
+    }
+    else {
+      handleMessage(std::move(messageGuard));
+    }
   }
 }
 
@@ -54,17 +77,29 @@ void Application::handleMessage(std::unique_ptr<omnetpp::cMessage>)
   EV_WARN << "Application::handleMessage(std::unique_ptr<omnetpp::cMessage>) should be overridden!" << std::endl;
 }
 
+void Application::handleTransmissionCompleted(std::unique_ptr<inet::MACFrameBase> frame,
+                                              const omnetpp::SimTime& clockTimestamp)
+{
+  EV_WARN << "Application::handleTransmissionCompleted() should be overridden!" << std::endl;
+}
+
+void Application::handleReceptionCompleted(std::unique_ptr<inet::MACFrameBase> frame,
+                                           const omnetpp::SimTime& clockTimestamp)
+{
+  EV_WARN << "Application::handleReceptionCompleted() should be overridden!" << std::endl;
+}
+
 bool Application::scheduleFrameReception(const omnetpp::SimTime& delay, bool cancelScheduledOperation)
 {
   return nic->configureDelayedReception(delay, cancelScheduledOperation);
 }
 
-void Application::scheduleAt(std::unique_ptr<cMessage> message, omnetpp::SimTime delay)
+void Application::scheduleAt(omnetpp::SimTime delay, omnetpp::cMessage* message)
 {
   const auto futureClockTimestamp = clock->getClockTimestamp() + delay;
   const auto futureSimulationTimestamp = clock->convertToSimulationTimestamp(futureClockTimestamp);
   if (futureSimulationTimestamp) {
-    scheduleAt(*futureSimulationTimestamp, message.release());
+    cSimpleModule::scheduleAt(*futureSimulationTimestamp, message);
   }
   else {
     auto nextMessage =
@@ -75,7 +110,7 @@ void Application::scheduleAt(std::unique_ptr<cMessage> message, omnetpp::SimTime
     if (pendingSlefMessages.empty()) {
       subscribe(IClock::windowUpdateSignal, this);
     }
-    pendingSlefMessages.emplace(nextMessage, std::move(message), futureClockTimestamp);
+    pendingSlefMessages.emplace(nextMessage, message, futureClockTimestamp);
   }
 }
 
@@ -99,7 +134,7 @@ void Application::handleWindowUpdateSignal(const omnetpp::SimTime&)
       break;
     }
     else {
-      scheduleAt(*simulationClockTime, message->first.release());
+      cSimpleModule::scheduleAt(*simulationClockTime, message->first);
       message = pendingSlefMessages.erase(message);
     }
   }

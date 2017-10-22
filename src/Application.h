@@ -30,7 +30,7 @@ namespace smile {
 class Application : public omnetpp::cSimpleModule, public omnetpp::cListener, public IApplication
 {
  private:
-  using SelfMessagePair = std::pair<std::unique_ptr<omnetpp::cMessage>, omnetpp::SimTime>;
+  using SelfMessagePair = std::pair<omnetpp::cMessage*, omnetpp::SimTime>;
   using SelfMessageVector = std::vector<SelfMessagePair>;
 
  public:
@@ -45,7 +45,15 @@ class Application : public omnetpp::cSimpleModule, public omnetpp::cListener, pu
  protected:
   void initialize(int stage) override;
 
+  void receiveSignal(cComponent* source, simsignal_t signalID, cObject* value, cObject* details) override;
+
   virtual void handleMessage(std::unique_ptr<omnetpp::cMessage> message);
+
+  virtual void handleTransmissionCompleted(std::unique_ptr<inet::MACFrameBase> frame,
+                                           const omnetpp::SimTime& clockTimestamp);
+
+  virtual void handleReceptionCompleted(std::unique_ptr<inet::MACFrameBase> frame,
+                                        const omnetpp::SimTime& clockTimestamp);
 
   template <typename Frame, typename... FrameArguments>
   std::unique_ptr<Frame> createFrame(const inet::MACAddress& destinationAddress, FrameArguments&&... frameArguments);
@@ -56,11 +64,9 @@ class Application : public omnetpp::cSimpleModule, public omnetpp::cListener, pu
 
   bool scheduleFrameReception(const omnetpp::SimTime& delay, bool cancelScheduledOperation);
 
-  void scheduleAt(std::unique_ptr<cMessage> message, omnetpp::SimTime delay);
+  void scheduleAt(omnetpp::SimTime delay, omnetpp::cMessage* message) override;
 
  private:
-  using omnetpp::cSimpleModule::scheduleAt;
-
   static void initializeFrame(inet::MACFrameBase& frame, const inet::MACAddress& destinationAddress,
                               const inet::MACAddress& sourceAddress);
 
