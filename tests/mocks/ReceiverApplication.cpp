@@ -22,8 +22,8 @@ namespace mocks {
 
 Define_Module(ReceiverApplication);
 
-void ReceiverApplication::handleReceivedFrame(std::unique_ptr<inet::MACFrameBase> frame,
-                                              const omnetpp::SimTime& receptionTimestamp)
+void ReceiverApplication::handleReceptionCompleted(std::unique_ptr<inet::MACFrameBase> frame,
+                                                   const omnetpp::SimTime& clockTimestamp)
 {
   const auto& sourceAddress = frame->getSrcAddr();
   const auto& destinationAddress = frame->getDestAddr();

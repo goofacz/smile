@@ -32,13 +32,12 @@ class PeriodicSenderApplication final : public Application
   PeriodicSenderApplication& operator=(const PeriodicSenderApplication& source) = delete;
   PeriodicSenderApplication& operator=(PeriodicSenderApplication&& source) = delete;
 
- protected:
+ private:
   void initialize(int stage) final;
 
-  void handleTransmittedFrame(const std::unique_ptr<inet::MACFrameBase>& frame,
-                              const omnetpp::SimTime& transmissionTimestamp) final;
+  void handleTransmissionCompleted(std::unique_ptr<inet::MACFrameBase> frame,
+                                   const omnetpp::SimTime& clockTimestamp) override final;
 
- private:
   void handleMessage(std::unique_ptr<omnetpp::cMessage> message) final;
 
   const omnetpp::SimTime delay{1, omnetpp::SIMTIME_S};

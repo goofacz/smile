@@ -32,8 +32,9 @@ class ReceiverApplication final : public Application
   ReceiverApplication& operator=(const ReceiverApplication& source) = delete;
   ReceiverApplication& operator=(ReceiverApplication&& source) = delete;
 
- protected:
-  void handleReceivedFrame(std::unique_ptr<inet::MACFrameBase> frame, const omnetpp::SimTime& receptionTimestamp) final;
+ private:
+  void handleReceptionCompleted(std::unique_ptr<inet::MACFrameBase> frame,
+                                const omnetpp::SimTime& clockTimestamp) override final;
 };
 
 }  // namespace mocks

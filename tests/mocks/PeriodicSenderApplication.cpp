@@ -40,8 +40,8 @@ void PeriodicSenderApplication::initialize(int stage)
   }
 }
 
-void PeriodicSenderApplication::handleTransmittedFrame(const std::unique_ptr<inet::MACFrameBase>& frame,
-                                                       const omnetpp::SimTime& transmissionTimestamp)
+void PeriodicSenderApplication::handleTransmissionCompleted(std::unique_ptr<inet::MACFrameBase>,
+                                                            const omnetpp::SimTime&)
 {}
 
 void PeriodicSenderApplication::handleMessage(std::unique_ptr<omnetpp::cMessage> message)
@@ -55,7 +55,7 @@ void PeriodicSenderApplication::handleMessage(std::unique_ptr<omnetpp::cMessage>
 
   EV_DETAIL << "TEST: Sending MAC frame to " << destinationAddress.str() << endl;
 
-  scheduleFrameTransmission(std::move(frame), 0);
+  scheduleFrameTransmission(std::move(frame), 0, false);
   scheduleAt(simTime() + delay, message.release());
 
   destinationAddress = inet::MACAddress{destinationAddress.getInt() + 1};
