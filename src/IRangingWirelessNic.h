@@ -40,7 +40,6 @@ class IRangingWirelessNic
   const omnetpp::SimTime& getReceptionBeginClockTimestamp() const;
 
   static const omnetpp::simsignal_t transmissionCompletedSignal;
-  static const omnetpp::simsignal_t receptionCompletedSignal;
 
  protected:
   IRangingWirelessNic() = default;

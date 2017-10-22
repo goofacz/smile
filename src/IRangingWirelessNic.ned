@@ -20,6 +20,5 @@ import inet.linklayer.contract.IWirelessNic;
 moduleinterface IRangingWirelessNic extends IWirelessNic
 {
     parameters:
-        @signal[transmissionCompleted](type=FrameTuple);
-        @signal[receptionCompleted](type=FrameTuple);
+        @signal[transmissionCompleted](type=MACFrameBase);
 }
