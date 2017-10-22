@@ -41,6 +41,7 @@ class IdealNic : public omnetpp::cSimpleModule, public omnetpp::cListener, publi
     Operation& operator=(const Operation& source) = delete;
     Operation& operator=(Operation&& source) = delete;
 
+    const char* getOperationTypeString() const;
     explicit operator bool() const;
     void clear();
 
@@ -75,7 +76,9 @@ class IdealNic : public omnetpp::cSimpleModule, public omnetpp::cListener, publi
 
   void handleMessage(omnetpp::cMessage* message) final;
 
-  void handleReceivedFrame(std::unique_ptr<inet::MACFrameBase> frame);
+  void handleLowerLayerInFrame(std::unique_ptr<inet::MACFrameBase> frame);
+
+  void handleUpperLayerInFrame(std::unique_ptr<inet::MACFrameBase> frame);
 
   void initializeRadio();
 
@@ -97,6 +100,8 @@ class IdealNic : public omnetpp::cSimpleModule, public omnetpp::cListener, publi
 
   bool scheduleOperation(inet::physicallayer::IRadio::RadioMode mode, const omnetpp::SimTime& delay,
                          bool cancelScheduledOperation);
+
+  void sendStartScheduleOperationMessage();
 
   inet::physicallayer::Radio* radio{nullptr};
   inet::IdealMac* mac{nullptr};

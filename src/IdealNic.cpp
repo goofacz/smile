@@ -19,6 +19,7 @@
 
 #include "inet/common/INETDefs.h"
 #include "inet/linklayer/base/MACProtocolBase.h"
+#include "utilities.h"
 
 namespace smile {
 
@@ -39,7 +40,14 @@ bool IdealNic::configureDelayedTransmission(const omnetpp::SimTime &delay, bool 
 
 bool IdealNic::configureDelayedReception(const omnetpp::SimTime &delay, bool cancelScheduledOperation)
 {
-  return scheduleOperation(inet::physicallayer::IRadio::RADIO_MODE_RECEIVER, delay, cancelScheduledOperation);
+  using inet::physicallayer::IRadio;
+  const auto result = scheduleOperation(IRadio::RADIO_MODE_RECEIVER, delay, cancelScheduledOperation);
+  if (!result) {
+    return false;
+  }
+
+  sendStartScheduleOperationMessage();
+  return true;
 }
 
 void IdealNic::initialize(int stage)
@@ -97,16 +105,31 @@ void IdealNic::handleMessage(omnetpp::cMessage *message)
     }
   }
   else {
-    if (message->getArrivalGate() == gate("lowerLayerIn")) {
-      std::unique_ptr<inet::MACFrameBase> frame{check_and_cast<inet::MACFrameBase *>(message)};
-      handleReceivedFrame(std::move(frame));
+    std::unique_ptr<omnetpp::cMessage> messageGuard{message};
+    const auto &messageGate = message->getArrivalGate();
+    if (messageGate == gate("lowerLayerIn")) {
+      auto frame = dynamic_unique_ptr_cast<inet::MACFrameBase>(std::move(messageGuard));
+      handleLowerLayerInFrame(std::move(frame));
+    }
+    else if (messageGate == gate("upperLayerIn")) {
+      auto frame = dynamic_unique_ptr_cast<inet::MACFrameBase>(std::move(messageGuard));
+      handleUpperLayerInFrame(std::move(frame));
+    }
+    else {
+      throw omnetpp::cRuntimeError{"Received unexpected message on gate \"%s\"", messageGate->getFullName()};
     }
   }
 }
 
-void IdealNic::handleReceivedFrame(std::unique_ptr<inet::MACFrameBase> frame)
+void IdealNic::handleLowerLayerInFrame(std::unique_ptr<inet::MACFrameBase> frame)
 {
   scheduledOperation.frame = std::move(frame);
+}
+
+void IdealNic::handleUpperLayerInFrame(std::unique_ptr<inet::MACFrameBase> frame)
+{
+  scheduledOperation.frame = std::move(frame);
+  sendStartScheduleOperationMessage();
 }
 
 void IdealNic::initializeRadio()
@@ -219,7 +242,7 @@ void IdealNic::handleWindowUpdateSignal(const omnetpp::SimTime &)
   auto releaseSubscription{true};
   if (scheduledOperation) {
     const auto simulationTimestamp = clock->convertToSimulationTimestamp(scheduledOperation.beginClockTimestamp);
-    if(simulationTimestamp){
+    if (simulationTimestamp) {
       scheduleAt(*simulationTimestamp, startScheduleOperationMessage.get());
     }
   }
@@ -253,6 +276,11 @@ bool IdealNic::scheduleOperation(inet::physicallayer::IRadio::RadioMode mode, co
   scheduledOperation.radioMode = mode;
   scheduledOperation.beginClockTimestamp = clock->getClockTimestamp() + delay;
 
+  return true;
+}
+
+void IdealNic::sendStartScheduleOperationMessage()
+{
   const auto simulationTimestamp = clock->convertToSimulationTimestamp(scheduledOperation.beginClockTimestamp);
   if (simulationTimestamp) {
     scheduleAt(*simulationTimestamp, startScheduleOperationMessage.get());
@@ -261,11 +289,22 @@ bool IdealNic::scheduleOperation(inet::physicallayer::IRadio::RadioMode mode, co
     radio->subscribe(IClock::windowUpdateSignal, this);
   }
 
-  const auto operationType = mode == IRadio::RADIO_MODE_TRANSCEIVER ? "TX" : "RX";
-  EV_DETAIL << "Schedule " << operationType << " operation at " << scheduledOperation.beginClockTimestamp
-            << " (clock time)" << endl;
+  EV_DETAIL << "Schedule " << scheduledOperation.getOperationTypeString() << " operation at "
+            << scheduledOperation.beginClockTimestamp << " (clock time)" << endl;
+}
 
-  return true;
+const char *IdealNic::Operation::getOperationTypeString() const
+{
+  using inet::physicallayer::IRadio;
+  switch (radioMode) {
+    case IRadio::RADIO_MODE_TRANSCEIVER:
+      return "TX";
+    case IRadio::RADIO_MODE_RECEIVER:
+      return "RX";
+    default:
+      throw omnetpp::cRuntimeError{
+          "Invalid radio mode (inet::physicallayer::IRadio::RadioMode) 0x%x set in IdealNic::operation", radioMode};
+  }
 }
 
 IdealNic::Operation::operator bool() const
