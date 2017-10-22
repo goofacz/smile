@@ -30,15 +30,8 @@ namespace smile {
 class IdealNic : public omnetpp::cSimpleModule, public omnetpp::cListener, public IRangingWirelessNic
 {
  private:
-  class Operation
+  struct Operation
   {
-   public:
-    enum class Type
-    {
-      TX,
-      RX
-    };
-
    public:
     Operation() = default;
     Operation(const Operation& source) = delete;
@@ -46,26 +39,14 @@ class IdealNic : public omnetpp::cSimpleModule, public omnetpp::cListener, publi
     ~Operation() = default;
 
     Operation& operator=(const Operation& source) = delete;
-    Operation& operator=(Operation&& source) = default;
+    Operation& operator=(Operation&& source) = delete;
+
     explicit operator bool() const;
-
-    void set(std::unique_ptr<inet::MACFrameBase> newFrame);
-    void set(const omnetpp::SimTime& newTimestamp);
-    void set(Type newType, std::unique_ptr<inet::MACFrameBase> newFrame, const omnetpp::SimTime& newTimestamp);
-
-    Type getType() const;
-    const char* getTypeAsString() const;
-    inet::physicallayer::Radio::RadioMode getRadioMode() const;
-    const std::unique_ptr<inet::MACFrameBase>& getFrame() const;
-    const omnetpp::SimTime& getTimestamp() const;
-
-    std::unique_ptr<FrameTuple> release();
     void clear();
 
-   private:
-    Type type{Type::TX};
+    inet::physicallayer::IRadio::RadioMode radioMode;
     std::unique_ptr<inet::MACFrameBase> frame;
-    omnetpp::SimTime timestamp;
+    omnetpp::SimTime beginClockTimestamp;
   };
 
  public:
@@ -77,15 +58,9 @@ class IdealNic : public omnetpp::cSimpleModule, public omnetpp::cListener, publi
   IdealNic& operator=(const IdealNic& source) = delete;
   IdealNic& operator=(IdealNic&& source) = delete;
 
-  const inet::MACAddress& getMacAddress() const;
+  bool configureDelayedTransmission(const omnetpp::SimTime& delay, bool cancelScheduledOperation) override;
 
-  bool scheduleTransmission(std::unique_ptr<inet::MACFrameBase> frame, const omnetpp::SimTime& delay,
-                            bool cancelScheduledOperation = false);
-
-  bool scheduleReception(const omnetpp::SimTime& delay, bool cancelScheduledOperation = false);
-
-  static const omnetpp::simsignal_t transmissionCompletedSignal;
-  static const omnetpp::simsignal_t receptionCompletedSignal;
+  bool configureDelayedReception(const omnetpp::SimTime& delay, bool cancelScheduledOperation) override;
 
  private:
   void initialize(int stage) override;
@@ -116,26 +91,19 @@ class IdealNic : public omnetpp::cSimpleModule, public omnetpp::cListener, publi
 
   void handleradioModeChangedSignal(inet::physicallayer::IRadio::RadioMode newMode);
 
-  bool scheduleOperation(Operation::Type type, std::unique_ptr<inet::MACFrameBase> frame, const omnetpp::SimTime& delay,
-                         bool cancelScheduledOperation);
-
-  void handleTransmisionCompletion();
-
-  void handleReceptionCompletion();
-
   void handleStartScheduleOperationMessage();
 
   void handleWindowUpdateSignal(const omnetpp::SimTime& windowEndClockTimestamp);
+
+  bool scheduleOperation(inet::physicallayer::IRadio::RadioMode mode, const omnetpp::SimTime& delay,
+                         bool cancelScheduledOperation);
 
   inet::physicallayer::Radio* radio{nullptr};
   inet::IdealMac* mac{nullptr};
   Clock* clock{nullptr};
   inet::Coord currentPosition;
-  inet::MACAddress address;
 
   Operation scheduledOperation;
-  Operation lastRxOperation;
-  Operation lastTxOperation;
 
   std::unique_ptr<omnetpp::cMessage> startScheduleOperationMessage;
 };

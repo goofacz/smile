@@ -24,11 +24,6 @@ namespace smile {
 
 Define_Module(IdealNic);
 
-const omnetpp::simsignal_t IdealNic::transmissionCompletedSignal{
-    omnetpp::cComponent::registerSignal("transmissionCompleted")};
-const omnetpp::simsignal_t IdealNic::receptionCompletedSignal{
-    omnetpp::cComponent::registerSignal("receptionCompletedSignal")};
-
 IdealNic::IdealNic() : startScheduleOperationMessage{std::make_unique<omnetpp::cMessage>("Start scheduled operation")}
 {}
 
@@ -37,20 +32,14 @@ IdealNic::~IdealNic()
   cancelEvent(startScheduleOperationMessage.get());
 }
 
-const inet::MACAddress &IdealNic::getMacAddress() const
+bool IdealNic::configureDelayedTransmission(const omnetpp::SimTime &delay, bool cancelScheduledOperation)
 {
-  return address;
+  return scheduleOperation(inet::physicallayer::IRadio::RADIO_MODE_TRANSCEIVER, delay, cancelScheduledOperation);
 }
 
-bool IdealNic::scheduleTransmission(std::unique_ptr<inet::MACFrameBase> frame, const omnetpp::SimTime &delay,
-                                    bool cancelScheduledOperation)
+bool IdealNic::configureDelayedReception(const omnetpp::SimTime &delay, bool cancelScheduledOperation)
 {
-  return scheduleOperation(Operation::Type::TX, std::move(frame), delay, cancelScheduledOperation);
-}
-
-bool IdealNic::scheduleReception(const omnetpp::SimTime &delay, bool cancelScheduledOperation)
-{
-  return scheduleOperation(Operation::Type::RX, nullptr, delay, cancelScheduledOperation);
+  return scheduleOperation(inet::physicallayer::IRadio::RADIO_MODE_RECEIVER, delay, cancelScheduledOperation);
 }
 
 void IdealNic::initialize(int stage)
@@ -92,158 +81,6 @@ void IdealNic::receiveSignal(omnetpp::cComponent *, omnetpp::simsignal_t signalI
   }
 }
 
-void IdealNic::handleTransmissionStateChangedSignal(inet::physicallayer::IRadio::TransmissionState newState)
-{
-  switch (newState) {
-    case inet::physicallayer::IRadio::TRANSMISSION_STATE_TRANSMITTING:
-      lastTxOperation.set(clock->getClockTimestamp());
-      EV_DETAIL << "Transmission started at " << lastTxOperation.getTimestamp() << endl;
-      break;
-    case inet::physicallayer::IRadio::TRANSMISSION_STATE_IDLE:
-      if (radio->getTransmissionState() == inet::physicallayer::IRadio::TRANSMISSION_STATE_TRANSMITTING) {
-        handleTransmisionCompletion();
-        radio->setRadioMode(inet::physicallayer::IRadio::RADIO_MODE_OFF);
-        EV_DETAIL << "Transmission finished at " << clock->getClockTimestamp() << endl;
-      }
-      break;
-    case inet::physicallayer::IRadio::TRANSMISSION_STATE_UNDEFINED:
-      lastTxOperation.clear();
-      break;
-  }
-}
-
-void IdealNic::handleReceptionStateChangedSignal(inet::physicallayer::IRadio::ReceptionState newState)
-{
-  switch (newState) {
-    case inet::physicallayer::IRadio::RECEPTION_STATE_RECEIVING:
-      lastRxOperation.set(clock->getClockTimestamp());
-      EV_DETAIL << "Reception started at " << lastTxOperation.getTimestamp() << endl;
-      break;
-    case inet::physicallayer::IRadio::RECEPTION_STATE_BUSY:
-      lastRxOperation.set(omnetpp::SimTime{0});
-      break;
-    case inet::physicallayer::IRadio::RECEPTION_STATE_IDLE:
-      if (radio->getReceptionState() == inet::physicallayer::IRadio::RECEPTION_STATE_RECEIVING) {
-        handleReceptionCompletion();
-        radio->setRadioMode(inet::physicallayer::IRadio::RADIO_MODE_OFF);
-        EV_DETAIL << "Reception finished at " << clock->getClockTimestamp() << endl;
-      }
-      break;
-    case inet::physicallayer::IRadio::RECEPTION_STATE_UNDEFINED:
-      lastRxOperation.clear();
-      break;
-  }
-}
-
-void IdealNic::handleradioModeChangedSignal(inet::physicallayer::IRadio::RadioMode newMode)
-{
-  if (radio->getRadioMode() != inet::physicallayer::IRadio::RADIO_MODE_OFF) {
-    return;
-  }
-
-  if (!scheduledOperation) {
-    throw omnetpp::cRuntimeError{"RangingWirelessNic failed to find scheduled operation after switching to TX/RX"};
-  }
-
-  const auto operationType = scheduledOperation.getType();
-  if (operationType == Operation::Type::TX) {
-    if (newMode != inet::physicallayer::IRadio::RADIO_MODE_TRANSMITTER) {
-      throw omnetpp::cRuntimeError{
-          "RangingWirelessNic has scheduled TX operation, but radio switched to different mode "
-          "(inet::physicallayer::IRadio): 0x%x",
-          static_cast<int>(newMode)};
-    }
-
-    lastTxOperation = std::move(scheduledOperation);
-    lastTxOperation.set(omnetpp::SimTime{});
-
-    const auto &frame = lastTxOperation.getFrame();
-    sendDelayed(frame->dup(), 0, "lowerLayerIn");
-  }
-  else if (operationType == Operation::Type::RX) {
-    if (newMode != inet::physicallayer::IRadio::RADIO_MODE_RECEIVER) {
-      throw omnetpp::cRuntimeError{
-          "RangingWirelessNic has scheduled RX operation, but radio switched to different mode "
-          "(inet::physicallayer::IRadio): 0x%x",
-          static_cast<int>(newMode)};
-    }
-
-    lastRxOperation.clear();
-  }
-  else {
-    throw omnetpp::cRuntimeError{
-        "RangingWirelessNic encountered invalid type of scheduled operation (Operation::Type): 0x%x", operationType};
-  }
-
-  scheduledOperation.clear();
-}
-
-bool IdealNic::scheduleOperation(Operation::Type type, std::unique_ptr<inet::MACFrameBase> frame,
-                                 const omnetpp::SimTime &delay, bool cancelScheduledOperation)
-{
-  if (radio->getRadioMode() != inet::physicallayer::Radio::RADIO_MODE_OFF ||
-      radio->getRadioMode() != inet::physicallayer::Radio::RADIO_MODE_SLEEP) {
-    return false;
-  }
-
-  if (!cancelScheduledOperation && scheduledOperation) {
-    return false;
-  }
-
-  const auto clockTimestamp = clock->getClockTimestamp() + delay;
-  scheduledOperation.set(type, std::move(frame), clockTimestamp);
-
-  const auto simulationTimestamp = clock->convertToSimulationTimestamp(clockTimestamp);
-  if (simulationTimestamp) {
-    scheduleAt(*simulationTimestamp, startScheduleOperationMessage.get());
-  }
-  else {
-    radio->subscribe(IClock::windowUpdateSignal, this);
-  }
-
-  EV_DETAIL << scheduledOperation.getTypeAsString() << " operation was scheduled" << endl;
-
-  return true;
-}
-
-void IdealNic::handleTransmisionCompletion()
-{
-  assert(lastTxOperation);
-  auto frameTuple = lastTxOperation.release();
-  emit(transmissionCompletedSignal, frameTuple.release());
-
-  EV_DETAIL << "TX operation was completed" << endl;
-}
-
-void IdealNic::handleReceptionCompletion()
-{
-  assert(lastRxOperation);
-  auto frameTuple = lastRxOperation.release();
-  emit(receptionCompletedSignal, frameTuple.release());
-
-  EV_DETAIL << "RX operation was completed" << endl;
-}
-
-void IdealNic::handleStartScheduleOperationMessage()
-{
-  const auto mode = scheduledOperation.getRadioMode();
-  radio->setRadioMode(mode);
-
-  EV_DETAIL << "Enable NIC's radio for scheduled " << scheduledOperation.getTypeAsString() << " operation" << endl;
-}
-
-void IdealNic::handleWindowUpdateSignal(const omnetpp::SimTime &windowEndClockTimestamp)
-{
-  bool releaseSubscription{true};
-  if (scheduledOperation) {
-    scheduleAt(0, startScheduleOperationMessage.get());
-  }
-
-  if (releaseSubscription) {
-    unsubscribe(IClock::windowUpdateSignal, this);
-  }
-}
-
 int IdealNic::numInitStages() const
 {
   return inet::INITSTAGE_LINK_LAYER_2 + 1;
@@ -269,30 +106,27 @@ void IdealNic::handleMessage(omnetpp::cMessage *message)
 
 void IdealNic::handleReceivedFrame(std::unique_ptr<inet::MACFrameBase> frame)
 {
-  lastRxOperation.set(std::move(frame));
-
-  assert(lastTxOperation);
-  auto frameTuple = lastRxOperation.release();
-  emit(receptionCompletedSignal, frameTuple.release());
+  scheduledOperation.frame = std::move(frame);
 }
 
 void IdealNic::initializeRadio()
 {
+  using inet::physicallayer::IRadio;
   radio = check_and_cast<inet::physicallayer::Radio *>(getModuleByPath(".nic.radio"));
-  radio->subscribe(inet::physicallayer::IRadio::transmissionStateChangedSignal, this);
-  radio->subscribe(inet::physicallayer::IRadio::receptionStateChangedSignal, this);
-  radio->subscribe(inet::physicallayer::IRadio::radioModeChangedSignal, this);
+  radio->subscribe(IRadio::transmissionStateChangedSignal, this);
+  radio->subscribe(IRadio::receptionStateChangedSignal, this);
+  radio->subscribe(IRadio::radioModeChangedSignal, this);
 
   const auto enableReceiverOnStart = par("enableReceiverOnStart").boolValue();
   if (enableReceiverOnStart) {
-    scheduleReception(0);
+    configureDelayedReception(0, true);
   }
 }
 
 void IdealNic::initializeMac()
 {
   mac = check_and_cast<inet::IdealMac *>(getModuleByPath(".nic.mac"));
-  address.setAddress(mac->par("address").stringValue());
+  setAddress(inet::MACAddress{mac->par("address").stringValue()});
 }
 
 void IdealNic::initializeClock()
@@ -310,83 +144,140 @@ void IdealNic::initializeMobility()
   EV_DETAIL << "Current position: " << currentPosition << endl;
 }
 
-IdealNic::Operation::operator bool() const
+void IdealNic::handleTransmissionStateChangedSignal(inet::physicallayer::IRadio::TransmissionState newState)
 {
-  return frame && timestamp > 0;
+  using inet::physicallayer::IRadio;
+  switch (newState) {
+    case inet::physicallayer::IRadio::TRANSMISSION_STATE_TRANSMITTING:
+      setTransmissionBeginClockTimestamp(clock->getClockTimestamp());
+      EV_DETAIL << "Transmission started at " << getTransmissionBeginClockTimestamp() << endl;
+      break;
+    case inet::physicallayer::IRadio::TRANSMISSION_STATE_IDLE:
+      if (radio->getTransmissionState() == IRadio::TRANSMISSION_STATE_TRANSMITTING) {
+        emit(transmissionCompletedSignal, scheduledOperation.frame->dup());
+        radio->setRadioMode(IRadio::RADIO_MODE_OFF);
+        EV_DETAIL << "Transmission finished at " << clock->getClockTimestamp() << endl;
+      }
+      break;
+    default:
+      break;  // Ignore
+  }
 }
 
-void IdealNic::Operation::set(std::unique_ptr<inet::MACFrameBase> newFrame)
+void IdealNic::handleReceptionStateChangedSignal(inet::physicallayer::IRadio::ReceptionState newState)
 {
-  frame = std::move(newFrame);
+  using inet::physicallayer::IRadio;
+  switch (newState) {
+    case IRadio::RECEPTION_STATE_RECEIVING:
+      setReceptionBeginClockTimestamp(clock->getClockTimestamp());
+      EV_DETAIL << "Reception started at " << getReceptionBeginClockTimestamp() << endl;
+      break;
+    case IRadio::RECEPTION_STATE_IDLE:
+      if (radio->getReceptionState() == IRadio::RECEPTION_STATE_RECEIVING) {
+        radio->setRadioMode(IRadio::RADIO_MODE_OFF);
+        EV_DETAIL << "Reception finished at " << clock->getClockTimestamp() << endl;
+      }
+      break;
+    default:
+      break;  // Ignore
+  }
 }
 
-void IdealNic::Operation::set(const omnetpp::SimTime &newTimestamp)
+void IdealNic::handleradioModeChangedSignal(inet::physicallayer::IRadio::RadioMode newMode)
 {
-  timestamp = newTimestamp;
-}
-
-void IdealNic::Operation::set(Operation::Type newType, std::unique_ptr<inet::MACFrameBase> newFrame,
-                              const omnetpp::SimTime &newTimestamp)
-{
-  type = newType;
-  set(std::move(newFrame));
-  set(newTimestamp);
-}
-
-IdealNic::Operation::Type IdealNic::Operation::getType() const
-{
-  return type;
-}
-
-const char *IdealNic::Operation::getTypeAsString() const
-{
-  {
-    switch (type) {
-      case Operation::Type::TX:
-        return "TX";
-      case Operation::Type::RX:
-        return "RX";
+  using inet::physicallayer::IRadio;
+  if (newMode == IRadio::RADIO_MODE_OFF) {
+    switch (scheduledOperation.radioMode) {
+      case IRadio::RADIO_MODE_TRANSMITTER:
+        emit(transmissionCompletedSignal, scheduledOperation.frame.release());
+        break;
+      case IRadio::RADIO_MODE_RECEIVER:
+        send(scheduledOperation.frame.release(), "upperLayerIn");
+        break;
       default:
-        throw omnetpp::cRuntimeError("Cannot convert unknown RangingWirelessNic::Operation::Type (int) %x to string",
-                                     static_cast<int>(type));
+        break;  // TODO
+    }
+
+    scheduledOperation.clear();
+  }
+  else if (newMode == IRadio::RADIO_MODE_TRANSMITTER) {
+    send(scheduledOperation.frame->dup(), "lowerLayerIn");
+  }
+  else {
+    // Ignore other modes
+  }
+}
+
+void IdealNic::handleStartScheduleOperationMessage()
+{
+  radio->setRadioMode(scheduledOperation.radioMode);
+  EV_DETAIL << "Enable NIC's radio for scheduled operation" << endl;
+}
+
+void IdealNic::handleWindowUpdateSignal(const omnetpp::SimTime &)
+{
+  auto releaseSubscription{true};
+  if (scheduledOperation) {
+    const auto simulationTimestamp = clock->convertToSimulationTimestamp(scheduledOperation.beginClockTimestamp);
+    if(simulationTimestamp){
+      scheduleAt(*simulationTimestamp, startScheduleOperationMessage.get());
     }
   }
-}
 
-inet::physicallayer::Radio::RadioMode IdealNic::Operation::getRadioMode() const
-{
-  switch (type) {
-    case Operation::Type::TX:
-      return inet::physicallayer::Radio::RADIO_MODE_TRANSMITTER;
-    case Operation::Type::RX:
-      return inet::physicallayer::Radio::RADIO_MODE_RECEIVER;
-    default:
-      throw omnetpp::cRuntimeError(
-          "Cannot cast unknown RangingWirelessNic::Operation::Type (int) %x to inet::physicallayer::Radio::RadioMode",
-          static_cast<int>(type));
+  if (releaseSubscription) {
+    unsubscribe(IClock::windowUpdateSignal, this);
   }
 }
 
-const std::unique_ptr<inet::MACFrameBase> &IdealNic::Operation::getFrame() const
+bool IdealNic::scheduleOperation(inet::physicallayer::IRadio::RadioMode mode, const omnetpp::SimTime &delay,
+                                 bool cancelScheduledOperation)
 {
-  return frame;
+  using inet::physicallayer::IRadio;
+
+  if (radio->getRadioMode() != IRadio::RADIO_MODE_OFF) {
+    return false;
+  }
+
+  if (!cancelScheduledOperation && scheduledOperation) {
+    return false;
+  }
+
+  if (mode != IRadio::RADIO_MODE_TRANSCEIVER && mode != IRadio::RADIO_MODE_RECEIVER) {
+    throw omnetpp::cRuntimeError{
+        "Cannot schedule (inet::physicallayer::IRadio::RadioMode) 0x%x operation, only RADIO_MODE_TRANSCEIVER and "
+        "RADIO_MODE_RECEIVER are allowed",
+        mode};
+  }
+
+  scheduledOperation.clear();
+  scheduledOperation.radioMode = mode;
+  scheduledOperation.beginClockTimestamp = clock->getClockTimestamp() + delay;
+
+  const auto simulationTimestamp = clock->convertToSimulationTimestamp(scheduledOperation.beginClockTimestamp);
+  if (simulationTimestamp) {
+    scheduleAt(*simulationTimestamp, startScheduleOperationMessage.get());
+  }
+  else {
+    radio->subscribe(IClock::windowUpdateSignal, this);
+  }
+
+  const auto operationType = mode == IRadio::RADIO_MODE_TRANSCEIVER ? "TX" : "RX";
+  EV_DETAIL << "Schedule " << operationType << " operation at " << scheduledOperation.beginClockTimestamp
+            << " (clock time)" << endl;
+
+  return true;
 }
 
-const omnetpp::SimTime &IdealNic::Operation::getTimestamp() const
+IdealNic::Operation::operator bool() const
 {
-  return timestamp;
-}
-
-std::unique_ptr<FrameTuple> IdealNic::Operation::release()
-{
-  auto result = std::make_unique<FrameTuple>(std::move(frame), timestamp);
-  clear();
-  return result;
+  return frame && (beginClockTimestamp > 0);
 }
 
 void IdealNic::Operation::clear()
 {
-  set(Type::TX, nullptr, 0);
+  radioMode = inet::physicallayer::IRadio::RADIO_MODE_SWITCHING;
+  frame = nullptr;
+  beginClockTimestamp = 0;
 }
 
 }  // namespace smile
