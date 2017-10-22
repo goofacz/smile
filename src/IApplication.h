@@ -15,7 +15,6 @@
 
 #pragma once
 
-#include "inet/physicallayer/contract/packetlevel/IRadio.h"
 #include "omnetpp.h"
 
 namespace smile {
@@ -29,10 +28,6 @@ class IApplication
 
   IApplication& operator=(const IApplication& source) = delete;
   IApplication& operator=(IApplication&& source) = delete;
-
-  virtual void handleTxStateChanged(inet::physicallayer::IRadio::TransmissionState state) = 0;
-
-  virtual void handleRxStateChanged(inet::physicallayer::IRadio::ReceptionState state) = 0;
 
  protected:
   IApplication() = default;
