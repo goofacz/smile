@@ -30,7 +30,8 @@ namespace smile {
 class Application : public omnetpp::cSimpleModule, public omnetpp::cListener, public IApplication
 {
  private:
-  using PendingTxFrame = std::pair<std::unique_ptr<inet::MACFrameBase>, omnetpp::SimTime>;
+  using SelfMessagePair = std::pair<std::unique_ptr<omnetpp::cMessage>, omnetpp::SimTime>;
+  using SelfMessageVector = std::vector<SelfMessagePair>;
 
  public:
   Application() = default;
@@ -44,10 +45,6 @@ class Application : public omnetpp::cSimpleModule, public omnetpp::cListener, pu
  protected:
   void initialize(int stage) override;
 
-  int numInitStages() const final;
-
-  void handleMessage(omnetpp::cMessage* message) final;
-
   virtual void handleMessage(std::unique_ptr<omnetpp::cMessage> message);
 
   template <typename Frame, typename... FrameArguments>
@@ -59,9 +56,17 @@ class Application : public omnetpp::cSimpleModule, public omnetpp::cListener, pu
 
   bool scheduleFrameReception(const omnetpp::SimTime& delay, bool cancelScheduledOperation);
 
+  void scheduleAt(std::unique_ptr<cMessage> message, omnetpp::SimTime delay);
+
  private:
+  using omnetpp::cSimpleModule::scheduleAt;
+
   static void initializeFrame(inet::MACFrameBase& frame, const inet::MACAddress& destinationAddress,
                               const inet::MACAddress& sourceAddress);
+
+  int numInitStages() const final;
+
+  void handleMessage(omnetpp::cMessage* message) final;
 
   void handleWindowUpdateSignal(const omnetpp::SimTime& clockWindowEndTimestamp);
 
@@ -70,6 +75,8 @@ class Application : public omnetpp::cSimpleModule, public omnetpp::cListener, pu
   MeasurementsLogger* measurementsLogger{nullptr};
   IClock* clock{nullptr};
   IRangingWirelessNic* nic{nullptr};
+
+  SelfMessageVector pendingSlefMessages;
 };
 
 template <typename Frame, typename... FrameArguments>

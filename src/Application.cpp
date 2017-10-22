@@ -56,7 +56,27 @@ void Application::handleMessage(std::unique_ptr<omnetpp::cMessage>)
 
 bool Application::scheduleFrameReception(const omnetpp::SimTime& delay, bool cancelScheduledOperation)
 {
-    return nic->configureDelayedReception(delay, cancelScheduledOperation);
+  return nic->configureDelayedReception(delay, cancelScheduledOperation);
+}
+
+void Application::scheduleAt(std::unique_ptr<cMessage> message, omnetpp::SimTime delay)
+{
+  const auto futureClockTimestamp = clock->getClockTimestamp() + delay;
+  const auto futureSimulationTimestamp = clock->convertToSimulationTimestamp(futureClockTimestamp);
+  if (futureSimulationTimestamp) {
+    scheduleAt(*futureSimulationTimestamp, message.release());
+  }
+  else {
+    auto nextMessage =
+        std::upper_bound(pendingSlefMessages.begin(), pendingSlefMessages.end(), futureClockTimestamp,
+                         [](const omnetpp::SimTime& clockTimestamp, const SelfMessagePair& pendingMessage) {
+                           return clockTimestamp < pendingMessage.second;
+                         });
+    if (pendingSlefMessages.empty()) {
+      subscribe(IClock::windowUpdateSignal, this);
+    }
+    pendingSlefMessages.emplace(nextMessage, std::move(message), futureClockTimestamp);
+  }
 }
 
 void Application::initializeFrame(inet::MACFrameBase& frame, const inet::MACAddress& destinationAddress,
@@ -71,9 +91,22 @@ void Application::initializeFrame(inet::MACFrameBase& frame, const inet::MACAddr
   frame.setControlInfo(controlInformation.release());
 }
 
-void Application::handleWindowUpdateSignal(const omnetpp::SimTime& clockWindowEndTimestamp)
+void Application::handleWindowUpdateSignal(const omnetpp::SimTime&)
 {
-  // TODO
+  for (auto message = pendingSlefMessages.begin(); message != pendingSlefMessages.end(); ++message) {
+    const auto simulationClockTime = clock->convertToSimulationTimestamp(message->second);
+    if (!simulationClockTime) {
+      break;
+    }
+    else {
+      scheduleAt(*simulationClockTime, message->first.release());
+      message = pendingSlefMessages.erase(message);
+    }
+  }
+
+  if (pendingSlefMessages.empty()) {
+    unsubscribe(IClock::windowUpdateSignal, this);
+  }
 }
 
 void Application::handleSelfMessage(omnetpp::cMessage* message)
