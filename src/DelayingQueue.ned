@@ -21,6 +21,7 @@ simple DelayingQueue like IOutputQueue
 {
     parameters:
         @class(smile::DelayingQueue);
+        string clockModuleRealitivePath = default("");
 
     gates:
         input in;

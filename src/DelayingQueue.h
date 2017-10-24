@@ -21,7 +21,7 @@
 
 namespace smile {
 
-class DelayingQueue : public omnetpp::cSimpleModule, public inet::IPassiveQueue
+class DelayingQueue : public omnetpp::cSimpleModule, public inet::IPassiveQueue, public omnetpp::cListener
 {
  public:
   DelayingQueue() = default;
@@ -35,17 +35,34 @@ class DelayingQueue : public omnetpp::cSimpleModule, public inet::IPassiveQueue
  protected:
   void initialize(int stage) override;
 
+  void handleMessage(omnetpp::cMessage* message) override;
+
+  void receiveSignal(omnetpp::cComponent* source, omnetpp::simsignal_t signalID, const omnetpp::SimTime&,
+                     omnetpp::cObject* details) override;
+
   void requestPacket() override;
+
   int getNumPendingRequests() override;
+
   bool isEmpty() override;
+
   void clear() override;
+
   omnetpp::cMessage* pop() override;
 
   void addListener(inet::IPassiveQueueListener* listener) override;
+
   void removeListener(inet::IPassiveQueueListener* listener) override;
 
+  void handleInMessage(std::unique_ptr<omnetpp::cMessage> message);
+
+  void handleSelfMessage(omnetpp::cMessage* message);
+
  private:
+  omnetpp::cGate* inGate{nullptr};
+  omnetpp::cGate* outGate{nullptr};
   IClock* clock{nullptr};
+
   std::unique_ptr<omnetpp::cMessage> scheduledMessage{nullptr};
   omnetpp::SimTime scheduledClockTimestamp{0};
 

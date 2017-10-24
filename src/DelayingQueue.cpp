@@ -24,8 +24,40 @@ void DelayingQueue::initialize(int stage)
   cSimpleModule::initialize(stage);
 
   if (stage == inet::INITSTAGE_LOCAL) {
-    // TODO
+    inGate = gate("in");
+    outGate = gate("out");
+
+    auto clockModule = getModuleByPath(par("clockModuleRealitivePath").stringValue());
+    if (!clockModule) {
+      throw omnetpp::cRuntimeError{"Failed to find clock module at relative path \"%s\"",
+                                   par("clockModuleRealitivePath").stringValue()};
+    }
+    clock = check_and_cast<IClock*>(clockModule);
   }
+}
+
+void DelayingQueue::handleMessage(omnetpp::cMessage* message)
+{
+  if (message->isSelfMessage()) {
+    handleSelfMessage(message);
+  }
+  else {
+    std::unique_ptr<omnetpp::cMessage> messageHolder{message};
+    const auto arrivalgate = messageHolder->getArrivalGate();
+    if (arrivalgate == inGate) {
+      handleInMessage(std::move(messageHolder));
+    }
+    else {
+      throw omnetpp::cRuntimeError{"Received unexpected message \"%s\" on unknown gate \"%s\"",
+                                   messageHolder->getFullName(), arrivalgate->getFullName()};
+    }
+  }
+}
+
+void DelayingQueue::receiveSignal(omnetpp::cComponent* source, omnetpp::simsignal_t signalID, const omnetpp::SimTime&,
+                                  omnetpp::cObject* details)
+{
+  // TODO
 }
 
 void DelayingQueue::requestPacket()
@@ -35,17 +67,17 @@ void DelayingQueue::requestPacket()
 
 int DelayingQueue::getNumPendingRequests()
 {
-  return isEmpty() ? 0 : 1;
+  return 0;
 }
 
 bool DelayingQueue::isEmpty()
 {
-  return !sendOutSelfMessage->isScheduled();
+  return true;
 }
 
 void DelayingQueue::clear()
 {
-  // TODO
+  // Dummy function
 }
 
 omnetpp::cMessage* DelayingQueue::pop()
@@ -62,6 +94,18 @@ void DelayingQueue::addListener(inet::IPassiveQueueListener* listener)
 void DelayingQueue::removeListener(inet::IPassiveQueueListener* listener)
 {
   // TODO
+}
+
+void DelayingQueue::handleInMessage(std::unique_ptr<omnetpp::cMessage> message) {}
+
+void DelayingQueue::handleSelfMessage(omnetpp::cMessage* message)
+{
+  if (message == sendOutSelfMessage.get()) {
+    // TODO
+  }
+  else {
+    EV_ERROR << "Received unknown self message " << message->getFullName() << endl;
+  }
 }
 
 }  // namespace smile
