@@ -15,8 +15,9 @@
 
 #pragma once
 
+#include <memory>
+#include "IClock.h"
 #include "inet/common/queue/IPassiveQueue.h"
-#include "omnetpp.h"
 
 namespace smile {
 
@@ -32,14 +33,23 @@ class DelayingQueue : public omnetpp::cSimpleModule, public inet::IPassiveQueue
   DelayingQueue& operator=(DelayingQueue&& source) = delete;
 
  protected:
+  void initialize(int stage) override;
+
   void requestPacket() override;
   int getNumPendingRequests() override;
   bool isEmpty() override;
   void clear() override;
-  cMessage* pop() override;
+  omnetpp::cMessage* pop() override;
 
   void addListener(inet::IPassiveQueueListener* listener) override;
   void removeListener(inet::IPassiveQueueListener* listener) override;
+
+ private:
+  IClock* clock{nullptr};
+  std::unique_ptr<omnetpp::cMessage> scheduledMessage{nullptr};
+  omnetpp::SimTime scheduledClockTimestamp{0};
+
+  std::unique_ptr<omnetpp::cMessage> sendOutSelfMessage{nullptr};
 };
 
 }  // namespace smile

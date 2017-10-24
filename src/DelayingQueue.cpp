@@ -19,21 +19,28 @@ namespace smile {
 
 Define_Module(DelayingQueue);
 
+void DelayingQueue::initialize(int stage)
+{
+  cSimpleModule::initialize(stage);
+
+  if (stage == inet::INITSTAGE_LOCAL) {
+    // TODO
+  }
+}
+
 void DelayingQueue::requestPacket()
 {
-  // TODO
+  // Dummy function
 }
 
 int DelayingQueue::getNumPendingRequests()
 {
-  // TODO
-  return 0;
+  return isEmpty() ? 0 : 1;
 }
 
 bool DelayingQueue::isEmpty()
 {
-  // TODO
-  return false;
+  return !sendOutSelfMessage->isScheduled();
 }
 
 void DelayingQueue::clear()
@@ -41,10 +48,10 @@ void DelayingQueue::clear()
   // TODO
 }
 
-cMessage* DelayingQueue::pop()
+omnetpp::cMessage* DelayingQueue::pop()
 {
-  // TODO
-  return nullptr;
+  cancelEvent(sendOutSelfMessage.get());
+  return scheduledMessage.release();
 }
 
 void DelayingQueue::addListener(inet::IPassiveQueueListener* listener)
