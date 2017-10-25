@@ -43,7 +43,7 @@ struct Message final
 
   std::unique_ptr<omnetpp::cMessage> message;
   omnetpp::SimTime clockTimestamp;
-  omnetpp::cGate* gate{nullptr}; // Self messages has nullptr gate
+  omnetpp::cGate* gate{nullptr};  // Self messages has nullptr gate
 };
 
 };  // namespace clock_decorator_details
@@ -192,7 +192,8 @@ void ClockDecorator<BaseModule>::receiveSignal(omnetpp::cComponent* source, omne
       break;
     }
 
-    EV_DETAIL_C("ClockDecorator") << "Sending scheduled message " << element->message.get() << " according to local clock" << endl;
+    EV_DETAIL_C("ClockDecorator") << "Sending scheduled message " << element->message.get()
+                                  << " according to local clock" << endl;
 
     if (!element->gate) {
       BaseModule::scheduleAt(*simulationTime, element->message.release());
