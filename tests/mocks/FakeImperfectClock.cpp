@@ -37,19 +37,23 @@ void FakeImperfectClock::initialize(int stage)
   if (stage == inet::INITSTAGE_LOCAL) {
     currentWindowEncTimestamp = simTime() + windowDuration;
     scheduleAt(currentWindowEncTimestamp, windowUpdateSelfMessage.get());
+
+    EV_DEBUG << "Initialize FakeImperfectClock" << endl;
   }
 }
 
 void FakeImperfectClock::handleMessage(omnetpp::cMessage* message)
 {
   if (!message->isSelfMessage()) {
-      throw omnetpp::cRuntimeError{"FakeImperfectClock received unexpected message"};
+    throw omnetpp::cRuntimeError{"FakeImperfectClock received unexpected message"};
   }
 
   currentWindowEncTimestamp = simTime() + windowDuration;
   scheduleAt(currentWindowEncTimestamp, windowUpdateSelfMessage.get());
 
   emit(IClock::windowUpdateSignal, currentWindowEncTimestamp);
+
+  EV_DEBUG << "FakeImperfectClock emit periodic signal " << IClock::windowUpdateSignal << endl;
 }
 
 omnetpp::SimTime FakeImperfectClock::getClockTimestamp()

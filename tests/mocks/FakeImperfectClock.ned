@@ -19,5 +19,5 @@ simple FakeImperfectClock like smile.IClock
 {
     parameters:
         @class(smile::mocks::FakeImperfectClock);
-	    @signal[windowUpdate](type=SimTime);
+	    @signal[windowUpdate](type=simtime_t);
 }
