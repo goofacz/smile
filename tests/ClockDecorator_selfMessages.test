@@ -1,0 +1,91 @@
+%includes:
+#include "../../src/ClockDecorator.h"
+
+%module: LogGenerator
+using namespace inet;
+using namespace smile;
+
+class TestModule : public ClockDecorator<cSimpleModule>
+{
+  public:
+    TestModule() = default;
+    void initialize(int stage) override;
+    int numInitStages() const override;
+    void handleSelfMessage(omnetpp::cMessage* message) override;
+};
+
+Define_Module(TestModule);
+
+void TestModule::initialize(int stage)
+{
+	ClockDecorator<cSimpleModule>::initialize(stage);
+	if(stage == INITSTAGE_APPLICATION_LAYER)	{	
+		scheduleAt(SimTime{200, SIMTIME_MS}, new cMessage{"200ms"});
+		scheduleAt(SimTime{100, SIMTIME_MS}, new cMessage{"100ms"});
+		scheduleAt(SimTime{500, SIMTIME_MS}, new cMessage{"500ms"});
+		scheduleAt(SimTime{600, SIMTIME_MS}, new cMessage{"600ms"});
+		scheduleAt(SimTime{1, SIMTIME_S}, new cMessage{"1s"});
+		scheduleAt(SimTime{3, SIMTIME_S}, new cMessage{"3s"});
+		scheduleAt(SimTime{4, SIMTIME_S}, new cMessage{"4s"});
+		EV_DETAIL << "Self messages were sent" << endl;
+	}
+}
+
+int TestModule::numInitStages() const
+{
+  return INITSTAGE_APPLICATION_LAYER + 1;
+}
+
+void TestModule::handleSelfMessage(omnetpp::cMessage* message)
+{
+	EV_INFO << "Received scheduled message \"" << message << "\" at " << simTime() << endl;
+	delete message;
+}
+
+%file: test.ned
+import smile.ClockDecorator;
+import smile.mocks.FakeImperfectClock;
+
+simple TestModule like ClockDecorator
+{
+	parameters:
+		string clockModuleRealitivePath = "^.clock";
+}
+
+network Test
+{
+    submodules:
+        testModule: TestModule;
+        clock: FakeImperfectClock;
+}
+
+%inifile: omnet.ini
+[General]
+sim-time-limit = 10s
+cmdenv-express-mode = false
+check-signals = false
+**.cmdenv-log-level = debug
+network = Test
+
+%exitcode: 0
+
+%contains: stdout
+Received scheduled message "(omnetpp::cMessage)100ms" at 0.1
+
+%contains: stdout
+Received scheduled message "(omnetpp::cMessage)200ms" at 0.2
+
+%contains: stdout
+Received scheduled message "(omnetpp::cMessage)500ms" at 0.5
+
+%contains: stdout
+Received scheduled message "(omnetpp::cMessage)600ms" at 0.6
+
+%contains: stdout
+Received scheduled message "(omnetpp::cMessage)1s" at 1
+
+%contains: stdout
+Received scheduled message "(omnetpp::cMessage)3s" at 3
+
+%contains: stdout
+Received scheduled message "(omnetpp::cMessage)4s" at 4
