@@ -18,5 +18,5 @@ package smile;
 moduleinterface IClock
 {
 	parameters:
-	    @signal[windowUpdate](type=SimTime);
+	    @signal[windowUpdate](type=simtime_t);
 }
