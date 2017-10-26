@@ -80,15 +80,25 @@ class ClockDecorator : public BaseModule, public omnetpp::cListener
  protected:
   void initialize(int stage) override;
 
+  void handleMessage(omnetpp::cMessage* message) override final;
+
   void receiveSignal(omnetpp::cComponent* source, omnetpp::simsignal_t signalID, const omnetpp::SimTime& value,
                      omnetpp::cObject* details) override;
 
+  virtual void handleSelfMessage(omnetpp::cMessage* message);
+
+  virtual void handleIncommingMessage(omnetpp::cMessage* message);
+
+ private:
   void scheduleMessage(std::unique_ptr<omnetpp::cMessage> message, const omnetpp::SimTime& clockTimestamp,
                        omnetpp::cGate* gate);
 
- private:
+  void handleSendScheduledMessagesSelfMessage();
+
   IClock* clock{nullptr};
+  omnetpp::cModule* clockModule{nullptr};
   ScheduledMessagesList scheduledMessages;
+  std::unique_ptr<omnetpp::cMessage> sendScheduledMessagesSelfMessage;
 };
 
 template <typename BaseModule>
@@ -100,11 +110,14 @@ ClockDecorator<BaseModule>::~ClockDecorator()
       element.message.release();
     }
   }
+
+  BaseModule::cancelEvent(sendScheduledMessagesSelfMessage.get());
 }
 
 template <typename BaseModule>
 void ClockDecorator<BaseModule>::scheduleAt(omnetpp::simtime_t clockTimestamp, omnetpp::cMessage* message)
 {
+  EV_DEBUG_C("ClockDecorator") << "Calling ClockDecorator<BaseModule>::scheduleAt()" << endl;
   const auto simulationTime = clock->convertToSimulationTimestamp(clockTimestamp);
   if (simulationTime) {
     BaseModule::scheduleAt(*simulationTime, message);
@@ -170,11 +183,29 @@ void ClockDecorator<BaseModule>::initialize(int stage)
 
   if (stage == inet::INITSTAGE_LOCAL) {
     const auto clockModuleRealitivePath = BaseModule::par("clockModuleRealitivePath").stringValue();
-    auto clockModule = BaseModule::getModuleByPath(clockModuleRealitivePath);
+    clockModule = BaseModule::getModuleByPath(clockModuleRealitivePath);
     if (!clockModule) {
       throw omnetpp::cRuntimeError{"Failed to find clock module at relative path \"%s\"", clockModuleRealitivePath};
     }
     clock = check_and_cast<IClock*>(clockModule);
+
+    sendScheduledMessagesSelfMessage = std::make_unique<omnetpp::cMessage>("sendScheduledMessagesSelfMessage");
+  }
+}
+
+template <typename BaseModule>
+void ClockDecorator<BaseModule>::handleMessage(omnetpp::cMessage* message)
+{
+  if (message->isSelfMessage()) {
+    if (message == sendScheduledMessagesSelfMessage.get()) {
+      handleSendScheduledMessagesSelfMessage();
+    }
+    else {
+      handleSelfMessage(message);
+    }
+  }
+  else {
+    handleIncommingMessage(message);
   }
 }
 
@@ -182,10 +213,52 @@ template <typename BaseModule>
 void ClockDecorator<BaseModule>::receiveSignal(omnetpp::cComponent* source, omnetpp::simsignal_t signalID,
                                                const omnetpp::SimTime& value, omnetpp::cObject* details)
 {
+  EV_DEBUG_C("ClockDecorator") << "Received signal " << signalID << endl;
+
   if (signalID != IClock::windowUpdateSignal) {
     return;
   }
 
+  const auto& firstMessage = scheduledMessages.front();
+  if (firstMessage.clockTimestamp <= value) {
+    BaseModule::scheduleAt(simTime(), sendScheduledMessagesSelfMessage.get());
+  }
+}
+
+template <typename BaseModule>
+void ClockDecorator<BaseModule>::handleSelfMessage(omnetpp::cMessage* message)
+{
+  throw omnetpp::cRuntimeError{"Default ClockDecorator::handleSelfMessage() implementation received message"};
+}
+
+template <typename BaseModule>
+void ClockDecorator<BaseModule>::handleIncommingMessage(omnetpp::cMessage* message)
+{
+  throw omnetpp::cRuntimeError{"Default ClockDecorator::handleIncommingMessage() implementation received message"};
+}
+
+template <typename BaseModule>
+void ClockDecorator<BaseModule>::scheduleMessage(std::unique_ptr<omnetpp::cMessage> message,
+                                                 const omnetpp::SimTime& clockTimestamp, omnetpp::cGate* gate)
+{
+  if (scheduledMessages.empty()) {
+    clockModule->subscribe(IClock::windowUpdateSignal, this);
+    EV_DEBUG_C("ClockDecorator") << "Subscribe on signal " << IClock::windowUpdateSignal << endl;
+  }
+
+  auto predicate = [](const auto& element, const auto& clockTimestamp) {
+    return element.clockTimestamp < clockTimestamp ? true : false;
+  };
+
+  EV_DETAIL << "Scheduling message \"" << message.get() << "\" according to local clock" << endl;
+
+  auto element = std::lower_bound(scheduledMessages.begin(), scheduledMessages.end(), clockTimestamp, predicate);
+  scheduledMessages.emplace(element, std::move(message), clockTimestamp, gate);
+}
+
+template <typename BaseModule>
+void ClockDecorator<BaseModule>::handleSendScheduledMessagesSelfMessage()
+{
   for (auto element = scheduledMessages.begin(); element != scheduledMessages.end();) {
     const auto simulationTime = clock->convertToSimulationTimestamp(element->clockTimestamp);
     if (!simulationTime) {
@@ -207,26 +280,9 @@ void ClockDecorator<BaseModule>::receiveSignal(omnetpp::cComponent* source, omne
   }
 
   if (scheduledMessages.empty()) {
-    BaseModule::unsubscribe(IClock::windowUpdateSignal, this);
+    EV_DEBUG_C("ClockDecorator") << "Unsubscribe from signal " << IClock::windowUpdateSignal << endl;
+    clockModule->unsubscribe(IClock::windowUpdateSignal, this);
   }
-}
-
-template <typename BaseModule>
-void ClockDecorator<BaseModule>::scheduleMessage(std::unique_ptr<omnetpp::cMessage> message,
-                                                 const omnetpp::SimTime& clockTimestamp, omnetpp::cGate* gate)
-{
-  if (scheduledMessages.empty()) {
-    BaseModule::subscribe(IClock::windowUpdateSignal, this);
-  }
-
-  auto predicate = [](const auto& element, const auto& clockTimestamp) {
-    return element.clockTimestamp < clockTimestamp ? true : false;
-  };
-
-  EV_DETAIL_C("ClockDecorator") << "Scheduling message " << message.get() << " according to local clock" << endl;
-
-  auto element = std::lower_bound(scheduledMessages.begin(), scheduledMessages.begin(), clockTimestamp, predicate);
-  scheduledMessages.emplace(element, std::move(message), clockTimestamp, gate);
 }
 
 }  // namespace smile
