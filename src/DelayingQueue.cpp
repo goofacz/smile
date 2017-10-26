@@ -21,43 +21,35 @@ Define_Module(DelayingQueue);
 
 void DelayingQueue::initialize(int stage)
 {
-  cSimpleModule::initialize(stage);
+  ClockDecorator<omnetpp::cSimpleModule>::initialize(stage);
 
   if (stage == inet::INITSTAGE_LOCAL) {
     inGate = gate("in");
     outGate = gate("out");
-
-    auto clockModule = getModuleByPath(par("clockModuleRealitivePath").stringValue());
-    if (!clockModule) {
-      throw omnetpp::cRuntimeError{"Failed to find clock module at relative path \"%s\"",
-                                   par("clockModuleRealitivePath").stringValue()};
-    }
-    clock = check_and_cast<IClock*>(clockModule);
   }
 }
 
-void DelayingQueue::handleMessage(omnetpp::cMessage* message)
+void DelayingQueue::handleIncommingMessage(omnetpp::cMessage* message)
 {
-  if (message->isSelfMessage()) {
-    handleSelfMessage(message);
+  std::unique_ptr<omnetpp::cMessage> messageHolder{message};
+  const auto arrivalgate = messageHolder->getArrivalGate();
+  if (arrivalgate == inGate) {
+    handleInMessage(std::move(messageHolder));
   }
   else {
-    std::unique_ptr<omnetpp::cMessage> messageHolder{message};
-    const auto arrivalgate = messageHolder->getArrivalGate();
-    if (arrivalgate == inGate) {
-      handleInMessage(std::move(messageHolder));
-    }
-    else {
-      throw omnetpp::cRuntimeError{"Received unexpected message \"%s\" on unknown gate \"%s\"",
-                                   messageHolder->getFullName(), arrivalgate->getFullName()};
-    }
+    throw omnetpp::cRuntimeError{"Received unexpected message \"%s\" on unknown gate \"%s\"",
+                                 messageHolder->getFullName(), arrivalgate->getFullName()};
   }
 }
 
-void DelayingQueue::receiveSignal(omnetpp::cComponent* source, omnetpp::simsignal_t signalID, const omnetpp::SimTime&,
-                                  omnetpp::cObject* details)
+void DelayingQueue::handleSelfMessage(omnetpp::cMessage* message)
 {
-  // TODO
+  if (message == sendOutSelfMessage.get()) {
+    // TODO
+  }
+  else {
+    EV_ERROR << "Received unknown self message " << message->getFullName() << endl;
+  }
 }
 
 void DelayingQueue::requestPacket()
@@ -96,16 +88,9 @@ void DelayingQueue::removeListener(inet::IPassiveQueueListener* listener)
   // TODO
 }
 
-void DelayingQueue::handleInMessage(std::unique_ptr<omnetpp::cMessage> message) {}
-
-void DelayingQueue::handleSelfMessage(omnetpp::cMessage* message)
+void DelayingQueue::handleInMessage(std::unique_ptr<omnetpp::cMessage> message)
 {
-  if (message == sendOutSelfMessage.get()) {
-    // TODO
-  }
-  else {
-    EV_ERROR << "Received unknown self message " << message->getFullName() << endl;
-  }
+  // TODO
 }
 
 }  // namespace smile

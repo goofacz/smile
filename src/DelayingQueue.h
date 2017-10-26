@@ -16,12 +16,12 @@
 #pragma once
 
 #include <memory>
-#include "IClock.h"
+#include "ClockDecorator.h"
 #include "inet/common/queue/IPassiveQueue.h"
 
 namespace smile {
 
-class DelayingQueue : public omnetpp::cSimpleModule, public inet::IPassiveQueue, public omnetpp::cListener
+class DelayingQueue : public ClockDecorator<omnetpp::cSimpleModule>, public inet::IPassiveQueue
 {
  public:
   DelayingQueue() = default;
@@ -35,10 +35,9 @@ class DelayingQueue : public omnetpp::cSimpleModule, public inet::IPassiveQueue,
  protected:
   void initialize(int stage) override;
 
-  void handleMessage(omnetpp::cMessage* message) override;
+  void handleIncommingMessage(omnetpp::cMessage* message) override;
 
-  void receiveSignal(omnetpp::cComponent* source, omnetpp::simsignal_t signalID, const omnetpp::SimTime&,
-                     omnetpp::cObject* details) override;
+  void handleSelfMessage(omnetpp::cMessage* message) override;
 
   void requestPacket() override;
 
@@ -56,12 +55,9 @@ class DelayingQueue : public omnetpp::cSimpleModule, public inet::IPassiveQueue,
 
   void handleInMessage(std::unique_ptr<omnetpp::cMessage> message);
 
-  void handleSelfMessage(omnetpp::cMessage* message);
-
  private:
   omnetpp::cGate* inGate{nullptr};
   omnetpp::cGate* outGate{nullptr};
-  IClock* clock{nullptr};
 
   std::unique_ptr<omnetpp::cMessage> scheduledMessage{nullptr};
   omnetpp::SimTime scheduledClockTimestamp{0};
