@@ -4,6 +4,7 @@
 %module: LogGenerator
 using namespace inet;
 using namespace smile;
+using namespace smile;
 
 class TestModule : public ClockDecorator<cSimpleModule>
 {
@@ -21,10 +22,10 @@ void TestModule::initialize(int stage)
 	ClockDecorator<cSimpleModule>::initialize(stage);
 	if(stage == INITSTAGE_APPLICATION_LAYER)	{	
 		scheduleAt(SimTime{200, SIMTIME_MS}, new cMessage{"200ms"});
+		scheduleAt(SimTime{1, SIMTIME_S}, new cMessage{"1s"});
 		scheduleAt(SimTime{100, SIMTIME_MS}, new cMessage{"100ms"});
 		scheduleAt(SimTime{500, SIMTIME_MS}, new cMessage{"500ms"});
 		scheduleAt(SimTime{600, SIMTIME_MS}, new cMessage{"600ms"});
-		scheduleAt(SimTime{1, SIMTIME_S}, new cMessage{"1s"});
 		scheduleAt(SimTime{3, SIMTIME_S}, new cMessage{"3s"});
 		scheduleAt(SimTime{4, SIMTIME_S}, new cMessage{"4s"});
 		EV_DETAIL << "Self messages were sent" << endl;
@@ -44,7 +45,7 @@ void TestModule::handleSelfMessage(omnetpp::cMessage* message)
 
 %file: test.ned
 import smile.ClockDecorator;
-import smile.mocks.FakeImperfectClock;
+import smile.fakes.FakeImperfectClock;
 
 simple TestModule like ClockDecorator
 {

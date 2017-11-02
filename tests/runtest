@@ -16,12 +16,20 @@ opp_test gen -v *.test || exit 1
 ) || exit 1
 
 (
+	cd fakes;
+	opp_makemake --make-so -o smile_fakes -f --deep -KINET_PROJ=../../../inet -DINET_IMPORT -I. \
+	             -I$\(INET_PROJ\)/src -L$\(INET_PROJ\)/out/$\(CONFIGNAME\)/src -L../../out//$\(CONFIGNAME\)/src \
+	             -I../../src -lINET_dbg -lsmile_dbg;
+	$MAKE
+) || exit 1
+
+(
 	cd work;
 	opp_makemake -f --deep -KINET_PROJ=../../../inet -DINET_IMPORT -I. -I$\(INET_PROJ\)/src \
 	             -L$\(INET_PROJ\)/out/$\(CONFIGNAME\)/src -L../../out//$\(CONFIGNAME\)/src -lINET_dbg \
-	             -L../mocks -lsmile_dbg -lsmile_mocks_dbg;
+	             -L../mocks -L../fakes -lsmile_dbg -lsmile_mocks_dbg -lsmile_fakes_dbg;
     $MAKE
 ) || exit 1
 
-export NEDPATH=.:`pwd`/../src:`pwd`/../../inet/src:`pwd`/mocks
+export NEDPATH=.:`pwd`/../src:`pwd`/../../inet/src:`pwd`/mocks:`pwd`/fakes
 opp_test run -v -p smile_dbg $TESTFILES

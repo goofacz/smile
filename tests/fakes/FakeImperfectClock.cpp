@@ -18,7 +18,7 @@
 #include "FakeImperfectClock.h"
 
 namespace smile {
-namespace mocks {
+namespace fakes {
 
 Define_Module(FakeImperfectClock);
 
@@ -35,25 +35,25 @@ void FakeImperfectClock::initialize(int stage)
 {
   cModule::initialize(stage);
   if (stage == inet::INITSTAGE_LOCAL) {
-    currentWindowEncTimestamp = simTime() + windowDuration;
-    scheduleAt(currentWindowEncTimestamp, windowUpdateSelfMessage.get());
+    currentWindowEndTimestamp = simTime() + windowDuration;
+    scheduleAt(currentWindowEndTimestamp, windowUpdateSelfMessage.get());
 
-    EV_DEBUG << "Initialize FakeImperfectClock" << endl;
+    EV_DEBUG << "Initialize FakeImperfectClock:" << endl;
   }
 }
 
 void FakeImperfectClock::handleMessage(omnetpp::cMessage* message)
 {
   if (!message->isSelfMessage()) {
-    throw omnetpp::cRuntimeError{"FakeImperfectClock received unexpected message"};
+    throw omnetpp::cRuntimeError{"FakeImperfectClock: received unexpected message"};
   }
 
-  currentWindowEncTimestamp = simTime() + windowDuration;
-  scheduleAt(currentWindowEncTimestamp, windowUpdateSelfMessage.get());
+  currentWindowEndTimestamp = simTime() + windowDuration;
+  scheduleAt(currentWindowEndTimestamp, windowUpdateSelfMessage.get());
 
-  emit(IClock::windowUpdateSignal, currentWindowEncTimestamp);
+  emit(IClock::windowUpdateSignal, currentWindowEndTimestamp);
 
-  EV_DEBUG << "FakeImperfectClock emit periodic signal " << IClock::windowUpdateSignal << endl;
+  EV_DEBUG << "FakeImperfectClock: emit periodic signal " << IClock::windowUpdateSignal << endl;
 }
 
 omnetpp::SimTime FakeImperfectClock::getClockTimestamp()
@@ -63,8 +63,8 @@ omnetpp::SimTime FakeImperfectClock::getClockTimestamp()
 
 FakeImperfectClock::OptionalSimTime FakeImperfectClock::convertToSimulationTimestamp(const omnetpp::SimTime& timestamp)
 {
-  return timestamp > currentWindowEncTimestamp ? std::experimental::nullopt : OptionalSimTime{timestamp};
+  return timestamp > currentWindowEndTimestamp ? std::experimental::nullopt : OptionalSimTime{timestamp};
 }
 
-}  // namespace mocks
+}  // namespace fakes
 }  // namespace smile

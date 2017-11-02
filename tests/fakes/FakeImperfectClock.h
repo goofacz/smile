@@ -20,7 +20,7 @@
 #include "omnetpp.h"
 
 namespace smile {
-namespace mocks {
+namespace fakes {
 
 class FakeImperfectClock : public omnetpp::cSimpleModule, public IClock
 {
@@ -43,9 +43,9 @@ class FakeImperfectClock : public omnetpp::cSimpleModule, public IClock
 
  private:
   const omnetpp::SimTime windowDuration{500, omnetpp::SIMTIME_MS};
-  omnetpp::SimTime currentWindowEncTimestamp;
+  omnetpp::SimTime currentWindowEndTimestamp;
   std::unique_ptr<omnetpp::cMessage> windowUpdateSelfMessage;
 };
 
-}  // namespace mocks
+}  // namespace fakes
 }  // namespace smile

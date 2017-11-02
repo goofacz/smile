@@ -13,11 +13,11 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-package smile.mocks;
+package smile.fakes;
 
 simple FakeImperfectClock like smile.IClock
 {
     parameters:
-        @class(smile::mocks::FakeImperfectClock);
+        @class(smile::fakes::FakeImperfectClock);
 	    @signal[windowUpdate](type=simtime_t);
 }
