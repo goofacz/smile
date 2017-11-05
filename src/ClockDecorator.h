@@ -117,7 +117,7 @@ ClockDecorator<BaseModule>::~ClockDecorator()
 template <typename BaseModule>
 void ClockDecorator<BaseModule>::scheduleAt(omnetpp::simtime_t clockTimestamp, omnetpp::cMessage* message)
 {
-  EV_DEBUG_C("ClockDecorator") << "Calling ClockDecorator<BaseModule>::scheduleAt()" << endl;
+  EV_DEBUG << "Calling ClockDecorator<BaseModule>::scheduleAt()" << endl;
   const auto simulationTime = clock->convertToSimulationTimestamp(clockTimestamp);
   if (simulationTime) {
     BaseModule::scheduleAt(*simulationTime, message);
@@ -213,7 +213,7 @@ template <typename BaseModule>
 void ClockDecorator<BaseModule>::receiveSignal(omnetpp::cComponent* source, omnetpp::simsignal_t signalID,
                                                const omnetpp::SimTime& value, omnetpp::cObject* details)
 {
-  EV_DEBUG_C("ClockDecorator") << "Received signal " << signalID << endl;
+  EV_DEBUG << "Received signal " << BaseModule::getSignalName(signalID)  << endl;
 
   if (signalID != IClock::windowUpdateSignal) {
     return;
@@ -243,7 +243,7 @@ void ClockDecorator<BaseModule>::scheduleMessage(std::unique_ptr<omnetpp::cMessa
 {
   if (scheduledMessages.empty()) {
     clockModule->subscribe(IClock::windowUpdateSignal, this);
-    EV_DEBUG_C("ClockDecorator") << "Subscribe on signal " << IClock::windowUpdateSignal << endl;
+    EV_DEBUG << "Subscribe on signal " << BaseModule::getSignalName(IClock::windowUpdateSignal) << endl;
   }
 
   auto predicate = [](const auto& element, const auto& clockTimestamp) {
@@ -265,7 +265,7 @@ void ClockDecorator<BaseModule>::handleSendScheduledMessagesSelfMessage()
       break;
     }
 
-    EV_DETAIL_C("ClockDecorator") << "Sending scheduled message " << element->message.get()
+    EV_DETAIL << "Sending scheduled message " << element->message.get()
                                   << " according to local clock" << endl;
 
     if (!element->gate) {
@@ -280,7 +280,7 @@ void ClockDecorator<BaseModule>::handleSendScheduledMessagesSelfMessage()
   }
 
   if (scheduledMessages.empty()) {
-    EV_DEBUG_C("ClockDecorator") << "Unsubscribe from signal " << IClock::windowUpdateSignal << endl;
+    EV_DEBUG << "Unsubscribe from signal " << BaseModule::getSignalName(IClock::windowUpdateSignal) << endl;
     clockModule->unsubscribe(IClock::windowUpdateSignal, this);
   }
 }
