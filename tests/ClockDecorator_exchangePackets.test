@@ -1,0 +1,190 @@
+%includes:
+#include "../../src/ClockDecorator.h"
+
+%module: TestModule
+using namespace inet;
+using namespace smile;
+using namespace smile;
+
+class TestModule : public ClockDecorator<cSimpleModule>
+{
+  public:
+    TestModule() = default;
+    void initialize(int stage) override;
+    int numInitStages() const override;
+    void handleIncommingMessage(omnetpp::cMessage* message) override;
+};
+
+Define_Module(TestModule);
+
+void TestModule::initialize(int stage)
+{
+	ClockDecorator<cSimpleModule>::initialize(stage);
+	if(stage == INITSTAGE_APPLICATION_LAYER)	
+	{
+		if(par("nodeIndex").longValue() == 0)
+		{
+			sendDelayed(new cPacket{"900ms"}, SimTime{900, SIMTIME_MS}, "out");
+			sendDelayed(new cPacket{"1600ms"}, SimTime{1600, SIMTIME_MS}, "out");
+			sendDelayed(new cPacket{"200ms"}, SimTime{200, SIMTIME_MS}, "out");
+			sendDelayed(new cPacket{"600ms"}, SimTime{600, SIMTIME_MS}, "out");
+		}
+		else
+		{
+			sendDelayed(new cPacket{"1s"}, SimTime{1, SIMTIME_S}, "out");
+			sendDelayed(new cPacket{"5s"}, SimTime{5, SIMTIME_S}, "out");
+			sendDelayed(new cPacket{"9s"}, SimTime{9, SIMTIME_S}, "out");
+			sendDelayed(new cPacket{"2s"}, SimTime{2, SIMTIME_S}, "out");		
+		}
+	}
+}
+
+int TestModule::numInitStages() const
+{
+    return INITSTAGE_APPLICATION_LAYER + 1;
+}
+
+void TestModule::handleIncommingMessage(omnetpp::cMessage* message)
+{
+	EV_DEBUG << "Received message: \"" << message << "\"" << endl;
+	delete message;
+}
+
+%file: test.ned
+import smile.ClockDecorator;
+import smile.fakes.FakeImperfectClock;
+
+module TestModule like ClockDecorator
+{
+	parameters:
+		@class(TestModule);
+		string clockModuleRealitivePath = ".clock";
+		int nodeIndex;
+
+	gates:
+		input in;
+		output out;
+
+	submodules:
+		clock: FakeImperfectClock;
+}
+
+network Test
+{
+    submodules:
+        node1: TestModule	{
+        	nodeIndex = 0;
+        }
+        
+        node2: TestModule	{
+        	nodeIndex = 1;
+        }
+
+    connections:
+    	node1.out --> node2.in;
+        node1.in <-- node2.out;
+}
+
+%inifile: omnet.ini
+[General]
+sim-time-limit = 10s
+cmdenv-express-mode = false
+check-signals = false
+cmdenv-log-prefix = "[%l] [%t] %M: "
+**.cmdenv-log-level = debug
+network = Test
+
+%exitcode: 0
+
+%subst: /(?:\*\*.*\n)//
+
+%contains: stdout
+[DEBUG] [0] Test.node1: Subscribe on signal windowUpdate
+[DETAIL] [0] Test.node1: Scheduling message "(omnetpp::cPacket)900ms" according to local clock
+[DETAIL] [0] Test.node1: Scheduling message "(omnetpp::cPacket)1600ms" according to local clock
+[DETAIL] [0] Test.node1: Scheduling message "(omnetpp::cPacket)600ms" according to local clock
+Initializing module Test.node2, stage 12
+[DEBUG] [0] Test.node2: Subscribe on signal windowUpdate
+[DETAIL] [0] Test.node2: Scheduling message "(omnetpp::cPacket)1s" according to local clock
+[DETAIL] [0] Test.node2: Scheduling message "(omnetpp::cPacket)5s" according to local clock
+[DETAIL] [0] Test.node2: Scheduling message "(omnetpp::cPacket)9s" according to local clock
+[DETAIL] [0] Test.node2: Scheduling message "(omnetpp::cPacket)2s" according to local clock
+
+Running simulation...
+[DEBUG] [0.2] Test.node2: Received message: "(omnetpp::cPacket)200ms"
+[DEBUG] [0.5] Test.node1.clock: Received signal windowUpdate
+[DEBUG] [0.5] Test.node1.clock: Emit periodic signal windowUpdate
+[DEBUG] [0.5] Test.node2.clock: Received signal windowUpdate
+[DEBUG] [0.5] Test.node2.clock: Emit periodic signal windowUpdate
+[DETAIL] [0.5] Test.node1: Sending scheduled message (omnetpp::cPacket)600ms according to local clock
+[DETAIL] [0.5] Test.node1: Sending scheduled message (omnetpp::cPacket)900ms according to local clock
+[DETAIL] [0.5] Test.node2: Sending scheduled message (omnetpp::cPacket)1s according to local clock
+[DEBUG] [0.6] Test.node2: Received message: "(omnetpp::cPacket)600ms"
+[DEBUG] [0.9] Test.node2: Received message: "(omnetpp::cPacket)900ms"
+[DEBUG] [1] Test.node1.clock: Received signal windowUpdate
+[DEBUG] [1] Test.node1.clock: Emit periodic signal windowUpdate
+[DEBUG] [1] Test.node2.clock: Received signal windowUpdate
+[DEBUG] [1] Test.node2.clock: Emit periodic signal windowUpdate
+[DEBUG] [1] Test.node1: Received message: "(omnetpp::cPacket)1s"
+[DEBUG] [1.5] Test.node1.clock: Received signal windowUpdate
+[DEBUG] [1.5] Test.node1.clock: Emit periodic signal windowUpdate
+[DEBUG] [1.5] Test.node2.clock: Received signal windowUpdate
+[DEBUG] [1.5] Test.node2.clock: Emit periodic signal windowUpdate
+[DETAIL] [1.5] Test.node1: Sending scheduled message (omnetpp::cPacket)1600ms according to local clock
+[DEBUG] [1.5] Test.node1: Unsubscribe from signal windowUpdate
+[DETAIL] [1.5] Test.node2: Sending scheduled message (omnetpp::cPacket)2s according to local clock
+[DEBUG] [1.6] Test.node2: Received message: "(omnetpp::cPacket)1600ms"
+[DEBUG] [2] Test.node1.clock: Emit periodic signal windowUpdate
+[DEBUG] [2] Test.node2.clock: Received signal windowUpdate
+[DEBUG] [2] Test.node2.clock: Emit periodic signal windowUpdate
+[DEBUG] [2] Test.node1: Received message: "(omnetpp::cPacket)2s"
+[DEBUG] [2.5] Test.node1.clock: Emit periodic signal windowUpdate
+[DEBUG] [2.5] Test.node2.clock: Received signal windowUpdate
+[DEBUG] [2.5] Test.node2.clock: Emit periodic signal windowUpdate
+[DEBUG] [3] Test.node1.clock: Emit periodic signal windowUpdate
+[DEBUG] [3] Test.node2.clock: Received signal windowUpdate
+[DEBUG] [3] Test.node2.clock: Emit periodic signal windowUpdate
+[DEBUG] [3.5] Test.node1.clock: Emit periodic signal windowUpdate
+[DEBUG] [3.5] Test.node2.clock: Received signal windowUpdate
+[DEBUG] [3.5] Test.node2.clock: Emit periodic signal windowUpdate
+[DEBUG] [4] Test.node1.clock: Emit periodic signal windowUpdate
+[DEBUG] [4] Test.node2.clock: Received signal windowUpdate
+[DEBUG] [4] Test.node2.clock: Emit periodic signal windowUpdate
+[DEBUG] [4.5] Test.node1.clock: Emit periodic signal windowUpdate
+[DEBUG] [4.5] Test.node2.clock: Received signal windowUpdate
+[DEBUG] [4.5] Test.node2.clock: Emit periodic signal windowUpdate
+[DETAIL] [4.5] Test.node2: Sending scheduled message (omnetpp::cPacket)5s according to local clock
+[DEBUG] [5] Test.node1.clock: Emit periodic signal windowUpdate
+[DEBUG] [5] Test.node2.clock: Received signal windowUpdate
+[DEBUG] [5] Test.node2.clock: Emit periodic signal windowUpdate
+[DEBUG] [5] Test.node1: Received message: "(omnetpp::cPacket)5s"
+[DEBUG] [5.5] Test.node1.clock: Emit periodic signal windowUpdate
+[DEBUG] [5.5] Test.node2.clock: Received signal windowUpdate
+[DEBUG] [5.5] Test.node2.clock: Emit periodic signal windowUpdate
+[DEBUG] [6] Test.node1.clock: Emit periodic signal windowUpdate
+[DEBUG] [6] Test.node2.clock: Received signal windowUpdate
+[DEBUG] [6] Test.node2.clock: Emit periodic signal windowUpdate
+[DEBUG] [6.5] Test.node1.clock: Emit periodic signal windowUpdate
+[DEBUG] [6.5] Test.node2.clock: Received signal windowUpdate
+[DEBUG] [6.5] Test.node2.clock: Emit periodic signal windowUpdate
+[DEBUG] [7] Test.node1.clock: Emit periodic signal windowUpdate
+[DEBUG] [7] Test.node2.clock: Received signal windowUpdate
+[DEBUG] [7] Test.node2.clock: Emit periodic signal windowUpdate
+[DEBUG] [7.5] Test.node1.clock: Emit periodic signal windowUpdate
+[DEBUG] [7.5] Test.node2.clock: Received signal windowUpdate
+[DEBUG] [7.5] Test.node2.clock: Emit periodic signal windowUpdate
+[DEBUG] [8] Test.node1.clock: Emit periodic signal windowUpdate
+[DEBUG] [8] Test.node2.clock: Received signal windowUpdate
+[DEBUG] [8] Test.node2.clock: Emit periodic signal windowUpdate
+[DEBUG] [8.5] Test.node1.clock: Emit periodic signal windowUpdate
+[DEBUG] [8.5] Test.node2.clock: Received signal windowUpdate
+[DEBUG] [8.5] Test.node2.clock: Emit periodic signal windowUpdate
+[DETAIL] [8.5] Test.node2: Sending scheduled message (omnetpp::cPacket)9s according to local clock
+[DEBUG] [8.5] Test.node2: Unsubscribe from signal windowUpdate
+[DEBUG] [9] Test.node1.clock: Emit periodic signal windowUpdate
+[DEBUG] [9] Test.node2.clock: Emit periodic signal windowUpdate
+[DEBUG] [9] Test.node1: Received message: "(omnetpp::cPacket)9s"
+[DEBUG] [9.5] Test.node1.clock: Emit periodic signal windowUpdate
+[DEBUG] [9.5] Test.node2.clock: Emit periodic signal windowUpdate
+[DEBUG] [10] Test.node1.clock: Emit periodic signal windowUpdate
+[DEBUG] [10] Test.node2.clock: Emit periodic signal windowUpdate
