@@ -28,7 +28,7 @@ void TestModule::initialize(int stage)
 		scheduleAt(SimTime{600, SIMTIME_MS}, new cMessage{"600ms"});
 		scheduleAt(SimTime{3, SIMTIME_S}, new cMessage{"3s"});
 		scheduleAt(SimTime{4, SIMTIME_S}, new cMessage{"4s"});
-		EV_DETAIL << "Self messages were sent" << endl;
+		EV_DEBUG << "Self messages were sent" << endl;
 	}
 }
 
@@ -39,7 +39,7 @@ int TestModule::numInitStages() const
 
 void TestModule::handleSelfMessage(omnetpp::cMessage* message)
 {
-	EV_INFO << "Received scheduled message \"" << message << "\" at " << simTime() << endl;
+	EV_DEBUG << "Received scheduled message \"" << message << "\" at " << simTime() << endl;
 	delete message;
 }
 
@@ -65,28 +65,41 @@ network Test
 sim-time-limit = 10s
 cmdenv-express-mode = false
 check-signals = false
+cmdenv-log-prefix = "[%l] %N: "
 **.cmdenv-log-level = debug
 network = Test
 
 %exitcode: 0
 
-%contains: stdout
-Received scheduled message "(omnetpp::cMessage)100ms" at 0.1
+%subst: /(?:\*\*.*\n)//
 
 %contains: stdout
-Received scheduled message "(omnetpp::cMessage)200ms" at 0.2
-
-%contains: stdout
-Received scheduled message "(omnetpp::cMessage)500ms" at 0.5
-
-%contains: stdout
-Received scheduled message "(omnetpp::cMessage)600ms" at 0.6
-
-%contains: stdout
-Received scheduled message "(omnetpp::cMessage)1s" at 1
-
-%contains: stdout
-Received scheduled message "(omnetpp::cMessage)3s" at 3
-
-%contains: stdout
-Received scheduled message "(omnetpp::cMessage)4s" at 4
+Running simulation...
+[DEBUG] testModule: Received scheduled message "(omnetpp::cMessage)100ms" at 0.1
+[DEBUG] testModule: Received scheduled message "(omnetpp::cMessage)200ms" at 0.2
+[DEBUG] clock: Received signal windowUpdate
+[DEBUG] clock: Emit periodic signal windowUpdate
+[DEBUG] testModule: Received scheduled message "(omnetpp::cMessage)500ms" at 0.5
+[DETAIL] testModule: Sending scheduled message (omnetpp::cMessage)600ms according to local clock
+[DETAIL] testModule: Sending scheduled message (omnetpp::cMessage)1s according to local clock
+[DEBUG] testModule: Received scheduled message "(omnetpp::cMessage)600ms" at 0.6
+[DEBUG] clock: Received signal windowUpdate
+[DEBUG] clock: Emit periodic signal windowUpdate
+[DEBUG] testModule: Received scheduled message "(omnetpp::cMessage)1s" at 1
+[DEBUG] clock: Received signal windowUpdate
+[DEBUG] clock: Emit periodic signal windowUpdate
+[DEBUG] clock: Received signal windowUpdate
+[DEBUG] clock: Emit periodic signal windowUpdate
+[DEBUG] clock: Received signal windowUpdate
+[DEBUG] clock: Emit periodic signal windowUpdate
+[DETAIL] testModule: Sending scheduled message (omnetpp::cMessage)3s according to local clock
+[DEBUG] clock: Received signal windowUpdate
+[DEBUG] clock: Emit periodic signal windowUpdate
+[DEBUG] testModule: Received scheduled message "(omnetpp::cMessage)3s" at 3
+[DEBUG] clock: Received signal windowUpdate
+[DEBUG] clock: Emit periodic signal windowUpdate
+[DETAIL] testModule: Sending scheduled message (omnetpp::cMessage)4s according to local clock
+[DEBUG] testModule: Unsubscribe from signal windowUpdate
+[DEBUG] clock: Emit periodic signal windowUpdate
+[DEBUG] testModule: Received scheduled message "(omnetpp::cMessage)4s" at 4
+[DEBUG] clock: Emit periodic signal windowUpdate
