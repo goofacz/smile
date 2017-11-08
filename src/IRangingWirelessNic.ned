@@ -18,7 +18,4 @@ package smile;
 import inet.linklayer.contract.IWirelessNic;
 
 moduleinterface IRangingWirelessNic extends IWirelessNic
-{
-    parameters:
-        @signal[transmissionCompleted](type=MACFrameBase);
-}
+{}
