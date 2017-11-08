@@ -213,7 +213,7 @@ template <typename BaseModule>
 void ClockDecorator<BaseModule>::receiveSignal(omnetpp::cComponent* source, omnetpp::simsignal_t signalID,
                                                const omnetpp::SimTime& value, omnetpp::cObject* details)
 {
-  EV_DEBUG << "Received signal " << BaseModule::getSignalName(signalID)  << endl;
+  EV_DEBUG << "Received signal " << BaseModule::getSignalName(signalID) << endl;
 
   if (signalID != IClock::windowUpdateSignal) {
     return;
@@ -265,8 +265,7 @@ void ClockDecorator<BaseModule>::handleSendScheduledMessagesSelfMessage()
       break;
     }
 
-    EV_DETAIL << "Sending scheduled message " << element->message.get()
-                                  << " according to local clock" << endl;
+    EV_DETAIL << "Sending scheduled message " << element->message.get() << " according to local clock" << endl;
 
     if (!element->gate) {
       BaseModule::scheduleAt(*simulationTime, element->message.release());
