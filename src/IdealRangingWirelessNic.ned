@@ -21,6 +21,7 @@ module IdealRangingWirelessNic like IRangingWirelessNic
 {
     parameters:
         @class(smile::IdealRangingWirelessNic);
+        string clockModuleRealitivePath = default("^.clock");
             	
 	gates:
         input upperLayerIn;

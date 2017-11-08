@@ -15,12 +15,15 @@
 
 #pragma once
 
+#include "ClockDecorator.h"
 #include "IRangingWirelessNic.h"
 #include "omnetpp.h"
 
 namespace smile {
 
-class IdealRangingWirelessNic : public omnetpp::cSimpleModule, public omnetpp::cListener, public IRangingWirelessNic
+class IdealRangingWirelessNic : public ClockDecorator<omnetpp::cSimpleModule>,
+                                public omnetpp::cListener,
+                                public IRangingWirelessNic
 {
  public:
   IdealRangingWirelessNic() = default;
