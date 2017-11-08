@@ -17,8 +17,23 @@ package smile;
 
 import inet.linklayer.ideal.IdealWirelessNic;
 
-module IdealNic extends IdealWirelessNic like IRangingWirelessNic
+module IdealRangingWirelessNic like IRangingWirelessNic
 {
     parameters:
-        @class(smile::IdealNic);
+        @class(smile::IdealRangingWirelessNic);
+            	
+	gates:
+        input upperLayerIn;
+        output upperLayerOut;
+        input radioIn @labels(IdealRangingRadioFrame);
+        
+    submodules:
+    	nic: IdealWirelessNic	{
+    	    mac.fullDuplex = false;
+    	    mac.bitrate = 10Mbps;
+    	    mac.useAck = false;
+    	}
+    	
+	connections:
+        radioIn --> nic.radioIn;
 }
