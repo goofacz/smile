@@ -14,9 +14,37 @@
 //
 
 #include "IdealRangingWirelessNic.h"
+#include "utilities.h"
 
 namespace smile {
 
 Define_Module(IdealRangingWirelessNic);
+
+void IdealRangingWirelessNic::handleIncommingMessage(omnetpp::cMessage* newMessage)
+{
+  std::unique_ptr<cMessage> message{newMessage};
+
+  const auto arrivalGate = message->getArrivalGate();
+  if (arrivalGate == gate("upperLayerIn")) {
+    handleUpperFrame(dynamic_unique_ptr_cast<IdealRangingRadioFrame>(std::move(message)));
+  }
+  else if (arrivalGate == gate("lowerLayerIn")) {
+    handleLowerFrame(dynamic_unique_ptr_cast<IdealRangingRadioFrame>(std::move(message)));
+  }
+  else {
+    throw cRuntimeError{"Message \"%s\" arrived at unexpected gate: \"%s\"", message->getName(),
+                        arrivalGate->getName()};
+  }
+}
+
+void IdealRangingWirelessNic::handleUpperFrame(std::unique_ptr<IdealRangingRadioFrame> frame)
+{
+  // TODO
+}
+
+void IdealRangingWirelessNic::handleLowerFrame(std::unique_ptr<IdealRangingRadioFrame> frame)
+{
+  // TODO
+}
 
 }  // namespace smile

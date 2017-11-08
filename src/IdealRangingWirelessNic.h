@@ -17,13 +17,12 @@
 
 #include "ClockDecorator.h"
 #include "IRangingWirelessNic.h"
+#include "IdealRangingRadioFrame.h"
 #include "omnetpp.h"
 
 namespace smile {
 
-class IdealRangingWirelessNic : public ClockDecorator<omnetpp::cSimpleModule>,
-                                public omnetpp::cListener,
-                                public IRangingWirelessNic
+class IdealRangingWirelessNic : public ClockDecorator<omnetpp::cSimpleModule>, public IRangingWirelessNic
 {
  public:
   IdealRangingWirelessNic() = default;
@@ -33,6 +32,13 @@ class IdealRangingWirelessNic : public ClockDecorator<omnetpp::cSimpleModule>,
 
   IdealRangingWirelessNic& operator=(const IdealRangingWirelessNic& source) = delete;
   IdealRangingWirelessNic& operator=(IdealRangingWirelessNic&& source) = delete;
+
+ private:
+  void handleIncommingMessage(omnetpp::cMessage* newMessage) override final;
+
+  void handleUpperFrame(std::unique_ptr<IdealRangingRadioFrame> frame);
+
+  void handleLowerFrame(std::unique_ptr<IdealRangingRadioFrame> frame);
 };
 
 }  // namespace smile

@@ -26,6 +26,8 @@ module IdealRangingWirelessNic like IRangingWirelessNic
 	gates:
         input upperLayerIn;
         output upperLayerOut;
+        input lowerLayerIn;
+        output lowerLayerOut;
         input radioIn @labels(IdealRangingRadioFrame);
         
     submodules:
@@ -37,4 +39,6 @@ module IdealRangingWirelessNic like IRangingWirelessNic
     	
 	connections:
         radioIn --> nic.radioIn;
+        nic.upperLayerOut --> lowerLayerOut;
+        lowerLayerIn --> nic.upperLayerIn;
 }
