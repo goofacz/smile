@@ -55,8 +55,14 @@ class IdealRangingWirelessNic : public ClockDecorator<omnetpp::cSimpleModule>, p
 
   void handleRadioStateChanged(inet::physicallayer::IRadio::ReceptionState newState);
 
+  void clearRxCompletion();
+
+  void clearTxCompletion();
+
   IdealTxCompletion txCompletion;
   IdealRxCompletion rxCompletion;
+  std::unique_ptr<inet::IdealMacFrame> txFrame;
+  std::unique_ptr<inet::IdealMacFrame> rxFrame;
   inet::physicallayer::IRadio* radio{nullptr};
 };
 

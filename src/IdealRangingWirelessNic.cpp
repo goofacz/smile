@@ -69,11 +69,15 @@ void IdealRangingWirelessNic::receiveSignal(omnetpp::cComponent* source, omnetpp
 
 void IdealRangingWirelessNic::handleIdealIn(std::unique_ptr<inet::IdealMacFrame> frame)
 {
+  txFrame.reset(frame->dup());
+  txCompletion.setFrame(txFrame.get());
   send(frame.release(), "nicIn");
 }
 
 void IdealRangingWirelessNic::handleNicIn(std::unique_ptr<inet::IdealMacFrame> frame)
 {
+  rxFrame.reset(frame->dup());
+  rxCompletion.setFrame(rxFrame.get());
   emit(IRangingWirelessNic::rxCompletedSignalId, &rxCompletion);
   send(frame.release(), "idealIn");
 }
@@ -89,6 +93,7 @@ void IdealRangingWirelessNic::handleRadioStateChanged(inet::physicallayer::IRadi
       txCompletion.setOperationBeginClockTimestamp(clockTime());
       break;
     case IRadio::TRANSMISSION_STATE_UNDEFINED:
+      clearTxCompletion();
       break;
   }
 }
@@ -98,6 +103,7 @@ void IdealRangingWirelessNic::handleRadioStateChanged(inet::physicallayer::IRadi
   using inet::physicallayer::IRadio;
   switch (newState) {
     case IRadio::RECEPTION_STATE_BUSY:
+      // TODO
       break;
     case IRadio::RECEPTION_STATE_IDLE:
       break;
@@ -105,8 +111,25 @@ void IdealRangingWirelessNic::handleRadioStateChanged(inet::physicallayer::IRadi
       rxCompletion.setOperationBeginClockTimestamp(clockTime());
       break;
     case IRadio::RECEPTION_STATE_UNDEFINED:
+      clearRxCompletion();
       break;
   }
+}
+
+void IdealRangingWirelessNic::clearRxCompletion()
+{
+  txCompletion.setFrame(nullptr);
+  txCompletion.setOperationBeginClockTimestamp(0);
+  txCompletion.setStatus(IdealTxCompletionStatus::SUCCESS);
+  txFrame.reset();
+}
+
+void IdealRangingWirelessNic::clearTxCompletion()
+{
+  rxCompletion.setFrame(nullptr);
+  rxCompletion.setOperationBeginClockTimestamp(0);
+  rxCompletion.setStatus(IdealRxCompletionStatus::SUCCESS);
+  rxFrame.reset();
 }
 
 }  // namespace smile
