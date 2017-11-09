@@ -15,9 +15,13 @@
 
 #pragma once
 
+#include <inet/linklayer/ideal/IdealMacFrame_m.h>
+#include <inet/physicallayer/contract/packetlevel/IRadio.h>
+#include <omnetpp.h>
 #include "ClockDecorator.h"
 #include "IRangingWirelessNic.h"
-#include "omnetpp.h"
+#include "IdealRxCompletion_m.h"
+#include "IdealTxCompletion_m.h"
 
 namespace smile {
 
@@ -32,10 +36,28 @@ class IdealRangingWirelessNic : public ClockDecorator<omnetpp::cSimpleModule>, p
   IdealRangingWirelessNic& operator=(const IdealRangingWirelessNic& source) = delete;
   IdealRangingWirelessNic& operator=(IdealRangingWirelessNic&& source) = delete;
 
+ protected:
+  using ClockDecorator<omnetpp::cSimpleModule>::receiveSignal;
+
  private:
+  void initialize(int stage) override final;
+
   void handleIncommingMessage(omnetpp::cMessage* newMessage) override final;
-  void handleUpperFrame(std::unique_ptr<cMessage> frame);
-  void handleLowerFrame(std::unique_ptr<cMessage> frame);
+
+  void receiveSignal(omnetpp::cComponent* source, omnetpp::simsignal_t signalID, long value,
+                     omnetpp::cObject* details) override final;
+
+  void handleIdealIn(std::unique_ptr<inet::IdealMacFrame> frame);
+
+  void handleNicIn(std::unique_ptr<inet::IdealMacFrame> frame);
+
+  void handleRadioStateChanged(inet::physicallayer::IRadio::TransmissionState newState);
+
+  void handleRadioStateChanged(inet::physicallayer::IRadio::ReceptionState newState);
+
+  IdealTxCompletion txCompletion;
+  IdealRxCompletion rxCompletion;
+  inet::physicallayer::IRadio* radio{nullptr};
 };
 
 }  // namespace smile

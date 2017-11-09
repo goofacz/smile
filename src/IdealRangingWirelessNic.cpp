@@ -20,31 +20,93 @@ namespace smile {
 
 Define_Module(IdealRangingWirelessNic);
 
+void IdealRangingWirelessNic::initialize(int stage)
+{
+  ClockDecorator<omnetpp::cSimpleModule>::initialize(stage);
+
+  if (stage == inet::INITSTAGE_LOCAL) {
+    const auto enableIdealInterface = par("enableIdealInterface").boolValue();
+    if (!enableIdealInterface) {
+      throw cRuntimeError{"IdealRangingWirelessNic requires enableIdealInterface to be set"};
+    }
+
+    auto radioModule = getModuleByPath("nic.radio");
+    if (!radioModule) {
+      throw cRuntimeError{"Failed to find \"nic.radio\" module"};
+    }
+    radio = check_and_cast<inet::physicallayer::IRadio*>(radioModule);
+    radioModule->subscribe(inet::physicallayer::IRadio::transmissionStateChangedSignal, this);
+    radioModule->subscribe(inet::physicallayer::IRadio::receptionStateChangedSignal, this);
+  }
+}
+
 void IdealRangingWirelessNic::handleIncommingMessage(omnetpp::cMessage* newMessage)
 {
   std::unique_ptr<cMessage> message{newMessage};
-
   const auto arrivalGate = message->getArrivalGate();
-  if (arrivalGate == gate("upperLayerIn")) {
-    handleUpperFrame(std::move(message));
+  if (arrivalGate == gate("nicIn")) {
+    handleNicIn(dynamic_unique_ptr_cast<inet::IdealMacFrame>(std::move(message)));
   }
-  else if (arrivalGate == gate("lowerLayerIn")) {
-    handleLowerFrame(std::move(message));
+  else if (arrivalGate == gate("idealIn")) {
+    handleIdealIn(dynamic_unique_ptr_cast<inet::IdealMacFrame>(std::move(message)));
   }
   else {
-    throw cRuntimeError{"Message \"%s\" arrived at unexpected gate: \"%s\"", message->getName(),
-                        arrivalGate->getName()};
+    throw cRuntimeError{"Received unexpected message \"%s\" on gate \"%s\"", message->getFullName(),
+                        arrivalGate->getFullName()};
   }
 }
 
-void IdealRangingWirelessNic::handleUpperFrame(std::unique_ptr<cMessage> frame)
+void IdealRangingWirelessNic::receiveSignal(omnetpp::cComponent* source, omnetpp::simsignal_t signalID, long value,
+                                            omnetpp::cObject* details)
 {
-  // TODO
+  if (signalID == inet::physicallayer::IRadio::transmissionStateChangedSignal) {
+    handleRadioStateChanged(static_cast<inet::physicallayer::IRadio::TransmissionState>(value));
+  }
+  else if (signalID == inet::physicallayer::IRadio::receptionStateChangedSignal) {
+    handleRadioStateChanged(static_cast<inet::physicallayer::IRadio::ReceptionState>(value));
+  }
 }
 
-void IdealRangingWirelessNic::handleLowerFrame(std::unique_ptr<cMessage> frame)
+void IdealRangingWirelessNic::handleIdealIn(std::unique_ptr<inet::IdealMacFrame> frame)
 {
-  // TODO
+  send(frame.release(), "nicIn");
+}
+
+void IdealRangingWirelessNic::handleNicIn(std::unique_ptr<inet::IdealMacFrame> frame)
+{
+  emit(IRangingWirelessNic::rxCompletedSignalId, &rxCompletion);
+  send(frame.release(), "idealIn");
+}
+
+void IdealRangingWirelessNic::handleRadioStateChanged(inet::physicallayer::IRadio::TransmissionState newState)
+{
+  using inet::physicallayer::IRadio;
+  switch (newState) {
+    case IRadio::TRANSMISSION_STATE_IDLE:
+      emit(IRangingWirelessNic::txCompletedSignalId, &txCompletion);
+      break;
+    case IRadio::TRANSMISSION_STATE_TRANSMITTING:
+      txCompletion.setOperationBeginClockTimestamp(clockTime());
+      break;
+    case IRadio::TRANSMISSION_STATE_UNDEFINED:
+      break;
+  }
+}
+
+void IdealRangingWirelessNic::handleRadioStateChanged(inet::physicallayer::IRadio::ReceptionState newState)
+{
+  using inet::physicallayer::IRadio;
+  switch (newState) {
+    case IRadio::RECEPTION_STATE_BUSY:
+      break;
+    case IRadio::RECEPTION_STATE_IDLE:
+      break;
+    case IRadio::RECEPTION_STATE_RECEIVING:
+      rxCompletion.setOperationBeginClockTimestamp(clockTime());
+      break;
+    case IRadio::RECEPTION_STATE_UNDEFINED:
+      break;
+  }
 }
 
 }  // namespace smile
