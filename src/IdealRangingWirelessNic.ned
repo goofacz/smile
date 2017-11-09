@@ -28,7 +28,7 @@ module IdealRangingWirelessNic like IRangingWirelessNic
         output upperLayerOut;
         input lowerLayerIn;
         output lowerLayerOut;
-        input radioIn @labels(IdealRangingRadioFrame);
+        input radioIn;
         
     submodules:
     	nic: IdealWirelessNic	{

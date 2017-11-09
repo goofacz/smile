@@ -26,10 +26,10 @@ void IdealRangingWirelessNic::handleIncommingMessage(omnetpp::cMessage* newMessa
 
   const auto arrivalGate = message->getArrivalGate();
   if (arrivalGate == gate("upperLayerIn")) {
-    handleUpperFrame(dynamic_unique_ptr_cast<IdealRangingRadioFrame>(std::move(message)));
+    handleUpperFrame(std::move(message));
   }
   else if (arrivalGate == gate("lowerLayerIn")) {
-    handleLowerFrame(dynamic_unique_ptr_cast<IdealRangingRadioFrame>(std::move(message)));
+    handleLowerFrame(std::move(message));
   }
   else {
     throw cRuntimeError{"Message \"%s\" arrived at unexpected gate: \"%s\"", message->getName(),
@@ -37,12 +37,12 @@ void IdealRangingWirelessNic::handleIncommingMessage(omnetpp::cMessage* newMessa
   }
 }
 
-void IdealRangingWirelessNic::handleUpperFrame(std::unique_ptr<IdealRangingRadioFrame> frame)
+void IdealRangingWirelessNic::handleUpperFrame(std::unique_ptr<cMessage> frame)
 {
   // TODO
 }
 
-void IdealRangingWirelessNic::handleLowerFrame(std::unique_ptr<IdealRangingRadioFrame> frame)
+void IdealRangingWirelessNic::handleLowerFrame(std::unique_ptr<cMessage> frame)
 {
   // TODO
 }
