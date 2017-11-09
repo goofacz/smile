@@ -15,7 +15,7 @@
 
 package smile;
 
-simple Application like IApplication
+simple IdealApplication like IApplication
 {
     parameters:
         @class(smile::Application);
