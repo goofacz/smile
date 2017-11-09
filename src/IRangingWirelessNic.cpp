@@ -13,38 +13,13 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 //
 
-#pragma once
-
-#include "omnetpp.h"
+#include "IRangingWirelessNic.h"
 
 namespace smile {
 
-class IRangingWirelessNic
-{
- public:
-  enum class IdealTxCompletionStatus
-  {
-    SUCCESS
-  };
-
-  enum class IdealRxCompletionStatus
-  {
-    SUCCESS
-  };
-
- public:
-  IRangingWirelessNic(const IRangingWirelessNic& source) = delete;
-  IRangingWirelessNic(IRangingWirelessNic&& source) = delete;
-  virtual ~IRangingWirelessNic() = default;
-
-  IRangingWirelessNic& operator=(const IRangingWirelessNic& source) = delete;
-  IRangingWirelessNic& operator=(IRangingWirelessNic&& source) = delete;
-
-  static const omnetpp::simsignal_t txCompletedSignalId;
-  static const omnetpp::simsignal_t rxCompletedSignalId;
-
- protected:
-  IRangingWirelessNic() = default;
-};
+const omnetpp::simsignal_t IRangingWirelessNic::txCompletedSignalId =
+    omnetpp::cComponent::registerSignal("txCompletedSignalId");
+const omnetpp::simsignal_t IRangingWirelessNic::rxCompletedSignalId =
+    omnetpp::cComponent::registerSignal("rxCompletedSignalId");
 
 }  // namespace smile

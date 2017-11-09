@@ -13,18 +13,15 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-package smile;
+cplusplus	{{
+#include "IRangingWirelessNic.h"
+}}
 
-import inet.linklayer.contract.IWirelessNic;
+namespace smile;
 
-moduleinterface IRangingWirelessNic extends IWirelessNic
-{
-    parameters:
-        @signal[txCompleted](type=IdealTxCompletion);
-        @signal[rxCompleted](type=IdealRxCompletion);
-        bool enableIdealInterface;
+class noncobject IRangingWirelessNic::IdealRxCompletionStatus;
 
-	gates:
-        input idealIn;
-        output idealOut;
+class IdealRxCompletion {
+    IRangingWirelessNic::IdealRxCompletionStatus status = IRangingWirelessNic::IdealRxCompletionStatus::SUCCESS;
+    simtime_t operationBeginClockTimestamp = 0;
 }
