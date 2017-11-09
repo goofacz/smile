@@ -37,6 +37,8 @@ tests/Makefile
 tests/mocks/Makefile
 tests/fakes/Makefile
 run_clang_format.sh
+*_m.h
+*_m.cpp
 
 # Directories
 out/*
