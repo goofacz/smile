@@ -15,8 +15,6 @@
 
 #pragma once
 
-#include "omnetpp.h"
-
 namespace smile {
 
 class IApplication

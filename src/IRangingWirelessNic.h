@@ -41,8 +41,8 @@ class IRangingWirelessNic
   IRangingWirelessNic& operator=(const IRangingWirelessNic& source) = delete;
   IRangingWirelessNic& operator=(IRangingWirelessNic&& source) = delete;
 
-  static const omnetpp::simsignal_t txCompletedSignalId;
-  static const omnetpp::simsignal_t rxCompletedSignalId;
+  static const simsignal_t txCompletedSignalId;
+  static const simsignal_t rxCompletedSignalId;
 
   virtual inet::MACAddress getMacAddress() const = 0;
 

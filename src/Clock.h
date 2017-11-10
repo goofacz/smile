@@ -16,7 +16,7 @@
 #pragma once
 
 #include "IClock.h"
-#include "omnetpp.h"
+#include <omnetpp.h>
 
 namespace smile {
 
@@ -35,8 +35,6 @@ class Clock : public omnetpp::cSimpleModule, public IClock
   OptionalSimTime convertToSimulationTimestamp(const omnetpp::SimTime& timestamp) override;
 
  protected:
-  void initialize(int stage) override;
-
   int numInitStages() const final;
 };
 

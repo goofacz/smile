@@ -15,11 +15,11 @@
 
 #pragma once
 
+#include <inet/common/geometry/common/Coord.h>
+#include <inet/linklayer/base/MACFrameBase_m.h>
+#include <omnetpp.h>
 #include <fstream>
 #include <memory>
-#include "inet/common/geometry/common/Coord.h"
-#include "inet/linklayer/base/MACFrameBase_m.h"
-#include "omnetpp.h"
 
 namespace smile {
 
@@ -34,13 +34,13 @@ class MeasurementsLogger : public omnetpp::cSimpleModule
 
   struct Log
   {
-    Log(const inet::MACFrameBase& initalFrame, const omnetpp::SimTime& initialSimulationTimestamp,
-        const omnetpp::SimTime& initialNodeTimestamp, const FrameDirection initialDirection,
+    Log(const inet::MACFrameBase& initalFrame, const SimTime& initialSimulationTimestamp,
+        const SimTime& initialNodeTimestamp, const FrameDirection initialDirection,
         const inet::Coord& initialTruePosition);
 
     const inet::MACFrameBase& frame;
-    const omnetpp::SimTime simulationTimestamp;
-    const omnetpp::SimTime clockTimestamp;
+    const SimTime simulationTimestamp;
+    const SimTime clockTimestamp;
     const FrameDirection direction;
     const inet::Coord truePosition;
   };

@@ -13,20 +13,12 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 //
 
-#include "inet/common/INETDefs.h"
-
+#include <inet/common/INETDefs.h>
 #include "Clock.h"
 
 namespace smile {
 
 Define_Module(Clock);
-
-void Clock::initialize(int stage)
-{
-  cModule::initialize(stage);
-  if (stage == inet::INITSTAGE_LOCAL) {
-  }
-}
 
 int Clock::numInitStages() const
 {

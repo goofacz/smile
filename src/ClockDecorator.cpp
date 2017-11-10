@@ -18,15 +18,11 @@
 namespace smile {
 namespace clock_decorator_details {
 
-Message::Message(std::unique_ptr<omnetpp::cMessage> newMessage, const omnetpp::SimTime& newClockTimestamp,
-                 omnetpp::cGate* newGate) :
+Message::Message(std::unique_ptr<cMessage> newMessage, const SimTime& newClockTimestamp, cGate* newGate) :
     message{std::move(newMessage)},
     clockTimestamp{newClockTimestamp},
     gate{newGate}
-
-{
-  // ...
-}
+{}
 
 };  // namespace clock_decorator_details
 }  // namespace smile

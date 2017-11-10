@@ -13,9 +13,9 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 //
 
+#include <inet/common/INETDefs.h>
 #include <cassert>
 #include <type_traits>
-#include "inet/common/INETDefs.h"
 
 #include "MeasurementsLogger.h"
 
@@ -97,20 +97,20 @@ void MeasurementsLogger::openFile()
 
   const auto directoryPath = directoryPathParameter.stdstringValue();
   if (directoryPath.empty()) {
-    throw omnetpp::cRuntimeError{"MeasurementsLogger.directoryPath cannot be empty"};
+    throw cRuntimeError{"MeasurementsLogger.directoryPath cannot be empty"};
   }
 
   const auto fileName = fileNameParameter.stdstringValue();
   if (fileName.empty()) {
-    throw omnetpp::cRuntimeError{"MeasurementsLogger.fileName cannot be empty"};
+    throw cRuntimeError{"MeasurementsLogger.fileName cannot be empty"};
   }
 
   const auto format = formatParameter.stdstringValue();
   if (format.empty()) {
-    throw omnetpp::cRuntimeError{"MeasurementsLogger.format cannot be empty"};
+    throw cRuntimeError{"MeasurementsLogger.format cannot be empty"};
   }
   if (format != "CSV") {
-    throw omnetpp::cRuntimeError{"MeasurementsLogger supports only CSV format"};
+    throw cRuntimeError{"MeasurementsLogger supports only CSV format"};
   }
 
   const auto overwrite = overwriteParameter.boolValue();
@@ -122,14 +122,14 @@ void MeasurementsLogger::openFile()
 
   logFile = std::fstream(filePath, mode);
   if (!logFile.is_open()) {
-    throw omnetpp::cRuntimeError{"MeasurementsLogger failed to open %s", filePath.c_str()};
+    throw cRuntimeError{"MeasurementsLogger failed to open %s", filePath.c_str()};
   }
 
   EV_INFO << "MeasurementsLogger will write logs to " << filePath << endl;
 }
 
-MeasurementsLogger::Log::Log(const inet::MACFrameBase& initalFrame, const omnetpp::SimTime& initialSimulationTimestamp,
-                             const omnetpp::SimTime& initialNodeTimestamp, const FrameDirection initialDirection,
+MeasurementsLogger::Log::Log(const inet::MACFrameBase& initalFrame, const SimTime& initialSimulationTimestamp,
+                             const SimTime& initialNodeTimestamp, const FrameDirection initialDirection,
                              const inet::Coord& initialTruePosition) :
     frame{initalFrame},
     simulationTimestamp{initialSimulationTimestamp},

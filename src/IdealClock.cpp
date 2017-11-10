@@ -13,9 +13,8 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 //
 
-#include "inet/common/INETDefs.h"
-
 #include "IdealClock.h"
+#include <inet/common/INETDefs.h>
 
 namespace smile {
 
@@ -26,7 +25,7 @@ omnetpp::SimTime IdealClock::getClockTimestamp()
   return simTime();
 }
 
-IdealClock::OptionalSimTime IdealClock::convertToSimulationTimestamp(const omnetpp::SimTime& timestamp)
+IdealClock::OptionalSimTime IdealClock::convertToSimulationTimestamp(const SimTime& timestamp)
 {
   return timestamp;
 }

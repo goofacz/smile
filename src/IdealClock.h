@@ -15,8 +15,8 @@
 
 #pragma once
 
+#include <omnetpp.h>
 #include "Clock.h"
-#include "omnetpp.h"
 
 namespace smile {
 
