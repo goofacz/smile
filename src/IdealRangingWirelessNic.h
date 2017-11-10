@@ -36,7 +36,7 @@ class IdealRangingWirelessNic : public ClockDecorator<omnetpp::cSimpleModule>, p
   IdealRangingWirelessNic& operator=(const IdealRangingWirelessNic& source) = delete;
   IdealRangingWirelessNic& operator=(IdealRangingWirelessNic&& source) = delete;
 
-  inet::MACAddress getMacAddress() const;
+  inet::MACAddress getMacAddress() const override;
 
  protected:
   using ClockDecorator<omnetpp::cSimpleModule>::receiveSignal;

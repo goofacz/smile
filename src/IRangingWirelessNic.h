@@ -15,7 +15,8 @@
 
 #pragma once
 
-#include "omnetpp.h"
+#include <omnetpp.h>
+#include <inet/linklayer/base/MACFrameBase_m.h>
 
 namespace smile {
 
@@ -42,6 +43,8 @@ class IRangingWirelessNic
 
   static const omnetpp::simsignal_t txCompletedSignalId;
   static const omnetpp::simsignal_t rxCompletedSignalId;
+
+  virtual inet::MACAddress getMacAddress() const = 0;
 
  protected:
   IRangingWirelessNic() = default;
