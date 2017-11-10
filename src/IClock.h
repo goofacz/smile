@@ -16,7 +16,7 @@
 #pragma once
 
 #include <experimental/optional>
-#include "omnetpp.h"
+#include <omnetpp.h>
 
 namespace smile {
 
