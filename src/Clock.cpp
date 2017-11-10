@@ -13,8 +13,8 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 //
 
-#include <inet/common/INETDefs.h>
 #include "Clock.h"
+#include <inet/common/INETDefs.h>
 
 namespace smile {
 
