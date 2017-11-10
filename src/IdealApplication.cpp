@@ -14,11 +14,10 @@
 //
 
 #include "IdealApplication.h"
-
+#include <inet/common/INETDefs.h>
+#include <inet/common/ModuleAccess.h>
+#include <inet/linklayer/common/Ieee802Ctrl.h>
 #include <algorithm>
-#include "inet/common/INETDefs.h"
-#include "inet/common/ModuleAccess.h"
-#include "inet/linklayer/common/Ieee802Ctrl.h"
 #include "utilities.h"
 
 namespace smile {
@@ -29,7 +28,8 @@ void IdealApplication::initialize(int stage)
 {
   cModule::initialize(stage);
   if (stage == inet::INITSTAGE_APPLICATION_LAYER) {
-    measurementsLogger = inet::getModuleFromPar<MeasurementsLogger>(par("measurementsLoggerModule"), this);
+    nic = inet::getModuleFromPar<IdealRangingWirelessNic>(par("nicModule"), this, true);
+    measurementsLogger = inet::getModuleFromPar<MeasurementsLogger>(par("measurementsLoggerModule"), this, true);
   }
 }
 
@@ -39,7 +39,7 @@ int IdealApplication::numInitStages() const
 }
 
 void IdealApplication::initializeFrame(inet::MACFrameBase& frame, const inet::MACAddress& destinationAddress,
-                                  const inet::MACAddress& sourceAddress)
+                                       const inet::MACAddress& sourceAddress)
 {
   auto controlInformation = std::make_unique<inet::Ieee802Ctrl>();
   controlInformation->setSourceAddress(sourceAddress);

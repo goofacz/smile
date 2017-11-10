@@ -15,14 +15,15 @@
 
 #pragma once
 
+#include <omnetpp.h>
 #include <memory>
 #include <type_traits>
 #include <vector>
-#include "IApplication.h"
 #include "ClockDecorator.h"
+#include "IApplication.h"
+#include "IdealRangingWirelessNic.h"
 #include "MeasurementsLogger.h"
 #include "inet/linklayer/base/MACFrameBase_m.h"
-#include "omnetpp.h"
 
 namespace smile {
 
@@ -50,21 +51,21 @@ class IdealApplication : public ClockDecorator<omnetpp::cSimpleModule>, public I
   int numInitStages() const final;
 
   MeasurementsLogger* measurementsLogger{nullptr};
+  IdealRangingWirelessNic* nic{nullptr};
 };
 
 template <typename Frame, typename... FrameArguments>
 std::unique_ptr<Frame> IdealApplication::createFrame(const inet::MACAddress& destinationAddress,
-                                                FrameArguments&&... frameArguments)
+                                                     FrameArguments&&... frameArguments)
 {
   constexpr auto isDerived = std::is_base_of<inet::MACFrameBase, Frame>::value;
   constexpr auto isSame = std::is_same<inet::MACFrameBase, Frame>::value;
-  static_assert(isDerived || isSame,
-                "Application::scheduleFrameTransmission requires Frame to derive from inet::MACFrameBase");
+  static_assert(isDerived || isSame, "IdealApplication::createFrame requires Frame to derive from inet::MACFrameBase");
 
   auto frame = std::make_unique<Frame>(std::forward<FrameArguments>(frameArguments)...);
-  // const auto& localAddress = nic->getMacAddress();
-  // initializeFrame(*frame, destinationAddress, localAddress);
-  // return frame;
+  const auto localAddress = nic->getMacAddress();
+  initializeFrame(*frame, destinationAddress, localAddress);
+  return frame;
 }
 
 }  // namespace smile
