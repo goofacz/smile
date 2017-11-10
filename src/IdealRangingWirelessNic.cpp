@@ -97,9 +97,15 @@ void IdealRangingWirelessNic::handleRadioStateChanged(inet::physicallayer::IRadi
   using inet::physicallayer::IRadio;
   switch (newState) {
     case IRadio::TRANSMISSION_STATE_IDLE:
+      EV_DETAIL_C("IdealRangingWirelessNic")
+          << "Frame " << txCompletion.getFrame()->getClassName() << " (ID: " << txCompletion.getFrame()->getId()
+          << ") transmission completed at " << clockTime() << "(local clock)" << endl;
       emit(IRangingWirelessNic::txCompletedSignalId, &txCompletion);
       break;
     case IRadio::TRANSMISSION_STATE_TRANSMITTING:
+      EV_DETAIL_C("IdealRangingWirelessNic")
+          << "Frame " << txCompletion.getFrame()->getClassName() << " (ID: " << txCompletion.getFrame()->getId()
+          << ") transmission started at " << clockTime() << "(local clock)" << endl;
       txCompletion.setOperationBeginClockTimestamp(clockTime());
       break;
     case IRadio::TRANSMISSION_STATE_UNDEFINED:
@@ -116,8 +122,14 @@ void IdealRangingWirelessNic::handleRadioStateChanged(inet::physicallayer::IRadi
       // TODO
       break;
     case IRadio::RECEPTION_STATE_IDLE:
+      EV_DETAIL_C("IdealRangingWirelessNic")
+          << "Frame " << rxCompletion.getFrame()->getClassName() << " (ID: " << rxCompletion.getFrame()->getId()
+          << ") reception completed at " << clockTime() << "(local clock)" << endl;
       break;
     case IRadio::RECEPTION_STATE_RECEIVING:
+      EV_DETAIL_C("IdealRangingWirelessNic")
+          << "Frame " << rxCompletion.getFrame()->getClassName() << " (ID: " << rxCompletion.getFrame()->getId()
+          << ") reception started at " << clockTime() << "(local clock)" << endl;
       rxCompletion.setOperationBeginClockTimestamp(clockTime());
       break;
     case IRadio::RECEPTION_STATE_UNDEFINED:
