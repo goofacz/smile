@@ -36,6 +36,8 @@ class IdealRangingWirelessNic : public ClockDecorator<omnetpp::cSimpleModule>, p
   IdealRangingWirelessNic& operator=(const IdealRangingWirelessNic& source) = delete;
   IdealRangingWirelessNic& operator=(IdealRangingWirelessNic&& source) = delete;
 
+  inet::MACAddress getMacAddress() const;
+
  protected:
   using ClockDecorator<omnetpp::cSimpleModule>::receiveSignal;
 
@@ -64,6 +66,7 @@ class IdealRangingWirelessNic : public ClockDecorator<omnetpp::cSimpleModule>, p
   std::unique_ptr<inet::IdealMacFrame> txFrame;
   std::unique_ptr<inet::IdealMacFrame> rxFrame;
   inet::physicallayer::IRadio* radio{nullptr};
+  cModule* nic{nullptr};
 };
 
 }  // namespace smile

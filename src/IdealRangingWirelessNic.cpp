@@ -20,6 +20,11 @@ namespace smile {
 
 Define_Module(IdealRangingWirelessNic);
 
+inet::MACAddress IdealRangingWirelessNic::getMacAddress() const
+{
+  return inet::MACAddress{nic->par("address").stringValue()};
+}
+
 void IdealRangingWirelessNic::initialize(int stage)
 {
   ClockDecorator<omnetpp::cSimpleModule>::initialize(stage);
@@ -28,6 +33,11 @@ void IdealRangingWirelessNic::initialize(int stage)
     const auto enableIdealInterface = par("enableIdealInterface").boolValue();
     if (!enableIdealInterface) {
       throw cRuntimeError{"IdealRangingWirelessNic requires enableIdealInterface to be set"};
+    }
+
+    nic = getModuleByPath("nic");
+    if (!nic) {
+      throw cRuntimeError{"Failed to find \"nic\" module"};
     }
 
     auto radioModule = getModuleByPath("nic.radio");
