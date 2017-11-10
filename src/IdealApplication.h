@@ -18,12 +18,10 @@
 #include <omnetpp.h>
 #include <memory>
 #include <type_traits>
-#include <vector>
 #include "ClockDecorator.h"
 #include "IApplication.h"
-#include "IdealRangingWirelessNic.h"
+#include "IRangingWirelessNic.h"
 #include "MeasurementsLogger.h"
-#include "inet/linklayer/base/MACFrameBase_m.h"
 
 namespace smile {
 
@@ -51,7 +49,7 @@ class IdealApplication : public ClockDecorator<omnetpp::cSimpleModule>, public I
   int numInitStages() const final;
 
   MeasurementsLogger* measurementsLogger{nullptr};
-  IdealRangingWirelessNic* nic{nullptr};
+  IRangingWirelessNic* nic{nullptr};
 };
 
 template <typename Frame, typename... FrameArguments>

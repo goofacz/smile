@@ -28,7 +28,7 @@ void IdealApplication::initialize(int stage)
 {
   cModule::initialize(stage);
   if (stage == inet::INITSTAGE_APPLICATION_LAYER) {
-    nic = inet::getModuleFromPar<IdealRangingWirelessNic>(par("nicModule"), this, true);
+    nic = inet::getModuleFromPar<IRangingWirelessNic>(par("nicModule"), this, true);
     measurementsLogger = inet::getModuleFromPar<MeasurementsLogger>(par("measurementsLoggerModule"), this, true);
   }
 }
