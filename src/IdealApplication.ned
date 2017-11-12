@@ -20,8 +20,9 @@ simple IdealApplication like IApplication
     parameters:
         @class(smile::Application);
         string name = default("");
-        string nicModule = default("nic");
+        string nicModule = default("^.nic");
         string measurementsLoggerModule = default("measurementsLogger");
+        string clockModuleRealitivePath = default("^.clock");
 
 	gates:
 	    input in;

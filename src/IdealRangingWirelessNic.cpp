@@ -22,12 +22,12 @@ Define_Module(IdealRangingWirelessNic);
 
 inet::MACAddress IdealRangingWirelessNic::getMacAddress() const
 {
-  return inet::MACAddress{nic->par("address").stringValue()};
+  return inet::MACAddress{mac->par("address").stringValue()};
 }
 
 void IdealRangingWirelessNic::initialize(int stage)
 {
-  ClockDecorator<omnetpp::cSimpleModule>::initialize(stage);
+  ClockDecorator<cSimpleModule>::initialize(stage);
 
   if (stage == inet::INITSTAGE_LOCAL) {
     const auto enableIdealInterface = par("enableIdealInterface").boolValue();
@@ -35,18 +35,26 @@ void IdealRangingWirelessNic::initialize(int stage)
       throw cRuntimeError{"IdealRangingWirelessNic requires enableIdealInterface to be set"};
     }
 
-    nic = getModuleByPath("nic");
+    const auto nicModulePath = ".nic";
+    nic = getModuleByPath(nicModulePath);
     if (!nic) {
-      throw cRuntimeError{"Failed to find \"nic\" module"};
+      throw cRuntimeError{"Failed to find \"%s\" module", nicModulePath};
     }
 
-    auto radioModule = getModuleByPath("nic.radio");
+    const auto radioModulePath = ".nic.radio";
+    auto radioModule = getModuleByPath(radioModulePath);
     if (!radioModule) {
-      throw cRuntimeError{"Failed to find \"nic.radio\" module"};
+      throw cRuntimeError{"Failed to find \"%s\" module", radioModulePath};
     }
     radio = check_and_cast<inet::physicallayer::IRadio*>(radioModule);
     radioModule->subscribe(inet::physicallayer::IRadio::transmissionStateChangedSignal, this);
     radioModule->subscribe(inet::physicallayer::IRadio::receptionStateChangedSignal, this);
+
+    const auto macModulePath = ".nic.mac";
+    mac = getModuleByPath(macModulePath);
+    if (!mac) {
+      throw cRuntimeError{"Failed to find \"%s\" module", macModulePath};
+    }
   }
 }
 
@@ -57,7 +65,7 @@ void IdealRangingWirelessNic::handleIncommingMessage(omnetpp::cMessage* newMessa
   if (arrivalGate == gate("nicIn")) {
     handleNicIn(dynamic_unique_ptr_cast<inet::IdealMacFrame>(std::move(message)));
   }
-  else if (arrivalGate == gate("idealIn")) {
+  else if (arrivalGate == gate("upperLayerIn")) {
     handleIdealIn(dynamic_unique_ptr_cast<inet::IdealMacFrame>(std::move(message)));
   }
   else {
@@ -81,15 +89,20 @@ void IdealRangingWirelessNic::handleIdealIn(std::unique_ptr<inet::IdealMacFrame>
 {
   txFrame.reset(frame->dup());
   txCompletion.setFrame(txFrame.get());
-  send(frame.release(), "nicIn");
+  send(frame.release(), "nicOut");
 }
 
 void IdealRangingWirelessNic::handleNicIn(std::unique_ptr<inet::IdealMacFrame> frame)
 {
   rxFrame.reset(frame->dup());
   rxCompletion.setFrame(rxFrame.get());
+
+  EV_DETAIL_C("IdealRangingWirelessNic") << "Frame " << rxCompletion.getFrame()->getClassName()
+                                         << " (ID: " << rxCompletion.getFrame()->getId() << ") reception completed at "
+                                         << clockTime() << "(local clock)" << endl;
+
   emit(IRangingWirelessNic::rxCompletedSignalId, &rxCompletion);
-  send(frame.release(), "idealIn");
+  send(frame.release(), "upperLayerIn");
 }
 
 void IdealRangingWirelessNic::handleRadioStateChanged(inet::physicallayer::IRadio::TransmissionState newState)
@@ -122,9 +135,6 @@ void IdealRangingWirelessNic::handleRadioStateChanged(inet::physicallayer::IRadi
       // TODO
       break;
     case IRadio::RECEPTION_STATE_IDLE:
-      EV_DETAIL_C("IdealRangingWirelessNic")
-          << "Frame " << rxCompletion.getFrame()->getClassName() << " (ID: " << rxCompletion.getFrame()->getId()
-          << ") reception completed at " << clockTime() << "(local clock)" << endl;
       break;
     case IRadio::RECEPTION_STATE_RECEIVING:
       EV_DETAIL_C("IdealRangingWirelessNic")

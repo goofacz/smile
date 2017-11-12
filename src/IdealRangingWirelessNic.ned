@@ -22,14 +22,14 @@ module IdealRangingWirelessNic like IRangingWirelessNic
     parameters:
         @class(smile::IdealRangingWirelessNic);
         string clockModuleRealitivePath = default("^.clock");
-        bool enableIdealInterface = default(false);
+        bool enableIdealInterface = default(true);
             	
 	gates:
         input radioIn @label(IdealMacFrame);
-        input idealIn;
-        output idealOut;
-        input nicIn;
-        output nicOut;
+        input upperLayerIn;
+        output upperLayerOut;
+        input nicIn @loose;
+        output nicOut @loose;
         
     submodules:
     	nic: IdealWirelessNic	{
@@ -38,7 +38,7 @@ module IdealRangingWirelessNic like IRangingWirelessNic
     	    mac.useAck = false;
     	}
     	
-	connections:
+	connections allowunconnected:
         radioIn --> nic.radioIn;
         nic.upperLayerOut --> nicOut;
         nicIn --> nic.upperLayerIn;

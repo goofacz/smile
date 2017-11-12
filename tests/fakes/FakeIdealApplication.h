@@ -26,7 +26,7 @@ class FakeIdealApplication : public IdealApplication
   FakeIdealApplication() = default;
   FakeIdealApplication(const FakeIdealApplication& source) = delete;
   FakeIdealApplication(FakeIdealApplication&& source) = delete;
-  ~FakeIdealApplication() = default;
+  ~FakeIdealApplication();
 
   FakeIdealApplication& operator=(const FakeIdealApplication& source) = delete;
   FakeIdealApplication& operator=(FakeIdealApplication&& source) = delete;

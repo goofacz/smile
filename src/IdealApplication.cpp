@@ -26,7 +26,7 @@ Define_Module(IdealApplication);
 
 void IdealApplication::initialize(int stage)
 {
-  cModule::initialize(stage);
+  ClockDecorator<cSimpleModule>::initialize(stage);
   if (stage == inet::INITSTAGE_APPLICATION_LAYER) {
     nic = inet::getModuleFromPar<IRangingWirelessNic>(par("nicModule"), this, true);
     measurementsLogger = inet::getModuleFromPar<MeasurementsLogger>(par("measurementsLoggerModule"), this, true);
@@ -38,15 +38,15 @@ int IdealApplication::numInitStages() const
   return inet::INITSTAGE_APPLICATION_LAYER + 1;
 }
 
-void IdealApplication::initializeFrame(inet::MACFrameBase& frame, const inet::MACAddress& destinationAddress,
+void IdealApplication::initializeFrame(inet::IdealMacFrame& frame, const inet::MACAddress& destinationAddress,
                                        const inet::MACAddress& sourceAddress)
 {
   auto controlInformation = std::make_unique<inet::Ieee802Ctrl>();
   controlInformation->setSourceAddress(sourceAddress);
   controlInformation->setDest(destinationAddress);
 
-  frame.setSrcAddr(sourceAddress);
-  frame.setDestAddr(destinationAddress);
+  frame.setSrc(sourceAddress);
+  frame.setDest(destinationAddress);
   frame.setControlInfo(controlInformation.release());
 }
 

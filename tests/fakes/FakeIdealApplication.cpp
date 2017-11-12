@@ -22,9 +22,16 @@ namespace fakes {
 
 Define_Module(FakeIdealApplication);
 
+FakeIdealApplication::~FakeIdealApplication()
+{
+  if (periodicTxMessage) {
+    cancelEvent(periodicTxMessage.get());
+  }
+}
+
 void FakeIdealApplication::initialize(int stage)
 {
-  cModule::initialize(stage);
+  IdealApplication::initialize(stage);
   if (stage == inet::INITSTAGE_APPLICATION_LAYER) {
     periodicTxMessage = std::make_unique<omnetpp::cMessage>("periodicTxMessage");
     if (par("initiator").boolValue()) {

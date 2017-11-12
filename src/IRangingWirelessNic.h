@@ -15,7 +15,7 @@
 
 #pragma once
 
-#include <inet/linklayer/base/MACFrameBase_m.h>
+#include <inet/linklayer/common/MACAddress.h>
 #include <omnetpp.h>
 
 namespace smile {

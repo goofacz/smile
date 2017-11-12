@@ -23,8 +23,4 @@ moduleinterface IRangingWirelessNic extends IWirelessNic
         @signal[txCompleted](type=IdealTxCompletion);
         @signal[rxCompleted](type=IdealRxCompletion);
         bool enableIdealInterface;
-
-	gates:
-        input idealIn;
-        output idealOut;
 }

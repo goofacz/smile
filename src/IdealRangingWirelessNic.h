@@ -67,6 +67,7 @@ class IdealRangingWirelessNic : public ClockDecorator<omnetpp::cSimpleModule>, p
   std::unique_ptr<inet::IdealMacFrame> rxFrame;
   inet::physicallayer::IRadio* radio{nullptr};
   cModule* nic{nullptr};
+  cModule* mac{nullptr};
 };
 
 }  // namespace smile
