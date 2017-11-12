@@ -1,5 +1,5 @@
-
 %file: test.ned
+import smile.IdealRangingWirelessNic;
 import smile.RadioNode;
 import smile.MeasurementsLogger;
 import inet.physicallayer.idealradio.IdealRadioMedium;
@@ -14,22 +14,24 @@ network Test
         }
 
         TestNode1: RadioNode {
-            nicType = "IdealWirelessNic";
+            nicType = "IdealRangingWirelessNic";
             mobilityType = "LinearMobility";
-            applicationType = "PeriodicSenderApplication";
+            applicationType = "FakeIdealApplication";
             clockType = "IdealClock";
             
-            nic.mac.address = "DE-AD-BE-EF-10-01";
+            nic.nic.mac.address = "DE-AD-BE-EF-10-01";
+            nic.nic.interfaceTableModule = default(absPath(".interfaceTable"));
         }
         
         TestNode2: RadioNode {
-            nicType = "IdealWirelessNic";
+            nicType = "IdealRangingWirelessNic";
             mobilityType = "LinearMobility";
-            applicationType = "ReceiverApplication";
+            applicationType = "FakeIdealApplication";
             clockType = "IdealClock";
             
-            nic.mac.address = "DE-AD-BE-EF-10-02";
-            nic.mac.promiscuous = true;
+            nic.nic.mac.address = "DE-AD-BE-EF-10-02";
+            nic.nic.interfaceTableModule = default(absPath(".interfaceTable"));
+            application.initiator = true;
         }
 }
 
