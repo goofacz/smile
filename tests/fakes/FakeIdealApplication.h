@@ -34,9 +34,9 @@ class FakeIdealApplication : public IdealApplication
  private:
   void initialize(int stage) override;
 
-  void handleSelfMessage(cMessage* newMessage) override;
+  void handleSelfMessage(cMessage* message) override;
 
-  void handleIncommingMessage(cMessage* message) override;
+  void handleIncommingMessage(cMessage* newMessage) override;
 
   std::unique_ptr<omnetpp::cMessage> periodicTxMessage;
   unsigned int completedTxOperations{0};

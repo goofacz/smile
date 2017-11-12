@@ -33,26 +33,27 @@ void FakeIdealApplication::initialize(int stage)
 {
   IdealApplication::initialize(stage);
   if (stage == inet::INITSTAGE_APPLICATION_LAYER) {
-    periodicTxMessage = std::make_unique<omnetpp::cMessage>("periodicTxMessage");
+    periodicTxMessage = std::make_unique<cMessage>("periodicTxMessage");
     if (par("initiator").boolValue()) {
-      scheduleAt(simTime() + par("txDelay").longValue(), periodicTxMessage.get());
+      const auto delay = SimTime{par("txDelay").longValue(), SIMTIME_MS};
+      scheduleAt(clockTime() + delay, periodicTxMessage.get());
     }
   }
 }
 
-void FakeIdealApplication::handleSelfMessage(cMessage* newMessage)
+void FakeIdealApplication::handleSelfMessage(cMessage* message)
 {
-  std::unique_ptr<cMessage> message{newMessage};
-}
-
-void FakeIdealApplication::handleIncommingMessage(cMessage* message)
-{
-  const auto destinationAddress = inet::MACAddress{par("remoteAddress").stringValue()};
-  auto frame = createFrame<inet::MACFrameBase>(destinationAddress);
+  const auto destinationAddress = inet::MACAddress{par("remoteMacAddress").stringValue()};
+  auto frame = createFrame<inet::IdealMacFrame>(destinationAddress);
   frame->setBitLength(10);
 
-  send(frame.release(), "idealOut");
+  send(frame.release(), "out");
   scheduleAt(simTime() + par("txDelay").longValue(), periodicTxMessage.get());
+}
+
+void FakeIdealApplication::handleIncommingMessage(cMessage* newMessage)
+{
+  std::unique_ptr<cMessage> message{newMessage};
 }
 
 }  // namespace fakes
