@@ -21,6 +21,7 @@ network Test
             
             nic.nic.mac.address = "DE-AD-BE-EF-10-01";
             nic.nic.interfaceTableModule = default(absPath(".interfaceTable"));
+            application.remoteMacAddress = "DE-AD-BE-EF-10-02";
         }
         
         TestNode2: RadioNode {
@@ -32,13 +33,14 @@ network Test
             nic.nic.mac.address = "DE-AD-BE-EF-10-02";
             nic.nic.interfaceTableModule = default(absPath(".interfaceTable"));
             application.initiator = true;
+            application.remoteMacAddress = "DE-AD-BE-EF-10-01";
         }
 }
 
 %inifile: omnet.ini
 [General]
 cmdenv-express-mode = false
-**.cmdenv-log-level = detail
+**.cmdenv-log-level = debug
 
 network = Test
 sim-time-limit = 5s
@@ -51,24 +53,3 @@ sim-time-limit = 5s
 
 %contains: stdout
 TEST: Sending MAC frame to 00-00-00-00-00-01
-
-%contains: stdout
-TEST: Sending MAC frame to 00-00-00-00-00-02
-
-%contains: stdout
-TEST: Sending MAC frame to 00-00-00-00-00-03
-
-%contains: stdout
-TEST: Sending MAC frame to 00-00-00-00-00-04
-
-%contains: stdout
-TEST: Received MAC frame from DE-AD-BE-EF-10-01 addressed to 00-00-00-00-00-01
-
-%contains: stdout
-TEST: Received MAC frame from DE-AD-BE-EF-10-01 addressed to 00-00-00-00-00-02
-
-%contains: stdout
-TEST: Received MAC frame from DE-AD-BE-EF-10-01 addressed to 00-00-00-00-00-03
-
-%contains: stdout
-TEST: Received MAC frame from DE-AD-BE-EF-10-01 addressed to 00-00-00-00-00-04
