@@ -44,9 +44,12 @@ void FakeIdealApplication::initialize(int stage)
 void FakeIdealApplication::handleSelfMessage(cMessage* message)
 {
   const auto destinationAddress = inet::MACAddress{par("remoteMacAddress").stringValue()};
-  auto frame = createFrame<inet::IdealMacFrame>(destinationAddress);
+  const auto name = std::string{"Test frame no. "} + std::to_string(completedTxOperations);
+  auto frame = createFrame<inet::IdealMacFrame>(destinationAddress, name.c_str());
   frame->setBitLength(10);
 
+  EV_DETAIL_C("FakeIdealApplication") << "Sending frame (" << frame->getClassName() << ")\"" << frame->getFullName()
+                                      << "\"" << endl;
   send(frame.release(), "out");
   completedTxOperations++;
 
@@ -59,6 +62,22 @@ void FakeIdealApplication::handleSelfMessage(cMessage* message)
 void FakeIdealApplication::handleIncommingMessage(cMessage* newMessage)
 {
   std::unique_ptr<cMessage> message{newMessage};
+  EV_DETAIL_C("FakeIdealApplication") << "Received frame (" << message->getClassName() << ")\""
+                                      << message->getFullName() << "\"" << endl;
+}
+
+void FakeIdealApplication::handleTxCompletionSignal(const IdealTxCompletion& completion)
+{
+  EV_DETAIL_C("FakeIdealApplication") << "Transmission of frame (" << completion.getFrame()->getClassName() << ")\""
+                                      << completion.getFrame()->getFullName() << "\" started at "
+                                      << completion.getOperationBeginClockTimestamp() << endl;
+}
+
+void FakeIdealApplication::handleRxCompletionSignal(const IdealRxCompletion& completion)
+{
+  EV_DETAIL_C("FakeIdealApplication") << "Reception of frame (" << completion.getFrame()->getClassName() << ")\""
+                                      << completion.getFrame()->getFullName() << "\" started at "
+                                      << completion.getOperationBeginClockTimestamp() << endl;
 }
 
 }  // namespace fakes

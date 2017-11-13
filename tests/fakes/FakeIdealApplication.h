@@ -38,6 +38,10 @@ class FakeIdealApplication : public IdealApplication
 
   void handleIncommingMessage(cMessage* newMessage) override;
 
+  void handleTxCompletionSignal(const IdealTxCompletion& completion) override;
+
+  void handleRxCompletionSignal(const IdealRxCompletion& completion) override;
+
   std::unique_ptr<omnetpp::cMessage> periodicTxMessage;
   unsigned int completedTxOperations{0};
 };

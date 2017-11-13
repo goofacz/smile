@@ -24,5 +24,5 @@ simple FakeIdealApplication extends IdealApplication
         int txDelay = default(5ms) @unit(ms);
 
         bool initiator = default(false);
-        int initiatorTxCount = default(5);
+        int initiatorTxCount = default(3);
 }
