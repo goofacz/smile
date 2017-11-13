@@ -15,18 +15,18 @@
 
 cplusplus	{{
 #include <inet/linklayer/ideal/IdealMacFrame_m.h>
-#include "IRangingWirelessNic.h"
+#include "IRangingNicDriver.h"
 
 using IdealMacFramePointer = const inet::IdealMacFrame*;
 }}
 
 namespace smile;
 
-class noncobject IRangingWirelessNic::IdealRxCompletionStatus;
+class noncobject IRangingNicDriver::IdealRxCompletionStatus;
 class noncobject IdealMacFramePointer;
 
 class IdealRxCompletion {
-    IRangingWirelessNic::IdealRxCompletionStatus status = IRangingWirelessNic::IdealRxCompletionStatus::SUCCESS;
+    IRangingNicDriver::IdealRxCompletionStatus status = IRangingNicDriver::IdealRxCompletionStatus::SUCCESS;
     simtime_t operationBeginClockTimestamp = 0;
     IdealMacFramePointer frame = nullptr;
 }
