@@ -28,7 +28,7 @@ void IdealApplication::initialize(int stage)
 {
   ClockDecorator<cSimpleModule>::initialize(stage);
   if (stage == inet::INITSTAGE_APPLICATION_LAYER) {
-    nic = inet::getModuleFromPar<IRangingWirelessNic>(par("nicModule"), this, true);
+    nicDriver = inet::getModuleFromPar<IRangingNicDriver>(par("nicDriverModule"), this, true);
     measurementsLogger = inet::getModuleFromPar<MeasurementsLogger>(par("measurementsLoggerModule"), this, true);
   }
 }

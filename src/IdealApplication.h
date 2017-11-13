@@ -21,7 +21,7 @@
 #include <type_traits>
 #include "ClockDecorator.h"
 #include "IApplication.h"
-#include "IRangingWirelessNic.h"
+#include "IRangingNicDriver.h"
 #include "MeasurementsLogger.h"
 
 namespace smile {
@@ -50,7 +50,7 @@ class IdealApplication : public ClockDecorator<omnetpp::cSimpleModule>, public I
   int numInitStages() const final;
 
   MeasurementsLogger* measurementsLogger{nullptr};
-  IRangingWirelessNic* nic{nullptr};
+  IRangingNicDriver* nicDriver{nullptr};
 };
 
 template <typename Frame, typename... FrameArguments>
@@ -62,7 +62,7 @@ std::unique_ptr<Frame> IdealApplication::createFrame(const inet::MACAddress& des
   static_assert(isDerived || isSame, "IdealApplication::createFrame requires Frame to derive from inet::IdealMacFrame");
 
   auto frame = std::make_unique<Frame>(std::forward<FrameArguments>(frameArguments)...);
-  const auto localAddress = nic->getMacAddress();
+  const auto localAddress = nicDriver->getMacAddress();
   initializeFrame(*frame, destinationAddress, localAddress);
   return frame;
 }
