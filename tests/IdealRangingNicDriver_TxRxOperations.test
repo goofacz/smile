@@ -57,4 +57,28 @@ sim-time-limit = 5s
 **.mobility.initialZ = 10m
 
 %contains: stdout
-TEST: Sending MAC frame to 00-00-00-00-00-01
+[DETAIL] [0.005] Test.TestNode2.application: Sending frame (inet::IdealMacFrame)"Test frame no. 0"
+%contains: stdout
+[DETAIL] [0.00501] Test.TestNode2.nic.radio: Transmission of frame (inet::IdealMacFrame)"Test frame no. 0" started at 0.005
+%contains: stdout
+[DETAIL] [0.00501] Test.TestNode1.nicDriver: Reception of frame (inet::IdealMacFrame)"Test frame no. 0" started at 0.005
+%contains: stdout
+[DETAIL] [0.00501] Test.TestNode1.application: Received frame (inet::IdealMacFrame)"Test frame no. 0"
+
+%contains: stdout
+[DETAIL] [0.01] Test.TestNode2.application: Sending frame (inet::IdealMacFrame)"Test frame no. 1"
+%contains: stdout
+[DETAIL] [0.01001] Test.TestNode2.nic.radio: Transmission of frame (inet::IdealMacFrame)"Test frame no. 1" started at 0.01
+%contains: stdout
+[DETAIL] [0.01001] Test.TestNode1.nicDriver: Reception of frame (inet::IdealMacFrame)"Test frame no. 1" started at 0.01
+%contains: stdout
+[DETAIL] [0.01001] Test.TestNode1.application: Received frame (inet::IdealMacFrame)"Test frame no. 1"
+
+%contains: stdout
+[DETAIL] [0.015] Test.TestNode2.application: Sending frame (inet::IdealMacFrame)"Test frame no. 2"
+%contains: stdout
+[DETAIL] [0.01501] Test.TestNode2.nic.radio: Transmission of frame (inet::IdealMacFrame)"Test frame no. 2" started at 0.015
+%contains: stdout
+[DETAIL] [0.01501] Test.TestNode1.nicDriver: Reception of frame (inet::IdealMacFrame)"Test frame no. 2" started at 0.015
+%contains: stdout
+[DETAIL] [0.01501] Test.TestNode1.application: Received frame (inet::IdealMacFrame)"Test frame no. 2"
