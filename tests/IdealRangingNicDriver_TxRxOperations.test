@@ -14,24 +14,26 @@ network Test
         }
 
         TestNode1: RadioNode {
-            nicType = "IdealRangingWirelessNic";
             mobilityType = "LinearMobility";
             applicationType = "FakeIdealApplication";
+            nicDriverType = "IdealRangingNicDriver";
+            nicType = "IdealWirelessNic";
             clockType = "IdealClock";
             
-            nic.nic.mac.address = "DE-AD-BE-EF-10-01";
-            nic.nic.interfaceTableModule = default(absPath(".interfaceTable"));
+            nic.mac.address = "DE-AD-BE-EF-10-01";
+            nic.interfaceTableModule = default(absPath(".interfaceTable"));
             application.remoteMacAddress = "DE-AD-BE-EF-10-02";
         }
         
         TestNode2: RadioNode {
-            nicType = "IdealRangingWirelessNic";
             mobilityType = "LinearMobility";
             applicationType = "FakeIdealApplication";
+            nicDriverType = "IdealRangingNicDriver";
+            nicType = "IdealWirelessNic";
             clockType = "IdealClock";
             
-            nic.nic.mac.address = "DE-AD-BE-EF-10-02";
-            nic.nic.interfaceTableModule = default(absPath(".interfaceTable"));
+            nic.mac.address = "DE-AD-BE-EF-10-02";
+            nic.interfaceTableModule = default(absPath(".interfaceTable"));
             application.initiator = true;
             application.remoteMacAddress = "DE-AD-BE-EF-10-01";
         }
