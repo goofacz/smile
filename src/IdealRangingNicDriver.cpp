@@ -13,19 +13,19 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 //
 
-#include "IdealRangingWirelessNic.h"
+#include "IdealRangingNicDriver.h"
 #include "utilities.h"
 
 namespace smile {
 
-Define_Module(IdealRangingWirelessNic);
+Define_Module(IdealRangingNicDriver);
 
-inet::MACAddress IdealRangingWirelessNic::getMacAddress() const
+inet::MACAddress IdealRangingNicDriver::getMacAddress() const
 {
   return inet::MACAddress{mac->par("address").stringValue()};
 }
 
-void IdealRangingWirelessNic::initialize(int stage)
+void IdealRangingNicDriver::initialize(int stage)
 {
   ClockDecorator<cSimpleModule>::initialize(stage);
 
@@ -58,7 +58,7 @@ void IdealRangingWirelessNic::initialize(int stage)
   }
 }
 
-void IdealRangingWirelessNic::handleIncommingMessage(omnetpp::cMessage* newMessage)
+void IdealRangingNicDriver::handleIncommingMessage(omnetpp::cMessage* newMessage)
 {
   std::unique_ptr<cMessage> message{newMessage};
   const auto arrivalGate = message->getArrivalGate();
@@ -74,7 +74,7 @@ void IdealRangingWirelessNic::handleIncommingMessage(omnetpp::cMessage* newMessa
   }
 }
 
-void IdealRangingWirelessNic::receiveSignal(omnetpp::cComponent* source, omnetpp::simsignal_t signalID, long value,
+void IdealRangingNicDriver::receiveSignal(omnetpp::cComponent* source, omnetpp::simsignal_t signalID, long value,
                                             omnetpp::cObject* details)
 {
   if (signalID == inet::physicallayer::IRadio::transmissionStateChangedSignal) {
@@ -85,14 +85,14 @@ void IdealRangingWirelessNic::receiveSignal(omnetpp::cComponent* source, omnetpp
   }
 }
 
-void IdealRangingWirelessNic::handleIdealIn(std::unique_ptr<inet::IdealMacFrame> frame)
+void IdealRangingNicDriver::handleIdealIn(std::unique_ptr<inet::IdealMacFrame> frame)
 {
   txFrame.reset(frame->dup());
   txCompletion.setFrame(txFrame.get());
   send(frame.release(), "nicOut");
 }
 
-void IdealRangingWirelessNic::handleNicIn(std::unique_ptr<inet::IdealMacFrame> frame)
+void IdealRangingNicDriver::handleNicIn(std::unique_ptr<inet::IdealMacFrame> frame)
 {
   rxFrame.reset(frame->dup());
   rxCompletion.setFrame(rxFrame.get());
@@ -101,11 +101,11 @@ void IdealRangingWirelessNic::handleNicIn(std::unique_ptr<inet::IdealMacFrame> f
                                          << " (ID: " << rxCompletion.getFrame()->getId() << ") reception completed at "
                                          << clockTime() << "(local clock)" << endl;
 
-  emit(IRangingWirelessNic::rxCompletedSignalId, &rxCompletion);
+  emit(IRangingNicDriver::rxCompletedSignalId, &rxCompletion);
   send(frame.release(), "upperLayerIn");
 }
 
-void IdealRangingWirelessNic::handleRadioStateChanged(inet::physicallayer::IRadio::TransmissionState newState)
+void IdealRangingNicDriver::handleRadioStateChanged(inet::physicallayer::IRadio::TransmissionState newState)
 {
   using inet::physicallayer::IRadio;
   switch (newState) {
@@ -113,7 +113,7 @@ void IdealRangingWirelessNic::handleRadioStateChanged(inet::physicallayer::IRadi
       EV_DETAIL_C("IdealRangingWirelessNic")
           << "Frame " << txCompletion.getFrame()->getClassName() << " (ID: " << txCompletion.getFrame()->getId()
           << ") transmission completed at " << clockTime() << "(local clock)" << endl;
-      emit(IRangingWirelessNic::txCompletedSignalId, &txCompletion);
+      emit(IRangingNicDriver::txCompletedSignalId, &txCompletion);
       break;
     case IRadio::TRANSMISSION_STATE_TRANSMITTING:
       EV_DETAIL_C("IdealRangingWirelessNic")
@@ -127,7 +127,7 @@ void IdealRangingWirelessNic::handleRadioStateChanged(inet::physicallayer::IRadi
   }
 }
 
-void IdealRangingWirelessNic::handleRadioStateChanged(inet::physicallayer::IRadio::ReceptionState newState)
+void IdealRangingNicDriver::handleRadioStateChanged(inet::physicallayer::IRadio::ReceptionState newState)
 {
   using inet::physicallayer::IRadio;
   switch (newState) {
@@ -148,7 +148,7 @@ void IdealRangingWirelessNic::handleRadioStateChanged(inet::physicallayer::IRadi
   }
 }
 
-void IdealRangingWirelessNic::clearRxCompletion()
+void IdealRangingNicDriver::clearRxCompletion()
 {
   txCompletion.setFrame(nullptr);
   txCompletion.setOperationBeginClockTimestamp(0);
@@ -156,7 +156,7 @@ void IdealRangingWirelessNic::clearRxCompletion()
   txFrame.reset();
 }
 
-void IdealRangingWirelessNic::clearTxCompletion()
+void IdealRangingNicDriver::clearTxCompletion()
 {
   rxCompletion.setFrame(nullptr);
   rxCompletion.setOperationBeginClockTimestamp(0);

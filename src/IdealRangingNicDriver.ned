@@ -15,31 +15,15 @@
 
 package smile;
 
-import inet.linklayer.ideal.IdealWirelessNic;
-
-module IdealRangingWirelessNic like IRangingWirelessNic
+simple IdealRangingNicDriver like IRangingNicDriver
 {
     parameters:
-        @class(smile::IdealRangingWirelessNic);
+        @class(smile::IdealRangingNicDriver);
         string clockModuleRealitivePath = default("^.clock");
-        bool enableIdealInterface = default(true);
-            	
-	gates:
-        input radioIn @label(IdealMacFrame);
-        input upperLayerIn;
-        output upperLayerOut;
-        input nicIn @loose;
-        output nicOut @loose;
-        
-    submodules:
-    	nic: IdealWirelessNic	{
-    	    mac.fullDuplex = false;
-    	    mac.bitrate = 10Mbps;
-    	    mac.useAck = false;
-    	}
-    	
-	connections allowunconnected:
-        radioIn --> nic.radioIn;
-        nic.upperLayerOut --> nicOut;
-        nicIn --> nic.upperLayerIn;
+
+    gates:
+        input applicationIn;
+        output applicationOut;
+        input nicIn;
+        output nicOut;
 }

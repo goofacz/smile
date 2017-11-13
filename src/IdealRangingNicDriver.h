@@ -19,22 +19,22 @@
 #include <inet/physicallayer/contract/packetlevel/IRadio.h>
 #include <omnetpp.h>
 #include "ClockDecorator.h"
-#include "IRangingWirelessNic.h"
+#include "IRangingNicDriver.h"
 #include "IdealRxCompletion_m.h"
 #include "IdealTxCompletion_m.h"
 
 namespace smile {
 
-class IdealRangingWirelessNic : public ClockDecorator<omnetpp::cSimpleModule>, public IRangingWirelessNic
+class IdealRangingNicDriver : public ClockDecorator<omnetpp::cSimpleModule>, public IRangingNicDriver
 {
  public:
-  IdealRangingWirelessNic() = default;
-  IdealRangingWirelessNic(const IdealRangingWirelessNic& source) = delete;
-  IdealRangingWirelessNic(IdealRangingWirelessNic&& source) = delete;
-  ~IdealRangingWirelessNic() = default;
+  IdealRangingNicDriver() = default;
+  IdealRangingNicDriver(const IdealRangingNicDriver& source) = delete;
+  IdealRangingNicDriver(IdealRangingNicDriver&& source) = delete;
+  ~IdealRangingNicDriver() = default;
 
-  IdealRangingWirelessNic& operator=(const IdealRangingWirelessNic& source) = delete;
-  IdealRangingWirelessNic& operator=(IdealRangingWirelessNic&& source) = delete;
+  IdealRangingNicDriver& operator=(const IdealRangingNicDriver& source) = delete;
+  IdealRangingNicDriver& operator=(IdealRangingNicDriver&& source) = delete;
 
   inet::MACAddress getMacAddress() const override;
 
