@@ -14,7 +14,9 @@
 
 package smile.fakes;
 
-simple FakeIdealApplication extends smile.IdealApplication
+import smile.IdealApplication;
+
+simple FakeIdealApplication extends IdealApplication
 {
     parameters:
         @class(smile::fakes::FakeIdealApplication);
