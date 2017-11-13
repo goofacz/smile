@@ -29,6 +29,10 @@ void IdealApplication::initialize(int stage)
   ClockDecorator<cSimpleModule>::initialize(stage);
   if (stage == inet::INITSTAGE_APPLICATION_LAYER) {
     nicDriver = inet::getModuleFromPar<IRangingNicDriver>(par("nicDriverModule"), this, true);
+    auto nicDriverModule = check_and_cast<cModule*>(nicDriver);
+    nicDriverModule->subscribe(IRangingNicDriver::txCompletedSignalId, this);
+    nicDriverModule->subscribe(IRangingNicDriver::rxCompletedSignalId, this);
+
     measurementsLogger = inet::getModuleFromPar<MeasurementsLogger>(par("measurementsLoggerModule"), this, true);
   }
 }
@@ -36,6 +40,16 @@ void IdealApplication::initialize(int stage)
 int IdealApplication::numInitStages() const
 {
   return inet::INITSTAGE_APPLICATION_LAYER + 1;
+}
+
+void IdealApplication::handleTxCompletionSignal(const IdealTxCompletion&)
+{
+  EV_WARN_C("IdealApplication") << "Dummy handler handleTxCompletionSignal() was called" << endl;
+}
+
+void IdealApplication::handleRxCompletionSignal(const IdealRxCompletion&)
+{
+  EV_WARN_C("IdealApplication") << "Dummy handler handleRxCompletionSignal() was called" << endl;
 }
 
 void IdealApplication::initializeFrame(inet::IdealMacFrame& frame, const inet::MACAddress& destinationAddress,
@@ -48,6 +62,19 @@ void IdealApplication::initializeFrame(inet::IdealMacFrame& frame, const inet::M
   frame.setSrc(sourceAddress);
   frame.setDest(destinationAddress);
   frame.setControlInfo(controlInformation.release());
+}
+
+void IdealApplication::receiveSignal(omnetpp::cComponent* source, omnetpp::simsignal_t signalID, cObject* value,
+                                     omnetpp::cObject* details)
+{
+  if (signalID == IRangingNicDriver::txCompletedSignalId) {
+    auto completion = check_and_cast<const IdealTxCompletion*>(value);
+    handleTxCompletionSignal(*completion);
+  }
+  else if (signalID == IRangingNicDriver::rxCompletedSignalId) {
+    auto completion = check_and_cast<const IdealRxCompletion*>(value);
+    handleRxCompletionSignal(*completion);
+  }
 }
 
 }  // namespace smile

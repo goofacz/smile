@@ -22,6 +22,8 @@
 #include "ClockDecorator.h"
 #include "IApplication.h"
 #include "IRangingNicDriver.h"
+#include "IdealRxCompletion_m.h"
+#include "IdealTxCompletion_m.h"
 #include "MeasurementsLogger.h"
 
 namespace smile {
@@ -38,14 +40,23 @@ class IdealApplication : public ClockDecorator<omnetpp::cSimpleModule>, public I
   IdealApplication& operator=(IdealApplication&& source) = delete;
 
  protected:
+  using ClockDecorator<omnetpp::cSimpleModule>::receiveSignal;
+
   void initialize(int stage) override;
 
   template <typename Frame, typename... FrameArguments>
   std::unique_ptr<Frame> createFrame(const inet::MACAddress& destinationAddress, FrameArguments&&... frameArguments);
 
+  virtual void handleTxCompletionSignal(const IdealTxCompletion& completion);
+
+  virtual void handleRxCompletionSignal(const IdealRxCompletion& completion);
+
  private:
   static void initializeFrame(inet::IdealMacFrame& frame, const inet::MACAddress& destinationAddress,
                               const inet::MACAddress& sourceAddress);
+
+  void receiveSignal(omnetpp::cComponent* source, omnetpp::simsignal_t signalID, cObject* value,
+                     omnetpp::cObject* details) override;
 
   int numInitStages() const final;
 
