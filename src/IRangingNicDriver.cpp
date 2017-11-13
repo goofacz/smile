@@ -13,13 +13,11 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 //
 
-#include "IRangingWirelessNic.h"
+#include "IRangingNicDriver.h"
 
 namespace smile {
 
-const omnetpp::simsignal_t IRangingWirelessNic::txCompletedSignalId =
-    omnetpp::cComponent::registerSignal("txCompletedSignalId");
-const omnetpp::simsignal_t IRangingWirelessNic::rxCompletedSignalId =
-    omnetpp::cComponent::registerSignal("rxCompletedSignalId");
+const omnetpp::simsignal_t IRangingNicDriver::txCompletedSignalId = omnetpp::cComponent::registerSignal("txCompleted");
+const omnetpp::simsignal_t IRangingNicDriver::rxCompletedSignalId = omnetpp::cComponent::registerSignal("rxCompleted");
 
 }  // namespace smile

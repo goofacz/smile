@@ -15,12 +15,15 @@
 
 package smile;
 
-import inet.linklayer.contract.IWirelessNic;
-
-moduleinterface IRangingWirelessNic extends IWirelessNic
+moduleinterface IRangingNicDriver
 {
     parameters:
         @signal[txCompleted](type=IdealTxCompletion);
         @signal[rxCompleted](type=IdealRxCompletion);
-        bool enableIdealInterface;
+
+	gates:
+        input applicationIn;
+        output applicationOut;
+        input nicIn;
+        output nicOut;
 }

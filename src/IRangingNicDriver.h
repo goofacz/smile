@@ -20,7 +20,7 @@
 
 namespace smile {
 
-class IRangingWirelessNic
+class IRangingNicDriver
 {
  public:
   enum class IdealTxCompletionStatus
@@ -34,12 +34,12 @@ class IRangingWirelessNic
   };
 
  public:
-  IRangingWirelessNic(const IRangingWirelessNic& source) = delete;
-  IRangingWirelessNic(IRangingWirelessNic&& source) = delete;
-  virtual ~IRangingWirelessNic() = default;
+  IRangingNicDriver(const IRangingNicDriver& source) = delete;
+  IRangingNicDriver(IRangingNicDriver&& source) = delete;
+  virtual ~IRangingNicDriver() = default;
 
-  IRangingWirelessNic& operator=(const IRangingWirelessNic& source) = delete;
-  IRangingWirelessNic& operator=(IRangingWirelessNic&& source) = delete;
+  IRangingNicDriver& operator=(const IRangingNicDriver& source) = delete;
+  IRangingNicDriver& operator=(IRangingNicDriver&& source) = delete;
 
   static const simsignal_t txCompletedSignalId;
   static const simsignal_t rxCompletedSignalId;
@@ -47,7 +47,7 @@ class IRangingWirelessNic
   virtual inet::MACAddress getMacAddress() const = 0;
 
  protected:
-  IRangingWirelessNic() = default;
+  IRangingNicDriver() = default;
 };
 
 }  // namespace smile
