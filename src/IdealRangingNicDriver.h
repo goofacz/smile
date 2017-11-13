@@ -49,7 +49,7 @@ class IdealRangingNicDriver : public ClockDecorator<omnetpp::cSimpleModule>, pub
   void receiveSignal(omnetpp::cComponent* source, omnetpp::simsignal_t signalID, long value,
                      omnetpp::cObject* details) override final;
 
-  void handleIdealIn(std::unique_ptr<inet::IdealMacFrame> frame);
+  void handleApplicationIn(std::unique_ptr<inet::IdealMacFrame> frame);
 
   void handleNicIn(std::unique_ptr<inet::IdealMacFrame> frame);
 

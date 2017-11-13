@@ -30,30 +30,26 @@ void IdealRangingNicDriver::initialize(int stage)
   ClockDecorator<cSimpleModule>::initialize(stage);
 
   if (stage == inet::INITSTAGE_LOCAL) {
-    const auto enableIdealInterface = par("enableIdealInterface").boolValue();
-    if (!enableIdealInterface) {
-      throw cRuntimeError{"IdealRangingWirelessNic requires enableIdealInterface to be set"};
-    }
-
-    const auto nicModulePath = ".nic";
+    const auto nicModulePath = par("nicModuleRelativePath").stringValue();
     nic = getModuleByPath(nicModulePath);
     if (!nic) {
       throw cRuntimeError{"Failed to find \"%s\" module", nicModulePath};
     }
 
-    const auto radioModulePath = ".nic.radio";
-    auto radioModule = getModuleByPath(radioModulePath);
+    const auto radioModulePath = ".radio";
+    auto radioModule = nic->getModuleByPath(radioModulePath);
     if (!radioModule) {
-      throw cRuntimeError{"Failed to find \"%s\" module", radioModulePath};
+      throw cRuntimeError{"Failed to find \"%s\" module relative to \"nic\" module", radioModulePath};
     }
+
     radio = check_and_cast<inet::physicallayer::IRadio*>(radioModule);
     radioModule->subscribe(inet::physicallayer::IRadio::transmissionStateChangedSignal, this);
     radioModule->subscribe(inet::physicallayer::IRadio::receptionStateChangedSignal, this);
 
-    const auto macModulePath = ".nic.mac";
-    mac = getModuleByPath(macModulePath);
+    const auto macModulePath = ".mac";
+    mac = nic->getModuleByPath(macModulePath);
     if (!mac) {
-      throw cRuntimeError{"Failed to find \"%s\" module", macModulePath};
+      throw cRuntimeError{"Failed to find \"%s\" module relative to \"nic\" module", macModulePath};
     }
   }
 }
@@ -61,21 +57,20 @@ void IdealRangingNicDriver::initialize(int stage)
 void IdealRangingNicDriver::handleIncommingMessage(omnetpp::cMessage* newMessage)
 {
   std::unique_ptr<cMessage> message{newMessage};
-  const auto arrivalGate = message->getArrivalGate();
-  if (arrivalGate == gate("nicIn")) {
+  if (message->arrivedOn("nicIn")) {
     handleNicIn(dynamic_unique_ptr_cast<inet::IdealMacFrame>(std::move(message)));
   }
-  else if (arrivalGate == gate("upperLayerIn")) {
-    handleIdealIn(dynamic_unique_ptr_cast<inet::IdealMacFrame>(std::move(message)));
+  else if (message->arrivedOn("applicationIn")) {
+    handleApplicationIn(dynamic_unique_ptr_cast<inet::IdealMacFrame>(std::move(message)));
   }
   else {
     throw cRuntimeError{"Received unexpected message \"%s\" on gate \"%s\"", message->getFullName(),
-                        arrivalGate->getFullName()};
+                        message->getArrivalGate()->getFullName()};
   }
 }
 
 void IdealRangingNicDriver::receiveSignal(omnetpp::cComponent* source, omnetpp::simsignal_t signalID, long value,
-                                            omnetpp::cObject* details)
+                                          omnetpp::cObject* details)
 {
   if (signalID == inet::physicallayer::IRadio::transmissionStateChangedSignal) {
     handleRadioStateChanged(static_cast<inet::physicallayer::IRadio::TransmissionState>(value));
@@ -85,7 +80,7 @@ void IdealRangingNicDriver::receiveSignal(omnetpp::cComponent* source, omnetpp::
   }
 }
 
-void IdealRangingNicDriver::handleIdealIn(std::unique_ptr<inet::IdealMacFrame> frame)
+void IdealRangingNicDriver::handleApplicationIn(std::unique_ptr<inet::IdealMacFrame> frame)
 {
   txFrame.reset(frame->dup());
   txCompletion.setFrame(txFrame.get());
@@ -97,12 +92,12 @@ void IdealRangingNicDriver::handleNicIn(std::unique_ptr<inet::IdealMacFrame> fra
   rxFrame.reset(frame->dup());
   rxCompletion.setFrame(rxFrame.get());
 
-  EV_DETAIL_C("IdealRangingWirelessNic") << "Frame " << rxCompletion.getFrame()->getClassName()
-                                         << " (ID: " << rxCompletion.getFrame()->getId() << ") reception completed at "
-                                         << clockTime() << "(local clock)" << endl;
+  EV_DETAIL_C("IdealRangingNicDriver") << "Frame " << rxCompletion.getFrame()->getClassName()
+                                       << " (ID: " << rxCompletion.getFrame()->getId() << ") reception completed at "
+                                       << clockTime() << " (local clock)" << endl;
 
-  emit(IRangingNicDriver::rxCompletedSignalId, &rxCompletion);
-  send(frame.release(), "upperLayerIn");
+  ClockDecorator<cSimpleModule>::emit(IRangingNicDriver::rxCompletedSignalId, &rxCompletion);
+  send(frame.release(), "applicationOut");
 }
 
 void IdealRangingNicDriver::handleRadioStateChanged(inet::physicallayer::IRadio::TransmissionState newState)
@@ -110,13 +105,15 @@ void IdealRangingNicDriver::handleRadioStateChanged(inet::physicallayer::IRadio:
   using inet::physicallayer::IRadio;
   switch (newState) {
     case IRadio::TRANSMISSION_STATE_IDLE:
-      EV_DETAIL_C("IdealRangingWirelessNic")
-          << "Frame " << txCompletion.getFrame()->getClassName() << " (ID: " << txCompletion.getFrame()->getId()
-          << ") transmission completed at " << clockTime() << "(local clock)" << endl;
-      emit(IRangingNicDriver::txCompletedSignalId, &txCompletion);
+      if (txFrame) {
+        EV_DETAIL_C("IdealRangingNicDriver")
+            << "Frame " << txCompletion.getFrame()->getClassName() << " (ID: " << txCompletion.getFrame()->getId()
+            << ") transmission completed at " << clockTime() << " (local clock)" << endl;
+        ClockDecorator<cSimpleModule>::emit(IRangingNicDriver::txCompletedSignalId, &txCompletion);
+      }
       break;
     case IRadio::TRANSMISSION_STATE_TRANSMITTING:
-      EV_DETAIL_C("IdealRangingWirelessNic")
+      EV_DETAIL_C("IdealRangingNicDriver")
           << "Frame " << txCompletion.getFrame()->getClassName() << " (ID: " << txCompletion.getFrame()->getId()
           << ") transmission started at " << clockTime() << "(local clock)" << endl;
       txCompletion.setOperationBeginClockTimestamp(clockTime());
@@ -137,9 +134,8 @@ void IdealRangingNicDriver::handleRadioStateChanged(inet::physicallayer::IRadio:
     case IRadio::RECEPTION_STATE_IDLE:
       break;
     case IRadio::RECEPTION_STATE_RECEIVING:
-      EV_DETAIL_C("IdealRangingWirelessNic")
-          << "Frame " << rxCompletion.getFrame()->getClassName() << " (ID: " << rxCompletion.getFrame()->getId()
-          << ") reception started at " << clockTime() << "(local clock)" << endl;
+      EV_DETAIL_C("IdealRangingNicDriver") << "Frame (Transmission ID: " << radio->getReceptionInProgress()->getId()
+                                           << ") reception started at " << clockTime() << "(local clock)" << endl;
       rxCompletion.setOperationBeginClockTimestamp(clockTime());
       break;
     case IRadio::RECEPTION_STATE_UNDEFINED:

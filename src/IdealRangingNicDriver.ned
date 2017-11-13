@@ -19,7 +19,10 @@ simple IdealRangingNicDriver like IRangingNicDriver
 {
     parameters:
         @class(smile::IdealRangingNicDriver);
+        @signal[txCompleted](type=IdealTxCompletion);
+        @signal[rxCompleted](type=IdealRxCompletion);
         string clockModuleRealitivePath = default("^.clock");
+        string nicModuleRelativePath = default("^.nic");
 
     gates:
         input applicationIn;
