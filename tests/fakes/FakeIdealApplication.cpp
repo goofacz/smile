@@ -48,7 +48,12 @@ void FakeIdealApplication::handleSelfMessage(cMessage* message)
   frame->setBitLength(10);
 
   send(frame.release(), "out");
-  scheduleAt(simTime() + par("txDelay").longValue(), periodicTxMessage.get());
+  completedTxOperations++;
+
+  if (completedTxOperations < par("initiatorTxCount").longValue()) {
+    const auto delay = SimTime{par("txDelay").longValue(), SIMTIME_MS};
+    scheduleAt(clockTime() + delay, periodicTxMessage.get());
+  }
 }
 
 void FakeIdealApplication::handleIncommingMessage(cMessage* newMessage)
