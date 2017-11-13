@@ -1,7 +1,9 @@
 %file: test.ned
-import smile.IdealRangingWirelessNic;
 import smile.RadioNode;
 import smile.MeasurementsLogger;
+import smile.IdealClock;
+import smile.IdealRangingNicDriver;
+import smile.fakes.FakeIdealApplication;
 import inet.physicallayer.idealradio.IdealRadioMedium;
 
 network Test
