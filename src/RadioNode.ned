@@ -20,7 +20,7 @@ import inet.networklayer.common.InterfaceTable;
 import inet.networklayer.generic.GenericRoutingTable;
 import inet.mobility.contract.IMobility;
 
-module RadioNode
+module RadioNode like IRadioNode
 {
     parameters:
         @networkNode();
@@ -29,8 +29,9 @@ module RadioNode
         string mobilityType = default("");
         string applicationType = default("");
         string clockType = default("");
+        string nicDriverType = default("");
         string nicType = default("");
-    
+
     gates:
         input radioIn @directIn;
 
@@ -40,10 +41,13 @@ module RadioNode
         mobility: <mobilityType> like IMobility;
         application: <applicationType> like IApplication;
         clock: <clockType> like IClock;        
-        nic: <nicType> like IRangingWirelessNic;
+        nicDriver: <nicDriverType> like IRangingNicDriver;
+        nic: <nicType> like IWirelessNic;
 
     connections:
         radioIn --> nic.radioIn;        
-        nic.upperLayerIn <-- application.out;
-        nic.upperLayerOut --> application.in;
+        nic.upperLayerIn <-- nicDriver.nicOut;
+        nic.upperLayerOut --> nicDriver.nicIn;
+        nicDriver.applicationOut --> application.in;
+        nicDriver.applicationIn <-- application.out;
 }
