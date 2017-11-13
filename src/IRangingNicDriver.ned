@@ -18,8 +18,8 @@ package smile;
 moduleinterface IRangingNicDriver
 {
     parameters:
-        @signal[txCompleted](type=IdealTxCompletion);
-        @signal[rxCompleted](type=IdealRxCompletion);
+        @signal[txCompleted](type=smile::IdealTxCompletion);
+        @signal[rxCompleted](type=smile::IdealRxCompletion);
 
 	gates:
         input applicationIn;
