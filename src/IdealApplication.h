@@ -17,20 +17,16 @@
 
 #include <inet/common/geometry/common/Coord.h>
 #include <inet/linklayer/ideal/IdealMacFrame_m.h>
-#include <inet/mobility/contract/IMobility.h>
 #include <omnetpp.h>
 #include <memory>
 #include <type_traits>
-#include "ClockDecorator.h"
-#include "IApplication.h"
-#include "IRangingNicDriver.h"
+#include "Application.h"
 #include "IdealRxCompletion_m.h"
 #include "IdealTxCompletion_m.h"
-#include "MeasurementsLogger.h"
 
 namespace smile {
 
-class IdealApplication : public ClockDecorator<omnetpp::cSimpleModule>, public IApplication
+class IdealApplication : public Application
 {
  public:
   IdealApplication() = default;
@@ -53,20 +49,12 @@ class IdealApplication : public ClockDecorator<omnetpp::cSimpleModule>, public I
 
   virtual void handleRxCompletionSignal(const IdealRxCompletion& completion);
 
-  inet::Coord getCurrentTruePosition() const;
-
  private:
   static void initializeFrame(inet::IdealMacFrame& frame, const inet::MACAddress& destinationAddress,
                               const inet::MACAddress& sourceAddress);
 
   void receiveSignal(omnetpp::cComponent* source, omnetpp::simsignal_t signalID, cObject* value,
                      omnetpp::cObject* details) override;
-
-  int numInitStages() const final;
-
-  inet::IMobility* mobility{nullptr};
-  MeasurementsLogger* measurementsLogger{nullptr};
-  IRangingNicDriver* nicDriver{nullptr};
 };
 
 template <typename Frame, typename... FrameArguments>
@@ -78,6 +66,7 @@ std::unique_ptr<Frame> IdealApplication::createFrame(const inet::MACAddress& des
   static_assert(isDerived || isSame, "IdealApplication::createFrame requires Frame to derive from inet::IdealMacFrame");
 
   auto frame = std::make_unique<Frame>(std::forward<FrameArguments>(frameArguments)...);
+  const auto nicDriver = getNicDriver();
   const auto localAddress = nicDriver->getMacAddress();
   initializeFrame(*frame, destinationAddress, localAddress);
   return frame;

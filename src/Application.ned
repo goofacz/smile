@@ -15,8 +15,18 @@
 
 package smile;
 
-simple IdealApplication extends Application
+simple Application like IApplication
 {
     parameters:
-        @class(smile::IdealApplication);
+        @class(smile::Application);
+        string name = default("");
+        string nicDriverModule = default("^.nicDriver");
+        string measurementsLoggerModule = default("measurementsLogger");
+        string clockModuleRealitivePath = default("^.clock");
+        string mobilityModule = default("^.mobility");
+
+	gates :
+	    // Used only by IdealApplication
+	    input in @loose;
+	    output out @loose;
 }
