@@ -83,6 +83,7 @@ void IdealApplication::receiveSignal(omnetpp::cComponent* source, omnetpp::simsi
     handleRxCompletionSignal(*completion);
   }
   else {
+    throw cRuntimeError{"Received unexpected signal \"%s\"", getSignalName(signalID)};
   }
 }
 

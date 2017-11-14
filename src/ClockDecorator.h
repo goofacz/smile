@@ -208,13 +208,14 @@ void ClockDecorator<BaseModule>::receiveSignal(cComponent* source, simsignal_t s
 {
   EV_DEBUG << "Received signal " << BaseModule::getSignalName(signalID) << endl;
 
-  if (signalID != IClock::windowUpdateSignal) {
-    return;
+  if (signalID == IClock::windowUpdateSignal) {
+    const auto& firstMessage = scheduledMessages.front();
+    if (firstMessage.clockTimestamp <= value) {
+      BaseModule::scheduleAt(simTime(), sendScheduledMessagesSelfMessage.get());
+    }
   }
-
-  const auto& firstMessage = scheduledMessages.front();
-  if (firstMessage.clockTimestamp <= value) {
-    BaseModule::scheduleAt(simTime(), sendScheduledMessagesSelfMessage.get());
+  else {
+    throw cRuntimeError{"Received unexpected signal \"%s\"", BaseModule::getSignalName(signalID)};
   }
 }
 

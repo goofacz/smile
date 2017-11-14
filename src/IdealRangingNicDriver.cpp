@@ -78,6 +78,9 @@ void IdealRangingNicDriver::receiveSignal(omnetpp::cComponent* source, omnetpp::
   else if (signalID == inet::physicallayer::IRadio::receptionStateChangedSignal) {
     handleRadioStateChanged(static_cast<inet::physicallayer::IRadio::ReceptionState>(value));
   }
+  else {
+    throw cRuntimeError{"Received unexpected signal \"%s\"", getSignalName(signalID)};
+  }
 }
 
 void IdealRangingNicDriver::handleApplicationIn(std::unique_ptr<inet::IdealMacFrame> frame)
