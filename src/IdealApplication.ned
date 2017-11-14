@@ -23,6 +23,7 @@ simple IdealApplication like IApplication
         string nicDriverModule = default("^.nicDriver");
         string measurementsLoggerModule = default("measurementsLogger");
         string clockModuleRealitivePath = default("^.clock");
+        string mobilityModule = default("^.mobility");
 
 	gates:
 	    input in;

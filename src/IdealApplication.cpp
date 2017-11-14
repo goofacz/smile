@@ -27,7 +27,9 @@ Define_Module(IdealApplication);
 void IdealApplication::initialize(int stage)
 {
   ClockDecorator<cSimpleModule>::initialize(stage);
-  if (stage == inet::INITSTAGE_APPLICATION_LAYER) {
+  if (stage == inet::INITSTAGE_LOCAL) {
+    mobility = inet::getModuleFromPar<inet::IMobility>(par("mobilityModule"), this, true);
+
     nicDriver = inet::getModuleFromPar<IRangingNicDriver>(par("nicDriverModule"), this, true);
     auto nicDriverModule = check_and_cast<cModule*>(nicDriver);
     nicDriverModule->subscribe(IRangingNicDriver::txCompletedSignalId, this);
@@ -52,6 +54,11 @@ void IdealApplication::handleRxCompletionSignal(const IdealRxCompletion&)
   EV_WARN_C("IdealApplication") << "Dummy handler handleRxCompletionSignal() was called" << endl;
 }
 
+inet::Coord IdealApplication::getCurrentTruePosition() const
+{
+  return mobility->getCurrentPosition();
+}
+
 void IdealApplication::initializeFrame(inet::IdealMacFrame& frame, const inet::MACAddress& destinationAddress,
                                        const inet::MACAddress& sourceAddress)
 {
@@ -74,6 +81,8 @@ void IdealApplication::receiveSignal(omnetpp::cComponent* source, omnetpp::simsi
   else if (signalID == IRangingNicDriver::rxCompletedSignalId) {
     auto completion = check_and_cast<const IdealRxCompletion*>(value);
     handleRxCompletionSignal(*completion);
+  }
+  else {
   }
 }
 

@@ -15,7 +15,9 @@
 
 #pragma once
 
+#include <inet/common/geometry/common/Coord.h>
 #include <inet/linklayer/ideal/IdealMacFrame_m.h>
+#include <inet/mobility/contract/IMobility.h>
 #include <omnetpp.h>
 #include <memory>
 #include <type_traits>
@@ -51,6 +53,8 @@ class IdealApplication : public ClockDecorator<omnetpp::cSimpleModule>, public I
 
   virtual void handleRxCompletionSignal(const IdealRxCompletion& completion);
 
+  inet::Coord getCurrentTruePosition() const;
+
  private:
   static void initializeFrame(inet::IdealMacFrame& frame, const inet::MACAddress& destinationAddress,
                               const inet::MACAddress& sourceAddress);
@@ -60,6 +64,7 @@ class IdealApplication : public ClockDecorator<omnetpp::cSimpleModule>, public I
 
   int numInitStages() const final;
 
+  inet::IMobility* mobility{nullptr};
   MeasurementsLogger* measurementsLogger{nullptr};
   IRangingNicDriver* nicDriver{nullptr};
 };
