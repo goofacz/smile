@@ -15,9 +15,13 @@
 
 package smile;
 
+//
+// Common interface for all applications.
+//
 moduleinterface IApplication
 {
 	gates:
-	    input in;
-	    output out;
+	    // Used only by IdealApplication
+        input in @loose; // Input for MAC frames, used by @see IdealApplication
+        output out @loose; // Output for MAC frames, used by @see IdealApplication
 }

@@ -15,6 +15,9 @@
 
 package smile;
 
+//
+// Common interface for all radio node modules.
+//
 moduleinterface IRadioNode
 {
     gates:

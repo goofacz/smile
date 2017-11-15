@@ -15,6 +15,9 @@
 
 package smile;
 
+//
+// Wireless NIC driver appropriate for IdealWireless from INET.
+//
 simple IdealRangingNicDriver like IRangingNicDriver
 {
     parameters:

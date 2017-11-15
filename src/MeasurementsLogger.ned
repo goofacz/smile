@@ -15,12 +15,16 @@
 
 package smile;
 
+//
+// Default measurements logger that gathers logs from all radio nodes in simulations. It supports
+// logging to file in CSV format.
+//
 simple MeasurementsLogger
 {
     parameters:
         @class(smile::MeasurementsLogger);
-        string directoryPath = default("");
-        string fileName = default("");
-        string format = default("CSV");
-        bool overwrite = default(false);
+        string directoryPath = default(""); // Directory when output file should be stored
+        string fileName = default(""); // Output file name
+        string format = default("CSV"); // Output format, at the moment only CSV is supported
+        bool overwrite = default(false); // Whenever file should be overwritten or not
 }

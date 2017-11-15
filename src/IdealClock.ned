@@ -15,6 +15,9 @@
 
 package smile;
 
+//
+// This module implements perfect clock, that internally uses global simulation clock.
+//
 simple IdealClock extends Clock
 {
     parameters:

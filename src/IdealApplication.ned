@@ -15,6 +15,11 @@
 
 package smile;
 
+//
+// Base class for applications using "Ideal" i.a. simplified interface abstracted from
+// hardware details. Such applications simplify receive and send frames based on 
+// IdealMacFrame from INET.
+//
 simple IdealApplication extends Application
 {
     parameters:

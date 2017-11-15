@@ -15,8 +15,14 @@
 
 package smile;
 
+//
+// This module interface should be implemented by all modules that use clock modules. C++ class
+// corresponding to this interface extends OMNET++ API and makes sure that all time-related
+// functions like scheduleAt() or sendDelayed() will measure time according clock module instead
+// of oglobal simulation clock.
+//
 moduleinterface ClockDecorator
 {
 	parameters:
-	    string clockModule;
+	    string clockModule; // Path to clock relative to this module
 }

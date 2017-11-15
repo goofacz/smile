@@ -15,8 +15,12 @@
 
 package smile;
 
+//
+// Common interface for all clock.
+//
 moduleinterface IClock
 {
 	parameters:
-	    @signal[windowUpdate](type=simtime_t);
+	    @signal[windowUpdate](type=simtime_t); // Emits whenever clock module generate 
+	                                           // clock values for next window
 }

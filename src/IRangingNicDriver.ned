@@ -15,15 +15,21 @@
 
 package smile;
 
+//
+// Wireless NIC driver provides an unified "Ideal" interface for all kinds of
+// wireless NICs. The goal is to hide all hardware detailes (setting up NIC,
+// preparing and handling TX/RX operations etc.). Drivers are used together with
+// "Ideal" applications @see IdealApplication.
+//
 moduleinterface IRangingNicDriver
 {
     parameters:
-        @signal[txCompleted](type=smile::IdealTxCompletion);
-        @signal[rxCompleted](type=smile::IdealRxCompletion);
+        @signal[txCompleted](type=smile::IdealTxCompletion); // Emits whenever transmission is completed
+        @signal[rxCompleted](type=smile::IdealRxCompletion); // Emits whenever reception is completed
 
 	gates:
-        input applicationIn;
-        output applicationOut;
-        input nicIn;
-        output nicOut;
+        input applicationIn; // Input for MAC frames from applications based on @see IdealApplication
+        output applicationOut; // Output for MAC frames to applications based on @see IdealApplication
+        input nicIn; // Input for IdealWirelessNic
+        output nicOut; // Output to IdealWirelessNic
 }

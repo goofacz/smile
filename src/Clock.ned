@@ -15,6 +15,9 @@
 
 package smile;
 
+//
+// Base module to clocks intended for inheritance.
+//
 simple Clock like IClock
 {
     parameters:
