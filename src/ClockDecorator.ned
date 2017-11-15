@@ -18,5 +18,5 @@ package smile;
 moduleinterface ClockDecorator
 {
 	parameters:
-	    string clockModuleRealitivePath;
+	    string clockModule;
 }

@@ -175,10 +175,9 @@ void ClockDecorator<BaseModule>::initialize(int stage)
   BaseModule::initialize(stage);
 
   if (stage == inet::INITSTAGE_LOCAL) {
-    const auto clockModuleRealitivePath = BaseModule::par("clockModuleRealitivePath").stringValue();
-    clockModule = BaseModule::getModuleByPath(clockModuleRealitivePath);
+    clockModule = BaseModule::getModuleByPath(BaseModule::par("clockModule").stringValue());
     if (!clockModule) {
-      throw cRuntimeError{"Failed to find clock module at relative path \"%s\"", clockModuleRealitivePath};
+      throw cRuntimeError{"Failed to find clock module at relative path \"%s\"", clockModule};
     }
     clock = check_and_cast<IClock*>(clockModule);
 

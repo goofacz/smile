@@ -50,7 +50,7 @@ import smile.fakes.FakeImperfectClock;
 simple TestModule like ClockDecorator
 {
 	parameters:
-		string clockModuleRealitivePath = "^.clock";
+		string clockModule = "^.clock";
 }
 
 network Test

@@ -58,7 +58,7 @@ module TestModule like ClockDecorator
 {
 	parameters:
 		@class(TestModule);
-		string clockModuleRealitivePath = ".clock";
+		string clockModule = ".clock";
 		int nodeIndex;
 
 	gates:
