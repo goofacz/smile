@@ -22,6 +22,7 @@ simple IdealRangingNicDriver like IRangingNicDriver
 {
     parameters:
         @class(smile::IdealRangingNicDriver);
+        @display("i=block/layer");
         @signal[txCompleted](type=smile::IdealTxCompletion);
         @signal[rxCompleted](type=smile::IdealRxCompletion);
         string clockModule = default("^.clock");

@@ -23,6 +23,7 @@ simple MeasurementsLogger
 {
     parameters:
         @class(smile::MeasurementsLogger);
+        @display("i=block/buffer");
         string directoryPath = default(""); // Directory when output file should be stored
         string fileName = default(""); // Output file name
         string format = default("CSV"); // Output format, at the moment only CSV is supported

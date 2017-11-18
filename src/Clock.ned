@@ -22,4 +22,5 @@ simple Clock like IClock
 {
     parameters:
         @class(smile::Clock);
+        @display("i=device/clock");
 }

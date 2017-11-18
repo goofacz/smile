@@ -20,6 +20,9 @@ package smile;
 //
 moduleinterface IApplication
 {
+    parameters:
+        @display("i=block/app");
+
 	gates:
 	    // Used only by IdealApplication
         input in @loose; // Input for MAC frames, used by @see IdealApplication

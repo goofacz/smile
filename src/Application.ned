@@ -23,6 +23,7 @@ simple Application like IApplication
 {
     parameters:
         @class(smile::Application);
+        @display("i=block/app");
         string name = default(""); // Name of this application used in GUI (optional)
         string nicDriverModule = default("^.nicDriver"); // Path to nicDriver relative to this module
         string measurementsLoggerModule = default("measurementsLogger"); // Path to measurementsLogger relative to this module

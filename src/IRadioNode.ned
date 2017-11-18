@@ -20,6 +20,9 @@ package smile;
 //
 moduleinterface IRadioNode
 {
+    parameters:
+        @display("i=device/device");
+
     gates:
         input radioIn @directIn;
 }

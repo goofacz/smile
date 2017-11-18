@@ -21,6 +21,7 @@ package smile;
 moduleinterface IClock
 {
 	parameters:
+        @display("i=device/clock");
 	    @signal[windowUpdate](type=simtime_t); // Emits whenever clock module generate 
 	                                           // clock values for next window
 }

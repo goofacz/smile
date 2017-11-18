@@ -24,6 +24,7 @@ package smile;
 moduleinterface IRangingNicDriver
 {
     parameters:
+        @display("i=block/layer");
         @signal[txCompleted](type=smile::IdealTxCompletion); // Emits whenever transmission is completed
         @signal[rxCompleted](type=smile::IdealRxCompletion); // Emits whenever reception is completed
 
