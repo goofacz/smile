@@ -23,7 +23,7 @@ namespace smile {
 template <typename O, typename I>
 auto dynamic_unique_ptr_cast(std::unique_ptr<I> object)
 {
-  check_and_cast<O*>(object.get());
+  omnetpp::check_and_cast<O*>(object.get());
   return std::unique_ptr<O>(static_cast<O*>(object.release()));
 };
 
