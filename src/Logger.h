@@ -30,8 +30,12 @@ namespace csv_logger {
 
 template <typename T>
 struct Converter
+{};
+
+template <>
+struct Converter<char*>
 {
-  static std::string convert(T&& element)
+  static std::string convert(const char* element)
   {
     return element;
   }
@@ -74,7 +78,8 @@ class Logger : public omnetpp::cSimpleModule
   {
     static std::string compose(std::string buffer, T&& element, Arguments&&... arguments)
     {
-      buffer += csv_logger::Converter<T>::convert(std::forward<T>(element));
+      using NakedT = typename std::decay<T>::type;
+      buffer += csv_logger::Converter<NakedT>::convert(std::forward<T>(element));
       buffer += ";";
       return CsvHelper<sizeof...(arguments) - 1, Arguments...>::compose(std::move(buffer),
                                                                         std::forward<Arguments>(arguments)...);
@@ -86,7 +91,8 @@ class Logger : public omnetpp::cSimpleModule
   {
     static std::string compose(std::string buffer, T&& element)
     {
-      buffer += csv_logger::Converter<T>::convert(std::forward<T>(element));
+      using NakedT = typename std::decay<T>::type;
+      buffer += csv_logger::Converter<NakedT>::convert(std::forward<T>(element));
       return buffer;
     }
   };
