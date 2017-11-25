@@ -1,6 +1,6 @@
 %file: test.ned
 import smile.RadioNode;
-import smile.MeasurementsLogger;
+import smile.Logger;
 import smile.IdealClock;
 import smile.IdealRangingNicDriver;
 import smile.fakes.FakeIdealApplication;
@@ -10,9 +10,8 @@ network Test
 {
     submodules:
         radioMedium: IdealRadioMedium;
-        measurementsLogger: MeasurementsLogger    {
+        logger: Logger    {
             directoryPath = ".";
-            fileName = "tmp";
         }
 
         TestNode1: RadioNode {

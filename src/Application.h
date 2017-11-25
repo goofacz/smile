@@ -21,7 +21,7 @@
 #include "ClockDecorator.h"
 #include "IApplication.h"
 #include "IRangingNicDriver.h"
-#include "MeasurementsLogger.h"
+#include "Logger.h"
 
 namespace smile {
 
@@ -43,13 +43,15 @@ class Application : public ClockDecorator<omnetpp::cSimpleModule>, public IAppli
 
   inet::Coord getCurrentTruePosition() const;
 
-  IRangingNicDriver* getNicDriver();
+  Logger& getLogger();
+
+  IRangingNicDriver& getNicDriver();
 
  private:
   int numInitStages() const final;
 
   inet::IMobility* mobility{nullptr};
-  MeasurementsLogger* measurementsLogger{nullptr};
+  Logger* logger{nullptr};
   IRangingNicDriver* nicDriver{nullptr};
 };
 

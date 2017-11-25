@@ -28,7 +28,7 @@ void IdealApplication::initialize(int stage)
 {
   Application::initialize(stage);
   if (stage == inet::INITSTAGE_LOCAL) {
-    auto nicDriverModule = check_and_cast<cModule*>(getNicDriver());
+    auto nicDriverModule = check_and_cast<cModule*>(&getNicDriver());
     nicDriverModule->subscribe(IRangingNicDriver::txCompletedSignalId, this);
     nicDriverModule->subscribe(IRangingNicDriver::rxCompletedSignalId, this);
   }

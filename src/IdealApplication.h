@@ -66,8 +66,8 @@ std::unique_ptr<Frame> IdealApplication::createFrame(const inet::MACAddress& des
   static_assert(isDerived || isSame, "IdealApplication::createFrame requires Frame to derive from inet::IdealMacFrame");
 
   auto frame = std::make_unique<Frame>(std::forward<FrameArguments>(frameArguments)...);
-  const auto nicDriver = getNicDriver();
-  const auto localAddress = nicDriver->getMacAddress();
+  const auto& nicDriver = getNicDriver();
+  const auto localAddress = nicDriver.getMacAddress();
   initializeFrame(*frame, destinationAddress, localAddress);
   return frame;
 }

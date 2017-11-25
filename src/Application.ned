@@ -26,7 +26,7 @@ simple Application like IApplication
         @display("i=block/app");
         string name = default(""); // Name of this application used in GUI (optional)
         string nicDriverModule = default("^.nicDriver"); // Path to nicDriver relative to this module
-        string measurementsLoggerModule = default("measurementsLogger"); // Path to measurementsLogger relative to this module
+        string loggerModule = default("logger"); // Path to Logger module
         string clockModule = default("^.clock"); // Path to clock relative to this module
         string mobilityModule = default("^.mobility"); // Path to mobility relative to this module
 

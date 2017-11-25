@@ -15,6 +15,7 @@
 
 #include "Application.h"
 #include <inet/common/ModuleAccess.h>
+#include <cassert>
 
 namespace smile {
 
@@ -26,7 +27,7 @@ void Application::initialize(int stage)
   if (stage == inet::INITSTAGE_LOCAL) {
     mobility = inet::getModuleFromPar<inet::IMobility>(par("mobilityModule"), this, true);
     nicDriver = inet::getModuleFromPar<IRangingNicDriver>(par("nicDriverModule"), this, true);
-    measurementsLogger = inet::getModuleFromPar<MeasurementsLogger>(par("measurementsLoggerModule"), this, true);
+    logger = inet::getModuleFromPar<Logger>(par("loggerModule"), this, true);
   }
 }
 
@@ -40,9 +41,16 @@ inet::Coord Application::getCurrentTruePosition() const
   return mobility->getCurrentPosition();
 }
 
-IRangingNicDriver* Application::getNicDriver()
+Logger& Application::getLogger()
 {
-  return nicDriver;
+  assert(logger);
+  return *logger;
+}
+
+IRangingNicDriver& Application::getNicDriver()
+{
+  assert(logger);
+  return *nicDriver;
 }
 
 }  // namespace smile
