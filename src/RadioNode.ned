@@ -44,6 +44,7 @@ module RadioNode like IRadioNode
         clock: <clockType> like IClock;
         nicDriver: <nicDriverType> like IRangingNicDriver;
         nic: <nicType> like IWirelessNic;
+
     connections:
         radioIn --> nic.radioIn;
         nic.upperLayerIn <-- nicDriver.nicOut;
