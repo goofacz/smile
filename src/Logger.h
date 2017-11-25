@@ -65,6 +65,15 @@ struct Converter<inet::MACAddress>
   }
 };
 
+template <>
+struct Converter<omnetpp::SimTime>
+{
+  static std::string convert(const omnetpp::SimTime& element)
+  {
+    return std::to_string(element.inUnit(omnetpp::SIMTIME_FS));
+  }
+};
+
 };  // namespace csv_logger
 
 class Logger : public omnetpp::cSimpleModule
