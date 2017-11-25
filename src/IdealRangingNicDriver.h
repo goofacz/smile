@@ -70,6 +70,9 @@ class IdealRangingNicDriver : public ClockDecorator<omnetpp::cSimpleModule>, pub
   cModule* nic{nullptr};
   cModule* mac{nullptr};
   inet::IMobility* mobility{nullptr};
+  inet::physicallayer::IRadio::ReceptionState previousRxState{inet::physicallayer::IRadio::RECEPTION_STATE_UNDEFINED};
+  inet::physicallayer::IRadio::TransmissionState previousTxState{
+      inet::physicallayer::IRadio::TRANSMISSION_STATE_UNDEFINED};
 };
 
 }  // namespace smile

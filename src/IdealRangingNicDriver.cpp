@@ -111,7 +111,7 @@ void IdealRangingNicDriver::handleRadioStateChanged(inet::physicallayer::IRadio:
   using inet::physicallayer::IRadio;
   switch (newState) {
     case IRadio::TRANSMISSION_STATE_IDLE:
-      if (radio->getTransmissionState() == IRadio::TRANSMISSION_STATE_TRANSMITTING) {
+      if (previousTxState == IRadio::TRANSMISSION_STATE_TRANSMITTING) {
         EV_DETAIL_C("IdealRangingNicDriver")
             << "Frame " << txCompletion.getFrame()->getClassName() << " (ID: " << txCompletion.getFrame()->getId()
             << ") transmission completed at " << clockTime() << " (local clock)" << endl;
@@ -129,6 +129,8 @@ void IdealRangingNicDriver::handleRadioStateChanged(inet::physicallayer::IRadio:
       clearTxCompletion();
       break;
   }
+
+  previousTxState = newState;
 }
 
 void IdealRangingNicDriver::handleRadioStateChanged(inet::physicallayer::IRadio::ReceptionState newState)
@@ -139,7 +141,7 @@ void IdealRangingNicDriver::handleRadioStateChanged(inet::physicallayer::IRadio:
       // TODO
       break;
     case IRadio::RECEPTION_STATE_IDLE:
-      if (radio->getReceptionState() == IRadio::RECEPTION_STATE_RECEIVING) {
+      if (previousRxState == IRadio::RECEPTION_STATE_RECEIVING) {
         rxCompletion.setOperationEndClockTimestamp(clockTime());
         rxCompletion.setOperationEndTruePosition(mobility->getCurrentPosition());
       }
@@ -154,6 +156,8 @@ void IdealRangingNicDriver::handleRadioStateChanged(inet::physicallayer::IRadio:
       clearRxCompletion();
       break;
   }
+
+  previousRxState = newState;
 }
 
 void IdealRangingNicDriver::clearRxCompletion()
