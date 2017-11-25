@@ -15,6 +15,7 @@
 
 cplusplus	{{
 #include <inet/linklayer/ideal/IdealMacFrame_m.h>
+#include <inet/common/geometry/common/Coord.h>
 #include "IRangingNicDriver.h"
 
 using IdealMacFramePointer = const inet::IdealMacFrame*;
@@ -24,9 +25,13 @@ namespace smile;
 
 class noncobject IRangingNicDriver::IdealRxCompletionStatus;
 class noncobject IdealMacFramePointer;
+class noncobject inet::Coord;
 
 class IdealRxCompletion {
     IRangingNicDriver::IdealRxCompletionStatus status = IRangingNicDriver::IdealRxCompletionStatus::SUCCESS;
-    simtime_t operationBeginClockTimestamp = 0;
     IdealMacFramePointer frame = nullptr;
+    simtime_t operationBeginClockTimestamp = 0;
+    simtime_t operationEndClockTimestamp = 0;
+    inet::Coord operationBeginTruePosition;
+    inet::Coord operationEndTruePosition;
 }

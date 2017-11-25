@@ -27,6 +27,7 @@ moduleinterface IRangingNicDriver
         @display("i=block/layer");
         @signal[txCompleted](type=smile::IdealTxCompletion); // Emits whenever transmission is completed
         @signal[rxCompleted](type=smile::IdealRxCompletion); // Emits whenever reception is completed
+        string mobilityModule; // Relative path to mobility module
 
 	gates:
         input applicationIn; // Input for MAC frames from applications based on @see IdealApplication

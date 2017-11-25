@@ -16,6 +16,7 @@
 #pragma once
 
 #include <inet/linklayer/ideal/IdealMacFrame_m.h>
+#include <inet/mobility/contract/IMobility.h>
 #include <inet/physicallayer/contract/packetlevel/IRadio.h>
 #include <omnetpp.h>
 #include "ClockDecorator.h"
@@ -68,6 +69,7 @@ class IdealRangingNicDriver : public ClockDecorator<omnetpp::cSimpleModule>, pub
   inet::physicallayer::IRadio* radio{nullptr};
   cModule* nic{nullptr};
   cModule* mac{nullptr};
+  inet::IMobility* mobility{nullptr};
 };
 
 }  // namespace smile
