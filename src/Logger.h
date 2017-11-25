@@ -30,7 +30,8 @@ namespace csv_logger {
 
 template <typename T>
 struct Converter
-{};
+{
+};
 
 template <>
 struct Converter<char*>
