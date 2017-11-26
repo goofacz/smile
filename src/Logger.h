@@ -26,86 +26,11 @@
 
 namespace smile {
 
-namespace csv_logger {
-
-template <typename T>
-struct Converter
-{
-};
-
-template <>
-struct Converter<char*>
-{
-  static std::string convert(const char* element)
-  {
-    return element;
-  }
-};
-
-template <>
-struct Converter<inet::Coord>
-{
-  static std::string convert(const inet::Coord& element)
-  {
-    std::string buffer;
-    buffer += std::to_string(element.x);
-    buffer += ";";
-    buffer += std::to_string(element.y);
-    buffer += ";";
-    buffer += std::to_string(element.z);
-    return buffer;
-  }
-};
-
-template <>
-struct Converter<inet::MACAddress>
-{
-  static std::string convert(const inet::MACAddress& element)
-  {
-    return std::to_string(element.getInt());
-  }
-};
-
-template <>
-struct Converter<omnetpp::SimTime>
-{
-  static std::string convert(const omnetpp::SimTime& element)
-  {
-    return std::to_string(element.inUnit(omnetpp::SIMTIME_FS));
-  }
-};
-
-};  // namespace csv_logger
-
 class Logger : public omnetpp::cSimpleModule
 {
  private:
   using LogFile = std::pair<std::string, std::ofstream>;
   using LogFileVector = std::vector<LogFile>;
-
-  template <int size, typename T, typename... Arguments>
-  struct CsvHelper
-  {
-    static std::string compose(std::string buffer, T&& element, Arguments&&... arguments)
-    {
-      using NakedT = typename std::decay<T>::type;
-      buffer += csv_logger::Converter<NakedT>::convert(std::forward<T>(element));
-      buffer += ";";
-      return CsvHelper<sizeof...(arguments) - 1, Arguments...>::compose(std::move(buffer),
-                                                                        std::forward<Arguments>(arguments)...);
-    }
-  };
-
-  template <typename T>
-  struct CsvHelper<0, T>
-  {
-    static std::string compose(std::string buffer, T&& element)
-    {
-      using NakedT = typename std::decay<T>::type;
-      buffer += csv_logger::Converter<NakedT>::convert(std::forward<T>(element));
-      return buffer;
-    }
-  };
 
  public:
   class Handle final
@@ -138,9 +63,6 @@ class Logger : public omnetpp::cSimpleModule
   Logger& operator=(const Logger& source) = delete;
   Logger& operator=(Logger&& source) = delete;
 
-  template <typename... Arguments>
-  static std::string composeCsvEntry(Arguments&&... arguments);
-
   Handle obtainHandle(const std::string& name);
   void append(const Handle& handle, const std::string& entry);
 
@@ -151,11 +73,5 @@ class Logger : public omnetpp::cSimpleModule
 
   LogFileVector logFiles;
 };
-
-template <typename... Arguments>
-std::string Logger::composeCsvEntry(Arguments&&... arguments)
-{
-  return CsvHelper<sizeof...(arguments) - 1, Arguments...>::compose({}, std::forward<Arguments>(arguments)...);
-}
 
 }  // namespace smile

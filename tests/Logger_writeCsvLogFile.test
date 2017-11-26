@@ -1,5 +1,6 @@
 %includes:
 #include "../../src/Logger.h"
+#include "../../src/CsvLogger.h"
 
 %module: LogGenerator
 using namespace inet;
@@ -25,8 +26,8 @@ void LogGenerator::initialize(int stage)
 	auto fooLog = logger->obtainHandle("foo");
 	
 	logger->append(fooLog, "first; second; third");
-	logger->append(fooLog, Logger::composeCsvEntry(std::string{"one"}, std::string{"two"}, std::string{"three"}));
-	logger->append(fooLog, Logger::composeCsvEntry(inet::Coord{1.2, 1.3, 1.4}, inet::MACAddress{"DE-AD-BE-EF-10-01"}));
+	logger->append(fooLog, csv_logger::compose(std::string{"one"}, std::string{"two"}, std::string{"three"}));
+	logger->append(fooLog, csv_logger::compose(inet::Coord{1.2, 1.3, 1.4}, inet::MACAddress{"DE-AD-BE-EF-10-01"}));
 }
 
 %file: test.ned
