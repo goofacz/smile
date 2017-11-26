@@ -1,6 +1,6 @@
 # Simulator for Methods of Indoor Localization
 
-SMILe allows analyzing and evaluating arbitrary indoor localization methods utilizing time measurements. Project is a framework that [OMNeT++](https://omnetpp.org/) and it's heavily utilizes other OMNeT++ framework - [INET](https://github.com/inet-framework/inet).
+SMILe allows analyzing and evaluating arbitrary indoor localization methods based on time measurements. Project is a framework built on top of [OMNeT++](https://omnetpp.org/) and heavily utilizes [INET](https://github.com/inet-framework/inet).
 
 ## Installation
 
