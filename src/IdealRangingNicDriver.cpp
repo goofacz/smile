@@ -115,6 +115,11 @@ void IdealRangingNicDriver::handleRadioStateChanged(inet::physicallayer::IRadio:
         EV_DETAIL_C("IdealRangingNicDriver")
             << "Frame " << txCompletion.getFrame()->getClassName() << " (ID: " << txCompletion.getFrame()->getId()
             << ") transmission completed at " << clockTime() << " (local clock)" << endl;
+
+        txCompletion.setOperationEndClockTimestamp(clockTime());
+        txCompletion.setOperationEndSimulationTimestamp(simTime());
+        txCompletion.setOperationEndTruePosition(mobility->getCurrentPosition());
+
         ClockDecorator<cSimpleModule>::emit(IRangingNicDriver::txCompletedSignalId, &txCompletion);
       }
       break;
@@ -123,6 +128,7 @@ void IdealRangingNicDriver::handleRadioStateChanged(inet::physicallayer::IRadio:
           << "Frame " << txCompletion.getFrame()->getClassName() << " (ID: " << txCompletion.getFrame()->getId()
           << ") transmission started at " << clockTime() << "(local clock)" << endl;
       txCompletion.setOperationBeginClockTimestamp(clockTime());
+      txCompletion.setOperationBeginSimulationTimestamp(simTime());
       txCompletion.setOperationBeginTruePosition(mobility->getCurrentPosition());
       break;
     case IRadio::TRANSMISSION_STATE_UNDEFINED:
@@ -143,6 +149,7 @@ void IdealRangingNicDriver::handleRadioStateChanged(inet::physicallayer::IRadio:
     case IRadio::RECEPTION_STATE_IDLE:
       if (previousRxState == IRadio::RECEPTION_STATE_RECEIVING) {
         rxCompletion.setOperationEndClockTimestamp(clockTime());
+        rxCompletion.setOperationEndSimulationTimestamp(simTime());
         rxCompletion.setOperationEndTruePosition(mobility->getCurrentPosition());
       }
       break;
@@ -150,6 +157,7 @@ void IdealRangingNicDriver::handleRadioStateChanged(inet::physicallayer::IRadio:
       EV_DETAIL_C("IdealRangingNicDriver") << "Frame (Transmission ID: " << radio->getReceptionInProgress()->getId()
                                            << ") reception started at " << clockTime() << "(local clock)" << endl;
       rxCompletion.setOperationBeginClockTimestamp(clockTime());
+      txCompletion.setOperationBeginSimulationTimestamp(simTime());
       rxCompletion.setOperationBeginTruePosition(mobility->getCurrentPosition());
       break;
     case IRadio::RECEPTION_STATE_UNDEFINED:
@@ -162,24 +170,34 @@ void IdealRangingNicDriver::handleRadioStateChanged(inet::physicallayer::IRadio:
 
 void IdealRangingNicDriver::clearRxCompletion()
 {
+  txCompletion.setStatus(IdealTxCompletionStatus::SUCCESS);
   txCompletion.setFrame(nullptr);
-  txCompletion.setOperationEndClockTimestamp(0);
+  txFrame.reset();
+
   txCompletion.setOperationBeginClockTimestamp(0);
+  txCompletion.setOperationBeginSimulationTimestamp(simTime());
+
+  txCompletion.setOperationEndClockTimestamp(0);
+  txCompletion.setOperationEndSimulationTimestamp(simTime());
+
   txCompletion.setOperationBeginTruePosition(inet::Coord{});
   txCompletion.setOperationEndTruePosition(inet::Coord{});
-  txCompletion.setStatus(IdealTxCompletionStatus::SUCCESS);
-  txFrame.reset();
 }
 
 void IdealRangingNicDriver::clearTxCompletion()
 {
+  rxCompletion.setStatus(IdealRxCompletionStatus::SUCCESS);
   rxCompletion.setFrame(nullptr);
-  rxCompletion.setOperationEndClockTimestamp(0);
+  rxFrame.reset();
+
   rxCompletion.setOperationBeginClockTimestamp(0);
+  rxCompletion.setOperationBeginSimulationTimestamp(simTime());
+
+  rxCompletion.setOperationEndClockTimestamp(0);
+  rxCompletion.setOperationEndSimulationTimestamp(simTime());
+
   rxCompletion.setOperationBeginTruePosition(inet::Coord{});
   rxCompletion.setOperationEndTruePosition(inet::Coord{});
-  rxCompletion.setStatus(IdealRxCompletionStatus::SUCCESS);
-  rxFrame.reset();
 }
 
 }  // namespace smile

@@ -31,7 +31,9 @@ class IdealTxCompletion {
     IRangingNicDriver::IdealTxCompletionStatus status = IRangingNicDriver::IdealTxCompletionStatus::SUCCESS;
     IdealMacFramePointer frame = nullptr;
     simtime_t operationBeginClockTimestamp = 0;
+    simtime_t operationBeginSimulationTimestamp = 0;
     simtime_t operationEndClockTimestamp = 0;
+    simtime_t operationEndSimulationTimestamp = 0;
     inet::Coord operationBeginTruePosition;
     inet::Coord operationEndTruePosition;
 }
