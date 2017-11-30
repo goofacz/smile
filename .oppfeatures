@@ -1,0 +1,13 @@
+<features cppSourceRoots="src" definesFile="src/smile_features.h">
+    <feature
+        id="libpln_clocks"
+        name="LibPLN Clocks"
+        description = "Clocks using lLibPLN"
+        initiallyEnabled = "true"
+        requires = ""
+        labels = ""
+        nedPackages = "smile.libpln"
+        extraSourceFolders = ""
+        compileFlags = "-DWITH_LIBPLN_CLOCKS"
+        linkerFlags = ""/>
+</features>
