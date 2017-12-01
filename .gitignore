@@ -39,6 +39,7 @@ tests/fakes/Makefile
 run_clang_format.sh
 *_m.h
 *_m.cpp
+smile_features.h
 
 # Directories
 out/*
