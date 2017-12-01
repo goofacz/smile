@@ -8,6 +8,6 @@
         labels = ""
         nedPackages = "smile.libpln"
         extraSourceFolders = ""
-        compileFlags = "-DWITH_LIBPLN_CLOCKS"
-        linkerFlags = ""/>
+        compileFlags = "-DWITH_LIBPLN_CLOCKS -I../../libPLN/src/"
+        linkerFlags = "-L../../libPLN/src/ -lPLN"/>
 </features>
