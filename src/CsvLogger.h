@@ -84,7 +84,7 @@ struct Converter<omnetpp::SimTime>
 {
   static std::string convert(std::string buffer, const omnetpp::SimTime& element)
   {
-    buffer += std::to_string(element.inUnit(omnetpp::SIMTIME_FS));
+    buffer += std::to_string(element.inUnit(omnetpp::SIMTIME_PS));
     return buffer;
   }
 };
