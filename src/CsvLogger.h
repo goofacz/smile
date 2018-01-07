@@ -61,9 +61,9 @@ struct Converter<inet::Coord>
   static std::string convert(std::string buffer, const inet::Coord& element)
   {
     buffer += std::to_string(element.x);
-    buffer += ";";
+    buffer += ",";
     buffer += std::to_string(element.y);
-    buffer += ";";
+    buffer += ",";
     buffer += std::to_string(element.z);
     return buffer;
   }
@@ -96,7 +96,7 @@ struct Composer
   {
     using NakedT = typename std::decay<T>::type;
     buffer = Composer<0, NakedT>::compose(std::move(buffer), std::forward<T>(element));
-    buffer += ";";
+    buffer += ",";
     return Composer<sizeof...(arguments) - 1, Arguments...>::compose(std::move(buffer),
                                                                      std::forward<Arguments>(arguments)...);
   }
