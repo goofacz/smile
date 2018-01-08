@@ -20,15 +20,8 @@
 
 namespace smile {
 
-class SimpleClock : public Clock
+class SimpleClock final : public Clock
 {
- private:
-  struct Error
-  {
-    omnetpp::SimTime simulationTimestamp;
-    omnetpp::SimTime accumulatedError;
-  };
-
  public:
   SimpleClock() = default;
   SimpleClock(const SimpleClock& source) = delete;
@@ -43,12 +36,10 @@ class SimpleClock : public Clock
 
  private:
   void initialize(int stage) override;
-  omnetpp::SimTime computeError(const omnetpp::SimTime& deltaTimestamp);
-  void updateError();
+  omnetpp::SimTime computeError(const omnetpp::SimTime& timestamp);
 
   double d{0.0};
   double epsilon{0.0};
-  Error currentError{0, 0};
 };
 
 }  // namespace smile

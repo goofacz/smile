@@ -15,6 +15,7 @@
 
 #include <array>
 #include <cmath>
+#include <iostream>
 
 #include <inet/common/INETDefs.h>
 #include "SimpleClock.h"
@@ -25,8 +26,7 @@ Define_Module(SimpleClock);
 
 omnetpp::SimTime SimpleClock::getClockTimestamp()
 {
-  updateError();
-  return simTime() + currentError.accumulatedError;
+  return simTime() + computeError(simTime());
 }
 
 SimpleClock::OptionalSimTime SimpleClock::convertToSimulationTimestamp(const SimTime& timestamp)
@@ -36,41 +36,40 @@ SimpleClock::OptionalSimTime SimpleClock::convertToSimulationTimestamp(const Sim
     throw cRuntimeError{"Cannot convert past clock timestamp to simulation timestamp"};
   }
 
-  const std::array<omnetpp::SimTimeUnit, 4> units = {omnetpp::SIMTIME_MS, omnetpp::SIMTIME_US, omnetpp::SIMTIME_NS,
-                                                     omnetpp::SIMTIME_PS};
+  const std::array<unsigned int, 4> steps{{1000, 100, 10, 1}};
+  const std::array<omnetpp::SimTimeUnit, 5> units{
+      {omnetpp::SIMTIME_S, omnetpp::SIMTIME_MS, omnetpp::SIMTIME_US, omnetpp::SIMTIME_NS, omnetpp::SIMTIME_PS}};
 
   SimTime simulationTimestamp;
   for (const auto unit : units) {
-    auto nextSimulationTimestamp = simulationTimestamp;
-    while (nextSimulationTimestamp + computeError(nextSimulationTimestamp - simulationTimestamp) < timestamp) {
-      simulationTimestamp = nextSimulationTimestamp;
-      nextSimulationTimestamp += SimTime(1, unit);
+    for (const auto step : steps) {
+      auto nextSimulationTimestamp = simulationTimestamp;
+      while (nextSimulationTimestamp + computeError(nextSimulationTimestamp) <= timestamp) {
+        simulationTimestamp = nextSimulationTimestamp;
+        nextSimulationTimestamp += SimTime(step, unit);
+      }
+
+      if (simulationTimestamp + computeError(simulationTimestamp) == timestamp) {
+        return simulationTimestamp;
+      }
     }
   }
 
-  return simulationTimestamp;
+  throw cRuntimeError{"Failed to convert timestamp from local to simulation clock."};
 }
 
 void SimpleClock::initialize(int stage)
 {
   Clock::initialize(stage);
   if (stage == inet::INITSTAGE_LOCAL) {
-    d = par("d").doubleValue();
+    d = par("D").doubleValue();
     epsilon = par("epsilon").doubleValue();
   }
 }
 
-SimTime SimpleClock::computeError(const SimTime& deltaTimestamp)
+SimTime SimpleClock::computeError(const SimTime& timestamp)
 {
-  return 0.5 * d * std::pow(deltaTimestamp.dbl(), 2);
-}
-
-void SimpleClock::updateError()
-{
-  const auto deltaTimestamp = simTime() - currentError.simulationTimestamp;
-  if (!deltaTimestamp.isZero()) {
-    currentError.accumulatedError += computeError(deltaTimestamp);
-  }
+  return 0.5 * d * std::pow(timestamp.dbl(), 2);
 }
 
 }  // namespace smile
