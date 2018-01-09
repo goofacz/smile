@@ -15,7 +15,6 @@
 
 #include <array>
 #include <cmath>
-#include <iostream>
 
 #include <inet/common/INETDefs.h>
 #include "SimpleClock.h"
@@ -62,8 +61,7 @@ void SimpleClock::initialize(int stage)
 {
   Clock::initialize(stage);
   if (stage == inet::INITSTAGE_LOCAL) {
-    d = par("D").doubleValue();
-    epsilon = par("epsilon").doubleValue();
+    d = par("accuracy").longValue() / 1'000'000.;
   }
 }
 

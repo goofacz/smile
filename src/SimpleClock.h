@@ -39,7 +39,6 @@ class SimpleClock final : public Clock
   omnetpp::SimTime computeError(const omnetpp::SimTime& timestamp);
 
   double d{0.0};
-  double epsilon{0.0};
 };
 
 }  // namespace smile

@@ -26,6 +26,5 @@ simple SimpleClock extends Clock
 {
     parameters:
         @class(smile::SimpleClock);
-        double D = default(0);
-        double epsilon = default(0);
+        double accuracy = default(uniform(-10,10)); // Clock accuracy in PPM
 }
