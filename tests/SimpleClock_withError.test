@@ -1,0 +1,77 @@
+%includes:
+#include "../../src/ClockDecorator.h"
+
+%module: LogGenerator
+using namespace inet;
+using namespace smile;
+
+class TestModule : public ClockDecorator<cSimpleModule>
+{
+  public:
+    TestModule() = default;
+    void initialize(int stage) override;
+    int numInitStages() const override;
+    void handleSelfMessage(omnetpp::cMessage* message) override;
+};
+
+Define_Module(TestModule);
+
+void TestModule::initialize(int stage)
+{
+  ClockDecorator<cSimpleModule>::initialize(stage);
+  if(stage == INITSTAGE_APPLICATION_LAYER)	{	
+    scheduleAt(SimTime{237, SIMTIME_MS}, new cMessage{"237ms"});
+    scheduleAt(SimTime{18, SIMTIME_PS}, new cMessage{"18ps"});
+    scheduleAt(SimTime{4, SIMTIME_S}, new cMessage{"4s"});
+    EV_DEBUG << "Self messages were sent" << endl;
+  }
+}
+
+int TestModule::numInitStages() const
+{
+  return INITSTAGE_APPLICATION_LAYER + 1;
+}
+
+void TestModule::handleSelfMessage(omnetpp::cMessage* message)
+{
+  EV_DEBUG << "Received scheduled message \"" << message << "\" at " << simTime() << endl;
+  delete message;
+}
+
+%file: test.ned
+import smile.ClockDecorator;
+import smile.SimpleClock;
+
+simple TestModule like ClockDecorator
+{
+	parameters:
+		string clockModule = "^.clock";
+}
+
+network Test
+{
+    submodules:
+        testModule: TestModule;
+        clock: SimpleClock;
+}
+
+%inifile: omnet.ini
+[General]
+sim-time-limit = 10s
+cmdenv-express-mode = false
+check-signals = false
+cmdenv-log-prefix = "[%l] %N: "
+**.cmdenv-log-level = debug
+network = Test
+
+**.clock.accuracy = -10
+
+%exitcode: 0
+
+%subst: /(?:\*\*.*\n)//
+
+%contains: stdout
+Running simulation...
+[DEBUG] testModule: Received scheduled message "(omnetpp::cMessage)18ps" at 0.000000000018
+[DEBUG] testModule: Received scheduled message "(omnetpp::cMessage)237ms" at 0.237
+[DEBUG] testModule: Received scheduled message "(omnetpp::cMessage)4s" at 4
