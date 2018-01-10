@@ -20,9 +20,11 @@ void TestModule::initialize(int stage)
 {
   ClockDecorator<cSimpleModule>::initialize(stage);
   if(stage == INITSTAGE_APPLICATION_LAYER)	{	
-    scheduleAt(SimTime{237, SIMTIME_MS}, new cMessage{"237ms"});
-    scheduleAt(SimTime{18, SIMTIME_PS}, new cMessage{"18ps"});
-    scheduleAt(SimTime{4, SIMTIME_S}, new cMessage{"4s"});
+    scheduleAt(SimTime{1, SIMTIME_PS}, new cMessage{"1ps"});
+    scheduleAt(SimTime{1, SIMTIME_NS}, new cMessage{"1ns"});
+    scheduleAt(SimTime{1, SIMTIME_US}, new cMessage{"1us"});
+    scheduleAt(SimTime{1, SIMTIME_MS}, new cMessage{"1ms"});
+    scheduleAt(SimTime{1, SIMTIME_S}, new cMessage{"1s"});
     EV_DEBUG << "Self messages were sent" << endl;
   }
 }
@@ -34,7 +36,7 @@ int TestModule::numInitStages() const
 
 void TestModule::handleSelfMessage(omnetpp::cMessage* message)
 {
-  EV_DEBUG << "Received scheduled message \"" << message << "\" at " << simTime() << endl;
+  EV_DEBUG << "Message \"" << message << "\" received at " << simTime() << endl;
   delete message;
 }
 
@@ -57,14 +59,14 @@ network Test
 
 %inifile: omnet.ini
 [General]
-sim-time-limit = 10s
+sim-time-limit = 15s
 cmdenv-express-mode = false
 check-signals = false
 cmdenv-log-prefix = "[%l] %N: "
 **.cmdenv-log-level = debug
 network = Test
 
-**.clock.accuracy = -10
+**.clock.accuracy = 10
 
 %exitcode: 0
 
@@ -72,6 +74,8 @@ network = Test
 
 %contains: stdout
 Running simulation...
-[DEBUG] testModule: Received scheduled message "(omnetpp::cMessage)18ps" at 0.000000000018
-[DEBUG] testModule: Received scheduled message "(omnetpp::cMessage)237ms" at 0.237
-[DEBUG] testModule: Received scheduled message "(omnetpp::cMessage)4s" at 4
+[DEBUG] testModule: Message "(omnetpp::cMessage)1ps" received at 0.000000000001
+[DEBUG] testModule: Message "(omnetpp::cMessage)1ns" received at 0.000000001
+[DEBUG] testModule: Message "(omnetpp::cMessage)1us" received at 0.000001
+[DEBUG] testModule: Message "(omnetpp::cMessage)1ms" received at 0.001000000005
+[DEBUG] testModule: Message "(omnetpp::cMessage)1s" received at 1.000005
