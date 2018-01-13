@@ -14,19 +14,30 @@
 #
 
 from sympy.physics.units import picoseconds, convert_to
+from numpy import int64
 
 
 class MACAddress:
     """
     Simple class handling MAC addresses.
     """
+
     def __init__(self, address):
-        if not isinstance(address, int):
-            raise TypeError("MACAddress accepts only integers")
-        self.address = int(address)
+        if isinstance(address, int):
+            self.address = address
+            return
+
+        if isinstance(address, int64):
+            self.address = int(address)
+            return
+
+        raise TypeError("MACAddress accepts only int and numpy.int64")
 
     def __str__(self):
-        return ':'.join(format(x, '02X') for x in self.address.to_bytes(6, 'big'))
+        return '-'.join(format(x, '02X') for x in self.address.to_bytes(6, 'big'))
+
+    def __int__(self):
+        return self.address
 
     def __eq__(self, other):
         return self.address == other.address
@@ -36,6 +47,7 @@ class Timestamp:
     """
     Simple class handling timestamps.
     """
+
     def __init__(self, timestamp, unit=picoseconds):
         if not isinstance(timestamp, int):
             raise TypeError("Timestamp accepts only address")
