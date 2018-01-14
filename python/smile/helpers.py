@@ -13,5 +13,6 @@
 # along with this program.  If not, see http:#www.gnu.org/licenses/.
 #
 
-import smile.frames as frames
-import smile.nodes as nodes
+
+def mac_address_to_string(mac_address):
+    return '-'.join(format(x, '02X') for x in int(mac_address).to_bytes(6, 'big'))

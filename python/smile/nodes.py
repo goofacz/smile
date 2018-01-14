@@ -13,5 +13,20 @@
 # along with this program.  If not, see http:#www.gnu.org/licenses/.
 #
 
-import smile.frames as frames
-import smile.nodes as nodes
+import numpy
+
+
+class Nodes:
+    # Columns in original CSV file
+    _MAC_ADDRESS = 0
+    _X_COORDINATE = 1
+    _Y_COORDINATE = 2
+    _Z_COORDINATE = 3
+
+    def __init__(self, file_path):
+        self.mac_addresses = numpy.loadtxt(file_path, delimiter=',', dtype='uint64', usecols=(Nodes._MAC_ADDRESS,),
+                                           ndmin=1)
+
+        self.positions = numpy.loadtxt(file_path, delimiter=',', dtype='double',
+                                       usecols=(Nodes._X_COORDINATE, Nodes._Y_COORDINATE, Nodes._Z_COORDINATE),
+                                       ndmin=2)
