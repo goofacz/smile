@@ -23,10 +23,20 @@ class Nodes:
     _Y_COORDINATE = 2
     _Z_COORDINATE = 3
 
-    def __init__(self, file_path):
-        self.mac_addresses = numpy.loadtxt(file_path, delimiter=',', dtype='uint64', usecols=(Nodes._MAC_ADDRESS,),
-                                           ndmin=1)
+    def __init__(self, file_path=None):
+        if file_path is not None:
+            self.mac_addresses = numpy.loadtxt(file_path, delimiter=',', usecols=(Nodes._MAC_ADDRESS,),
+                                               ndmin=1)
 
-        self.positions = numpy.loadtxt(file_path, delimiter=',', dtype='double',
-                                       usecols=(Nodes._X_COORDINATE, Nodes._Y_COORDINATE, Nodes._Z_COORDINATE),
-                                       ndmin=2)
+            self.positions = numpy.loadtxt(file_path, delimiter=',',
+                                           usecols=(Nodes._X_COORDINATE, Nodes._Y_COORDINATE, Nodes._Z_COORDINATE),
+                                           ndmin=2)
+        else:
+            self.mac_addresses = None
+            self.positions = None
+
+    def __getitem__(self, condition):
+        nodes = Nodes()
+        nodes.mac_addresses = self.mac_addresses[condition]
+        nodes.positions = self.positions[condition]
+        return nodes
