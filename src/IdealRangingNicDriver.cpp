@@ -157,7 +157,7 @@ void IdealRangingNicDriver::handleRadioStateChanged(inet::physicallayer::IRadio:
       EV_DETAIL_C("IdealRangingNicDriver") << "Frame (Transmission ID: " << radio->getReceptionInProgress()->getId()
                                            << ") reception started at " << clockTime() << "(local clock)" << endl;
       rxCompletion.setOperationBeginClockTimestamp(clockTime());
-      txCompletion.setOperationBeginSimulationTimestamp(simTime());
+      rxCompletion.setOperationBeginSimulationTimestamp(simTime());
       rxCompletion.setOperationBeginTruePosition(mobility->getCurrentPosition());
       break;
     case IRadio::RECEPTION_STATE_UNDEFINED:
