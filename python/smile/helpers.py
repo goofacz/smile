@@ -22,4 +22,17 @@ class PositionDimensions(Enum):
 
 
 def mac_address_to_string(mac_address):
+    """
+    Converts MAC address from int to pretty string (e.g, XX-XX-XX-XX-XX-XX).
+
+    Parameters
+    ----------
+    mac_address : int
+        MAC address
+
+    Returns
+    -------
+    str
+        Pretty string with MAC address
+    """
     return '-'.join(format(x, '02X') for x in int(mac_address).to_bytes(6, 'big'))

@@ -17,6 +17,28 @@ from numpy import loadtxt
 
 
 class Frames:
+    """
+    This class holds information about frames transmitted or received by particular radio node.
+
+    Attributes:
+
+    directions : numpy.ndarray (m x 1)
+        Tells whether frame was transmitted ('TX') or received ('RX'). Array holds hash of 'TX' or 'RX' string.
+    begin_timestamps : numpy.ndarray (m x 2)
+        Timestamp of beginning of frame transmission/reception according to local clock and global simulation clock
+        respectively.
+    begin_positions : numpy.ndarray (m x 3)
+        True position of node when frame transmission/reception started expressed as (X, Y, Z) coordinates.
+    end_timestamps : numpy.ndarray (m x 2)
+        Timestamp of end of frame transmission/reception according to local clock and global simulation clock
+        respectively.
+    end_positions : numpy.ndarray (m x 3)
+        True position of node when frame transmission/reception finished expressed as (X, Y, Z) coordinates.
+    mac_addresses : numpy.ndarray (m x 2)
+        Frames source and destination MAC address respectively.
+    sequence_numbers : numpy.ndarray (m x 1)
+        Frames' sequence numbers.
+    """
     # Columns in original CSV file
     _DIRECTION = 0
     _BEGIN_CLOCK_TIMESTAMP = 1
@@ -34,6 +56,11 @@ class Frames:
     _SEQUENCE_NUMBER = 13
 
     def __init__(self, file_path=None):
+        """
+        Constructs and loads frames data from CSV file.
+
+        :param file_path: Path to CSV file with frames log.
+        """
         if file_path is not None:
             self.directions = loadtxt(file_path, delimiter=',', dtype='U2', usecols=Frames._DIRECTION, ndmin=1)
 
