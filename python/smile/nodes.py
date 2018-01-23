@@ -13,30 +13,18 @@
 # along with this program.  If not, see http:#www.gnu.org/licenses/.
 #
 
-import numpy
+import numpy as np
 
 
 class Nodes:
-    # Columns in original CSV file
-    _MAC_ADDRESS = 0
-    _X_COORDINATE = 1
-    _Y_COORDINATE = 2
-    _Z_COORDINATE = 3
+    MAC_ADDRESS = 0
+    POSITION_X = 1
+    POSITION_Y = 2
+    POSITION_Z = 3
 
-    def __init__(self, file_path=None):
-        if file_path is not None:
-            self.mac_addresses = numpy.loadtxt(file_path, delimiter=',', usecols=(Nodes._MAC_ADDRESS,),
-                                               ndmin=1)
+    POSITION_2D = (POSITION_X, POSITION_Y)
+    POSITION_3D = (POSITION_X, POSITION_Y, POSITION_Z)
 
-            self.positions = numpy.loadtxt(file_path, delimiter=',',
-                                           usecols=(Nodes._X_COORDINATE, Nodes._Y_COORDINATE, Nodes._Z_COORDINATE),
-                                           ndmin=2)
-        else:
-            self.mac_addresses = None
-            self.positions = None
-
-    def __getitem__(self, condition):
-        nodes = Nodes()
-        nodes.mac_addresses = self.mac_addresses[condition]
-        nodes.positions = self.positions[condition]
-        return nodes
+    @staticmethod
+    def load_csv(file_path):
+        return np.loadtxt(file_path, delimiter=',', ndmin=2)

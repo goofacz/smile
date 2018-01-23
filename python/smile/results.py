@@ -13,12 +13,34 @@
 # along with this program.  If not, see http:#www.gnu.org/licenses/.
 #
 
-import numpy
+import numpy as np
 
 
 class Results:
-    def __init__(self, position_dimensions, rows_number):
-        self.position_dimensions = position_dimensions
-        self.position = numpy.zeros((rows_number, 3))
-        self.begin_true_position = numpy.zeros((rows_number, 3))
-        self.end_true_position = numpy.zeros((rows_number, 3))
+    POSITION_DIMENSIONS = 0
+    POSITION_X = 1
+    POSITION_Y = 2
+    POSITION_Z = 3
+    BEGIN_TRUE_POSITION_X = 4
+    BEGIN_TRUE_POSITION_Y = 5
+    BEGIN_TRUE_POSITION_Z = 6
+    END_TRUE_POSITION_X = 7
+    END_TRUE_POSITION_Y = 8
+    END_TRUE_POSITION_Z = 9
+
+    POSITION_2D = (POSITION_X, POSITION_Y)
+    POSITION_3D = (POSITION_X, POSITION_Y, POSITION_Z)
+
+    BEGIN_TRUE_POSITION_2D = (BEGIN_TRUE_POSITION_X, BEGIN_TRUE_POSITION_Y)
+    BEGIN_TRUE_POSITION_3D = (BEGIN_TRUE_POSITION_X, BEGIN_TRUE_POSITION_Y, BEGIN_TRUE_POSITION_Z)
+
+    END_TRUE_POSITION_2D = (END_TRUE_POSITION_X, END_TRUE_POSITION_Y)
+    END_TRUE_POSITION_3D = (END_TRUE_POSITION_X, END_TRUE_POSITION_Y, END_TRUE_POSITION_Z)
+
+    @staticmethod
+    def create_array(rows=1, position_dimensions=None):
+        array = np.zeros((rows, 10))
+        if position_dimensions is not None:
+            array[:,0] = position_dimensions
+
+        return array

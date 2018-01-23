@@ -13,13 +13,6 @@
 # along with this program.  If not, see http:#www.gnu.org/licenses/.
 #
 
-from enum import Enum
-
-
-class PositionDimensions(Enum):
-    TWO_D = 0
-    THREE_D = 1
-
 
 def mac_address_to_string(mac_address):
     """
