@@ -27,6 +27,7 @@ class Results:
     END_TRUE_POSITION_X = 7
     END_TRUE_POSITION_Y = 8
     END_TRUE_POSITION_Z = 9
+    MAC_ADDRESS = 10
 
     POSITION_2D = (POSITION_X, POSITION_Y)
     POSITION_3D = (POSITION_X, POSITION_Y, POSITION_Z)
@@ -38,9 +39,8 @@ class Results:
     END_TRUE_POSITION_3D = (END_TRUE_POSITION_X, END_TRUE_POSITION_Y, END_TRUE_POSITION_Z)
 
     @staticmethod
-    def create_array(rows=1, position_dimensions=None):
-        array = np.zeros((rows, 10))
-        if position_dimensions is not None:
-            array[:,0] = position_dimensions
-
+    def create_array(rows, position_dimensions):
+        array = np.zeros((rows, 11))
+        assert(position_dimensions in (2, 3))
+        array[:,0] = position_dimensions
         return array
