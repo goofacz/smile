@@ -46,23 +46,9 @@ def absolute_position_error_histogram(results):
 def absolute_position_error_surface(results):
     position_coordinates, begin_position_coordinates, end_position_coordinates = _determine_dimensions(results)
 
-    # We want to have single result per mobile node
-    unique_mac_addresses = np.unique(results[:, Results.MAC_ADDRESS])
-    unique_results = Results.create_array(len(unique_mac_addresses))
-
-    for i in range(0, len(unique_mac_addresses)):
-        mac_address = unique_mac_addresses[i]
-        tmp_results = results[results[:, Results.MAC_ADDRESS] == mac_address]
-
-        unique_results[i, :] = tmp_results[0, :]
-        # TODO Implement more ways of "squeezing" multiple results into one
-        unique_results[i, begin_position_coordinates] = np.mean(tmp_results[:, begin_position_coordinates], axis=0)
-        unique_results[i, end_position_coordinates] = np.mean(tmp_results[:, end_position_coordinates], axis=0)
-        unique_results[i, position_coordinates] = np.mean(tmp_results[:, position_coordinates], axis=0)
-
     # Mobile node cloud move during localization procedure
-    true_positions = (unique_results[:, begin_position_coordinates] + unique_results[:, end_position_coordinates]) / 2
-    position_errors = np.abs(np.linalg.norm(true_positions - unique_results[:, position_coordinates], axis=1))
+    true_positions = (results[:, begin_position_coordinates] + results[:, end_position_coordinates]) / 2
+    position_errors = np.abs(np.linalg.norm(true_positions - results[:, position_coordinates], axis=1))
 
     x, y = np.meshgrid(np.unique(true_positions[:, 0]), np.unique(true_positions[:, 1]), indexing='xy')
     z = np.zeros(x.shape)
@@ -87,3 +73,23 @@ def absolute_position_error_surface(results):
     plt.xlabel('X [m]')
     plt.ylabel('Y [m]')
     plt.show()
+
+
+def obtain_unique_results(results):
+    position_coordinates, begin_position_coordinates, end_position_coordinates = _determine_dimensions(results)
+
+    # We want to have single result per mobile node
+    unique_mac_addresses = np.unique(results[:, Results.MAC_ADDRESS])
+    unique_results = Results.create_array(len(unique_mac_addresses))
+
+    for i in range(0, len(unique_mac_addresses)):
+        mac_address = unique_mac_addresses[i]
+        tmp_results = results[results[:, Results.MAC_ADDRESS] == mac_address]
+
+        unique_results[i, :] = tmp_results[0, :]
+        # TODO Implement more ways of "squeezing" multiple results into one
+        unique_results[i, begin_position_coordinates] = np.mean(tmp_results[:, begin_position_coordinates], axis=0)
+        unique_results[i, end_position_coordinates] = np.mean(tmp_results[:, end_position_coordinates], axis=0)
+        unique_results[i, position_coordinates] = np.mean(tmp_results[:, position_coordinates], axis=0)
+
+    return unique_results
