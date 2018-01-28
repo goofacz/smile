@@ -39,7 +39,7 @@ class Results:
     END_TRUE_POSITION_3D = (END_TRUE_POSITION_X, END_TRUE_POSITION_Y, END_TRUE_POSITION_Z)
 
     @staticmethod
-    def create_array(rows, position_dimensions):
+    def create_array(rows, position_dimensions=2):
         array = np.zeros((rows, 11))
         assert(position_dimensions in (2, 3))
         array[:,0] = position_dimensions
