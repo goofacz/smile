@@ -12,4 +12,4 @@ before_install:
   - docker pull goofacz/omnetpp-inet-travis:latest
 
 script:
-  - docker run -ti -v /home/travis/build/$TRAVIS_REPO_SLUG:/root/smile /bin/bash /root/smile/travis.sh
+  - docker run -ti -v /home/travis/build/$TRAVIS_REPO_SLUG:/root/smile goofacz/omnetpp-inet-travis:latest /bin/bash /root/smile/travis.sh
