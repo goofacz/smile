@@ -10,3 +10,6 @@ services:
 
 before_install:
   - docker pull goofacz/omnetpp-inet-smile-travis:latest
+
+script:
+  - docker run -i -t -e SMILE_FRAMEWORK=1 -v /home/travis/build/$TRAVIS_REPO_SLUG:/root/smile -v /home/travis/build/$TRAVIS_REPO_SLUG:/root/repository goofacz/omnetpp-inet-travis:latest
