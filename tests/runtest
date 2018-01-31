@@ -1,9 +1,12 @@
 #! /bin/sh
+
+set -e
+
 TESTFILES=$*
 if [ "x$TESTFILES" = "x" ]; then TESTFILES='*.test'; fi
 if [ ! -d work ];  then mkdir work; fi
 
-MAKE="make MODE=debug -j4"
+MAKE="make MODE=release -j $(nproc)"
 
 opp_test gen -v *.test || exit 1
 
@@ -11,7 +14,7 @@ opp_test gen -v *.test || exit 1
 	cd mocks;
 	opp_makemake --make-so -o smile_mocks -f --deep -KINET_PROJ=../../../inet -DINET_IMPORT -I. \
 	             -I$\(INET_PROJ\)/src -L$\(INET_PROJ\)/out/$\(CONFIGNAME\)/src -L../../out//$\(CONFIGNAME\)/src \
-	             -I../../src -lINET_dbg -lsmile_dbg -lstdc++fs;
+	             -I../../src -lINET -lsmile -lstdc++fs;
 	$MAKE
 ) || exit 1
 
@@ -19,17 +22,17 @@ opp_test gen -v *.test || exit 1
 	cd fakes;
 	opp_makemake --make-so -o smile_fakes -f --deep -KINET_PROJ=../../../inet -DINET_IMPORT -I. \
 	             -I$\(INET_PROJ\)/src -L$\(INET_PROJ\)/out/$\(CONFIGNAME\)/src -L../../out//$\(CONFIGNAME\)/src \
-	             -I../../src -lINET_dbg -lsmile_dbg -lstdc++fs;
+	             -I../../src -lINET -lsmile -lstdc++fs;
 	$MAKE
 ) || exit 1
 
 (
 	cd work;
 	opp_makemake -f --deep -KINET_PROJ=../../../inet -DINET_IMPORT -I. -I$\(INET_PROJ\)/src \
-	             -L$\(INET_PROJ\)/out/$\(CONFIGNAME\)/src -L../../out//$\(CONFIGNAME\)/src -lINET_dbg \
-	             -L../mocks -L../fakes -lsmile_dbg -lsmile_mocks_dbg -lsmile_fakes_dbg -lstdc++fs;
+	             -L$\(INET_PROJ\)/out/$\(CONFIGNAME\)/src -L../../out//$\(CONFIGNAME\)/src -lINET \
+	             -L../mocks -L../fakes -lsmile -lsmile_mocks -lsmile_fakes -lstdc++fs;
     $MAKE
 ) || exit 1
 
 export NEDPATH=.:`pwd`/../src:`pwd`/../../inet/src:`pwd`/mocks:`pwd`/fakes
-opp_test run -v -p smile_dbg $TESTFILES
+opp_test run -v -p smile $TESTFILES
