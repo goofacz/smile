@@ -1,5 +1,7 @@
 # Simulator for Methods of Indoor Localization
 
+[![Build Status](https://travis-ci.org/goofacz/smile.svg?branch=master)](https://travis-ci.org/goofacz/smile)
+
 SMILe allows analyzing and evaluating arbitrary indoor localization methods based on time measurements. Project is a framework built on top of [OMNeT++](https://omnetpp.org/) and heavily utilizes [INET](https://github.com/inet-framework/inet).
 
 ## Installation
