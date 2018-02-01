@@ -32,8 +32,8 @@ def _determine_dimensions(results):
 def absolute_position_error_histogram(results, return_intermediate_results=False):
     position_coordinates, begin_position_coordinates, end_position_coordinates = _determine_dimensions(results)
     # Mobile node cloud move during localization procedure
-    true_position = (results[:, begin_position_coordinates] + results[:, end_position_coordinates]) / 2
-    position_errors = np.abs(np.linalg.norm(true_position - results[:, position_coordinates], axis=1))
+    true_positions = (results[:, begin_position_coordinates] + results[:, end_position_coordinates]) / 2
+    position_errors = np.abs(np.linalg.norm(true_positions - results[:, position_coordinates], axis=1))
 
     plt.hist(position_errors)
     plt.title('Histogram of absolute error values')
@@ -43,7 +43,7 @@ def absolute_position_error_histogram(results, return_intermediate_results=False
     plt.show()
 
     if return_intermediate_results:
-        return true_position, position_errors
+        return true_positions, position_errors
 
 
 def absolute_position_error_surface(results, return_intermediate_results=False):
@@ -77,8 +77,11 @@ def absolute_position_error_surface(results, return_intermediate_results=False):
     plt.ylabel('Y [m]')
     plt.show()
 
+    if return_intermediate_results:
+        return true_positions, position_errors
 
-def obtain_unique_results(results, return_intermediate_results=False):
+
+def obtain_unique_results(results):
     position_coordinates, begin_position_coordinates, end_position_coordinates = _determine_dimensions(results)
 
     # We want to have single result per mobile node
