@@ -29,7 +29,7 @@ def _determine_dimensions(results):
         return Results.POSITION_3D, Results.BEGIN_TRUE_POSITION_3D,  Results.END_TRUE_POSITION_3D
 
 
-def absolute_position_error_histogram(results):
+def absolute_position_error_histogram(results, return_intermediate_results=False):
     position_coordinates, begin_position_coordinates, end_position_coordinates = _determine_dimensions(results)
     # Mobile node cloud move during localization procedure
     true_position = (results[:, begin_position_coordinates] + results[:, end_position_coordinates]) / 2
@@ -42,8 +42,11 @@ def absolute_position_error_histogram(results):
     plt.grid(True)
     plt.show()
 
+    if return_intermediate_results:
+        return true_position, position_errors
 
-def absolute_position_error_surface(results):
+
+def absolute_position_error_surface(results, return_intermediate_results=False):
     position_coordinates, begin_position_coordinates, end_position_coordinates = _determine_dimensions(results)
 
     # Mobile node cloud move during localization procedure
@@ -75,7 +78,7 @@ def absolute_position_error_surface(results):
     plt.show()
 
 
-def obtain_unique_results(results):
+def obtain_unique_results(results, return_intermediate_results=False):
     position_coordinates, begin_position_coordinates, end_position_coordinates = _determine_dimensions(results)
 
     # We want to have single result per mobile node
