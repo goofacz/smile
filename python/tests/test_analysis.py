@@ -72,6 +72,33 @@ class TestAnalysis(unittest.TestCase):
         self.assertEqual(15, position_errors[1])
         self.assertAlmostEqual(sqrt(2 * 10**2) - sqrt(2 * 6**2), position_errors[2], places=10)
 
+    def test_obtain_unique_results(self):
+        results = Results.create_array(6, 2)
+        results[0, :] = (2, 10, 15, 0, 40, 45, 0, 70, 75, 0, 123)
+        results[1, :] = (2, 20, 25, 0, 50, 55, 0, 80, 85, 0, 123)
+        results[2, :] = (2, 30, 35, 0, 60, 65, 0, 90, 95, 0, 123)
+        results[3, :] = (2, 100, 0, 0, 200, 0, 0, 300, 0, 0, 456)
+        results[4, :] = (2, 100, 0, 0, 200, 0, 0, 300, 0, 0, 456)
+        results[5, :] = (2, 10, 11, 0, 12, 13, 0, 14, 15, 0, 789)
+
+        unique_results = obtain_unique_results(results)
+        self.assertTupleEqual((3, 11), unique_results.shape)
+
+        self.assertEqual(123, unique_results[0, Results.MAC_ADDRESS])
+        np.testing.assert_equal((20, 25), unique_results[0, Results.POSITION_2D])
+        np.testing.assert_equal((50, 55), unique_results[0, Results.BEGIN_TRUE_POSITION_2D])
+        np.testing.assert_equal((80, 85), unique_results[0, Results.END_TRUE_POSITION_2D])
+
+        self.assertEqual(456, unique_results[1, Results.MAC_ADDRESS])
+        np.testing.assert_equal((100, 0), unique_results[1, Results.POSITION_2D])
+        np.testing.assert_equal((200, 0), unique_results[1, Results.BEGIN_TRUE_POSITION_2D])
+        np.testing.assert_equal((300, 0), unique_results[1, Results.END_TRUE_POSITION_2D])
+
+        self.assertEqual(789, unique_results[2, Results.MAC_ADDRESS])
+        np.testing.assert_equal((10, 11), unique_results[2, Results.POSITION_2D])
+        np.testing.assert_equal((12, 13), unique_results[2, Results.BEGIN_TRUE_POSITION_2D])
+        np.testing.assert_equal((14, 15), unique_results[2, Results.END_TRUE_POSITION_2D])
+
 
 if __name__ == '__main__':
     unittest.main()
