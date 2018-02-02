@@ -14,11 +14,12 @@
 #
 
 import unittest
+import matplotlib
 from smile.analysis import *
 from math import sqrt
 
 # There's no need to display interactive plots
-plt.show = lambda: None
+matplotlib.use('AGG')
 plt.ioff()
 
 
