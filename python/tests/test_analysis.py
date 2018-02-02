@@ -17,8 +17,9 @@ import unittest
 from smile.analysis import *
 from math import sqrt
 
-# There's no need to display plots
+# There's no need to display interactive plots
 plt.show = lambda: None
+plt.ioff()
 
 
 class TestAnalysis(unittest.TestCase):
