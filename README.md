@@ -9,7 +9,9 @@ SMILe allows analyzing and evaluating arbitrary indoor localization methods base
 1. Make sure you have C++ compiler supporting C++14 installed on your platform.
 2. Install OMNeT++ 5.2 (or newer). After extracting tarball remember to edit file `configure.user`. Open it and uncomment variable `CXXFLAGS` and assign it with value `-std=c++14`.
 3. Install INET 3.6.2 (or newer).
-4. Install SMILe. **Important note:** Remember to checkout SMILe next to INET.
+4. Install Python 3.6 and required packages (listed in pip's `requirements.txt`)
+5. Checkout SMILe. **Important note:** Remember to checkout SMILe next to INET.
+6. Add path to SMILe's `python` directory to `PYTHONPATH` environment variable
 
 ## Authors
 
