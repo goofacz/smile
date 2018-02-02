@@ -13,14 +13,13 @@
 # along with this program.  If not, see http:#www.gnu.org/licenses/.
 #
 
-import unittest
+# There's no need to display interactive plots
 import matplotlib
+matplotlib.use('AGG')
+
+import unittest
 from smile.analysis import *
 from math import sqrt
-
-# There's no need to display interactive plots
-matplotlib.use('AGG')
-plt.ioff()
 
 
 class TestAnalysis(unittest.TestCase):
