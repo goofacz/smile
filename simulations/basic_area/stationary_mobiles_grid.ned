@@ -27,6 +27,7 @@ network stationary_mobiles_grid
     parameters:
         @display("bgb=75,75");
         int mobilesNumber = default(0);
+        int anchorsNumber = default(0);
 
     submodules:
         radioMedium: IdealRadioMedium {
@@ -47,20 +48,7 @@ network stationary_mobiles_grid
 
         mobileNodes[mobilesNumber]: RadioNode {
         }
-
-        anchorNode1: RadioNode {
-            @display("p=0,0");
-        }
-
-        anchorNode2: RadioNode {
-            @display("p=75,0");
-        }
-
-        anchorNode3: RadioNode {
-            @display("p=75,75");
-        }
-
-        anchorNode4: RadioNode {
-            @display("p=0,75");
+        
+        anchorNodes[anchorsNumber]: RadioNode {
         }
 }
