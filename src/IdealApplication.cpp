@@ -32,6 +32,11 @@ void IdealApplication::initialize(int stage)
     nicDriverModule->subscribe(IRangingNicDriver::txCompletedSignalId, this);
     nicDriverModule->subscribe(IRangingNicDriver::rxCompletedSignalId, this);
   }
+
+  if (stage == inet::INITSTAGE_LINK_LAYER_2) {
+    const auto& nicDriver = getNicDriver();
+    macAddress = nicDriver.getMacAddress();
+  }
 }
 
 void IdealApplication::handleTxCompletionSignal(const IdealTxCompletion&)
@@ -42,6 +47,11 @@ void IdealApplication::handleTxCompletionSignal(const IdealTxCompletion&)
 void IdealApplication::handleRxCompletionSignal(const IdealRxCompletion&)
 {
   EV_WARN_C("IdealApplication") << "Dummy handler handleRxCompletionSignal() was called" << endl;
+}
+
+const inet::MACAddress& IdealApplication::getMacAddress() const
+{
+  return macAddress;
 }
 
 void IdealApplication::initializeFrame(inet::IdealMacFrame& frame, const inet::MACAddress& destinationAddress,

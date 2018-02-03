@@ -13,15 +13,3 @@
 # along with this program.  If not, see http:#www.gnu.org/licenses/.
 #
 
-import sys
-
-if 'unittests' not in sys.modules:
-    # There's no need to display interactive plots
-    import matplotlib
-    matplotlib.use('AGG')
-
-import smile.analysis as analysis
-import smile.frames as frames
-import smile.helpers as helpers
-import smile.nodes as nodes
-import smile.results as results

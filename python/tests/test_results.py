@@ -13,6 +13,10 @@
 # along with this program.  If not, see http:#www.gnu.org/licenses/.
 #
 
+# There's no need to display interactive plots
+import matplotlib
+matplotlib.use('AGG')
+
 import unittest
 import numpy as np
 from smile.results import Results

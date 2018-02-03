@@ -49,12 +49,16 @@ class IdealApplication : public Application
 
   virtual void handleRxCompletionSignal(const IdealRxCompletion& completion);
 
+  const inet::MACAddress& getMacAddress() const;
+
  private:
   static void initializeFrame(inet::IdealMacFrame& frame, const inet::MACAddress& destinationAddress,
                               const inet::MACAddress& sourceAddress);
 
   void receiveSignal(omnetpp::cComponent* source, omnetpp::simsignal_t signalID, cObject* value,
                      omnetpp::cObject* details) override;
+
+  inet::MACAddress macAddress;
 };
 
 template <typename Frame, typename... FrameArguments>
