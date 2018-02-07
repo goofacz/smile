@@ -22,7 +22,7 @@ from smile.array import Array
 from smile.filter import Condition, Filter
 
 
-class TestResults(unittest.TestCase):
+class TestFilter(unittest.TestCase):
     class BottomA(Array):
         class Column(IntEnum):
             FIRST = 0
@@ -44,76 +44,93 @@ class TestResults(unittest.TestCase):
             FIRST = 0
 
     def test_append(self):
-        # Check array type validation
-        data_filter = Filter(TestResults.TopA)
+        # Check column type validation
+        data_filter = Filter(TestFilter.TopA)
         try:
-            data_filter.append(Condition.EQUAL, TestResults.TopA.Column.THIRD, ())
+            data_filter.append(Condition.EQUAL, TestFilter.TopA.Column.THIRD, ())
         except TypeError as error:
             self.fail('Filter.append() raised unexpected: {0}'.format(str(error)))
 
         with self.assertRaises(TypeError):
-            data_filter.append(Condition.EQUAL, TestResults.B.Column.FOURTH, ())
+            data_filter.append(Condition.EQUAL, TestFilter.B.Column.FOURTH, ())
 
         with self.assertRaises(TypeError):
-            data_filter.append(Condition.EQUAL, TestResults.C.Row.FIRST, ())
+            data_filter.append(Condition.EQUAL, TestFilter.C.Row.FIRST, ())
 
     def test_execute(self):
-        data = TestResults.TopA([[1, 20, 300, 4000],
-                                 [2, 30, 400, 5000],
-                                 [3, 40, 500, 6000],
-                                 [4, 50, 600, 7000],
-                                 [5, 60, 700, 8000],
-                                 [6, 70, 800, 9000],
-                                 [7, 80, 900, 0],
-                                 [8, 90, 0, 1000],
-                                 [9, 0, 100, 2000]])
+        data = TestFilter.TopA([[1, 20, 300, 4000],
+                                [2, 30, 400, 5000],
+                                [3, 40, 500, 6000],
+                                [4, 50, 600, 7000],
+                                [5, 60, 700, 8000],
+                                [6, 70, 800, 9000],
+                                [7, 80, 900, 0],
+                                [8, 90, 0, 1000],
+                                [9, 0, 100, 2000]])
+
+        # Check array type validation
+        try:
+            data_filter = Filter(TestFilter.TopA)
+            data_filter.execute(TestFilter.TopA(()))
+        except TypeError as error:
+            self.fail('Filter.execute() raised unexpected: {0}'.format(str(error)))
+
+        try:
+            data_filter = Filter(TestFilter.BottomA)
+            data_filter.execute(TestFilter.TopA(()))
+        except TypeError as error:
+            self.fail('Filter.execute() raised unexpected: {0}'.format(str(error)))
+
+        with self.assertRaises(TypeError):
+            data_filter = Filter(TestFilter.TopA)
+            data_filter.execute(TestFilter.B(()))
 
         # Check simple cases
-        data_filter = Filter(TestResults.TopA)
-        data_filter.append(Condition.EQUAL, TestResults.BottomA.Column.FIRST, 3)
+        data_filter = Filter(TestFilter.TopA)
+        data_filter.append(Condition.EQUAL, TestFilter.BottomA.Column.FIRST, 3)
         np.testing.assert_equal(data_filter.execute(data), [[3, 40, 500, 6000]])
 
-        data_filter = Filter(TestResults.TopA)
-        data_filter.append(Condition.LESS_EQUAL, TestResults.MiddleA.Column.SECOND, 40)
+        data_filter = Filter(TestFilter.TopA)
+        data_filter.append(Condition.LESS_EQUAL, TestFilter.MiddleA.Column.SECOND, 40)
         np.testing.assert_equal(data_filter.execute(data), [[1, 20, 300, 4000],
                                                             [2, 30, 400, 5000],
                                                             [3, 40, 500, 6000],
                                                             [9, 0, 100, 2000]])
 
-        data_filter = Filter(TestResults.TopA)
-        data_filter.append(Condition.LESS, TestResults.TopA.Column.THIRD, 200)
+        data_filter = Filter(TestFilter.TopA)
+        data_filter.append(Condition.LESS, TestFilter.TopA.Column.THIRD, 200)
         np.testing.assert_equal(data_filter.execute(data), [[8, 90, 0, 1000],
                                                             [9, 0, 100, 2000]])
 
-        data_filter = Filter(TestResults.TopA)
-        data_filter.append(Condition.GREATER, TestResults.TopA.Column.THIRD, 700)
+        data_filter = Filter(TestFilter.TopA)
+        data_filter.append(Condition.GREATER, TestFilter.TopA.Column.THIRD, 700)
         np.testing.assert_equal(data_filter.execute(data), [[6, 70, 800, 9000],
                                                             [7, 80, 900, 0]])
 
-        data_filter = Filter(TestResults.TopA)
-        data_filter.append(Condition.GREATER_EQUAL, TestResults.TopA.Column.THIRD, 700)
+        data_filter = Filter(TestFilter.TopA)
+        data_filter.append(Condition.GREATER_EQUAL, TestFilter.TopA.Column.THIRD, 700)
         np.testing.assert_equal(data_filter.execute(data), [[5, 60, 700, 8000],
                                                             [6, 70, 800, 9000],
                                                             [7, 80, 900, 0]])
 
-        data_filter = Filter(TestResults.TopA)
-        data_filter.append(Condition.IN, TestResults.TopA.Column.THIRD, (300, 100, 600))
+        data_filter = Filter(TestFilter.TopA)
+        data_filter.append(Condition.IN, TestFilter.TopA.Column.THIRD, (300, 100, 600))
         np.testing.assert_equal(data_filter.execute(data), [[1, 20, 300, 4000],
                                                             [4, 50, 600, 7000],
                                                             [9, 0, 100, 2000]])
 
         # Check complex cases
-        data_filter = Filter(TestResults.TopA)
-        data_filter.append(Condition.GREATER_EQUAL, TestResults.BottomA.Column.FIRST, 3)
-        data_filter.append(Condition.LESS, TestResults.MiddleA.Column.SECOND, 90)
-        data_filter.append(Condition.IN, TestResults.TopA.Column.THIRD, (0, 700, 900))
+        data_filter = Filter(TestFilter.TopA)
+        data_filter.append(Condition.GREATER_EQUAL, TestFilter.BottomA.Column.FIRST, 3)
+        data_filter.append(Condition.LESS, TestFilter.MiddleA.Column.SECOND, 90)
+        data_filter.append(Condition.IN, TestFilter.TopA.Column.THIRD, (0, 700, 900))
         np.testing.assert_equal(data_filter.execute(data), [[5, 60, 700, 8000],
                                                             [7, 80, 900, 0]])
 
-        data_filter = Filter(TestResults.TopA)
-        data_filter.append(Condition.GREATER_EQUAL, TestResults.BottomA.Column.FIRST, 7)
-        data_filter.append(Condition.LESS, TestResults.MiddleA.Column.SECOND, 50)
-        data_filter.append(Condition.IN, TestResults.TopA.Column.THIRD, (0, 700, 900))
+        data_filter = Filter(TestFilter.TopA)
+        data_filter.append(Condition.GREATER_EQUAL, TestFilter.BottomA.Column.FIRST, 7)
+        data_filter.append(Condition.LESS, TestFilter.MiddleA.Column.SECOND, 50)
+        data_filter.append(Condition.IN, TestFilter.TopA.Column.THIRD, (0, 700, 900))
         self.assertEqual(data_filter.execute(data).shape, (0, 4))
 
 
