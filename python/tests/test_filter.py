@@ -144,6 +144,12 @@ class TestFilter(unittest.TestCase):
         data_filter.append(Condition.IN, TestFilter.TopA.Column.THIRD, (0, 700, 900))
         self.assertEqual(data_filter.execute(TestFilter.data).shape, (0, 4))
 
+    def test_execute_return_copy(self):
+        data_filter = Filter(TestFilter.TopA)
+        data_filter.append(Condition.IN, TestFilter.TopA.Column.THIRD, (300, 100, 600))
+        self.assertIsNotNone(data_filter.execute(TestFilter.data).base)
+        self.assertIsNone(data_filter.execute(TestFilter.data, copy=True).base, None)
+
 
 if __name__ == '__main__':
     unittest.main()
