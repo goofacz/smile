@@ -22,14 +22,14 @@ from smile.filter import Filter
 
 class TestFilter(unittest.TestCase):
     data = np.array([[1, 20, 300, 4000],
-                 [2, 30, 400, 5000],
-                 [3, 40, 500, 6000],
-                 [4, 50, 600, 7000],
-                 [5, 60, 700, 8000],
-                 [6, 70, 800, 9000],
-                 [7, 80, 900, 0],
-                 [8, 90, 0, 1000],
-                 [9, 0, 100, 2000]])
+                     [2, 30, 400, 5000],
+                     [3, 40, 500, 6000],
+                     [4, 50, 600, 7000],
+                     [5, 60, 700, 8000],
+                     [6, 70, 800, 9000],
+                     [7, 80, 900, 0],
+                     [8, 90, 0, 1000],
+                     [9, 0, 100, 2000]])
 
     def test_execute_equal_condition(self):
         data_filter = Filter()
@@ -68,6 +68,23 @@ class TestFilter(unittest.TestCase):
         data_filter.is_in(2, (300, 100, 600))
         np.testing.assert_equal(data_filter.execute(TestFilter.data), [[1, 20, 300, 4000],
                                                                        [4, 50, 600, 7000],
+                                                                       [9, 0, 100, 2000]])
+
+    def test_execute_not_in_condition(self):
+        data_filter = Filter()
+        data_filter.is_not_in(2, (100, 300, 500, 600, 700, 800, 900, 0))
+        np.testing.assert_equal(data_filter.execute(TestFilter.data), [[2, 30, 400, 5000]])
+
+    def test_execute_not_equal_condition(self):
+        data_filter = Filter()
+        data_filter.not_equal(2, 500)
+        np.testing.assert_equal(data_filter.execute(TestFilter.data), [[1, 20, 300, 4000],
+                                                                       [2, 30, 400, 5000],
+                                                                       [4, 50, 600, 7000],
+                                                                       [5, 60, 700, 8000],
+                                                                       [6, 70, 800, 9000],
+                                                                       [7, 80, 900, 0],
+                                                                       [8, 90, 0, 1000],
                                                                        [9, 0, 100, 2000]])
 
     def test_execute_complex_cases(self):

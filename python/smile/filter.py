@@ -27,14 +27,18 @@ class Filter(object):
             GREATER = 4
             EQUAL = 5
             IS_IN = 6
+            NOT_EQUAL = 7
+            IS_NOT_IN = 8
 
         operations = {
-            Condition.EQUAL: (lambda array, column, value: array[:, int(column)] == value),
-            Condition.GREATER: (lambda array, column, value: array[:, int(column)] > value),
-            Condition.GREATER_EQUAL: (lambda array, column, value: array[:, int(column)] >= value),
-            Condition.IS_IN: (lambda array, column, value: np.isin(array[:, int(column)], value)),
-            Condition.LESS: (lambda array, column, value: array[:, int(column)] < value),
-            Condition.LESS_EQUAL: (lambda array, column, value: array[:, int(column)] <= value)
+            Condition.EQUAL: (lambda array, column, value: array[:, column] == value),
+            Condition.GREATER: (lambda array, column, value: array[:, column] > value),
+            Condition.GREATER_EQUAL: (lambda array, column, value: array[:, column] >= value),
+            Condition.IS_IN: (lambda array, column, value: np.isin(array[:, column], value)),
+            Condition.IS_NOT_IN: (lambda array, column, value: np.isin(array[:, column], value, invert=True)),
+            Condition.LESS: (lambda array, column, value: array[:, column] < value),
+            Condition.LESS_EQUAL: (lambda array, column, value: array[:, column] <= value),
+            Condition.NOT_EQUAL: (lambda array, column, value: array[:, column] != value),
         }
 
         def __init__(self, condition, column, value):
@@ -69,8 +73,16 @@ class Filter(object):
         self._checks.append(Filter.Check(Filter.Check.Condition.EQUAL, column, value))
         return self
 
+    def not_equal(self, column, value):
+        self._checks.append(Filter.Check(Filter.Check.Condition.NOT_EQUAL, column, value))
+        return self
+
     def is_in(self, column, value):
         self._checks.append(Filter.Check(Filter.Check.Condition.IS_IN, column, value))
+        return self
+
+    def is_not_in(self, column, value):
+        self._checks.append(Filter.Check(Filter.Check.Condition.IS_NOT_IN, column, value))
         return self
 
     def execute(self, array):
