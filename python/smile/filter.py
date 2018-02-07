@@ -14,25 +14,25 @@
 #
 
 from enum import Enum
+
 import numpy as np
-
-
-class Condition(Enum):
-    LESS_EQUAL = 1
-    LESS = 2
-    GREATER_EQUAL = 3
-    GREATER = 4
-    EQUAL = 5
-    IN = 6
 
 
 class Filter(object):
     class Check(object):
+        class Condition(Enum):
+            LESS_EQUAL = 1
+            LESS = 2
+            GREATER_EQUAL = 3
+            GREATER = 4
+            EQUAL = 5
+            IS_IN = 6
+
         operations = {
             Condition.EQUAL: (lambda array, column, value: array[:, int(column)] == value),
             Condition.GREATER: (lambda array, column, value: array[:, int(column)] > value),
             Condition.GREATER_EQUAL: (lambda array, column, value: array[:, int(column)] >= value),
-            Condition.IN: (lambda array, column, value: np.isin(array[:, int(column)], value)),
+            Condition.IS_IN: (lambda array, column, value: np.isin(array[:, int(column)], value)),
             Condition.LESS: (lambda array, column, value: array[:, int(column)] < value),
             Condition.LESS_EQUAL: (lambda array, column, value: array[:, int(column)] <= value)
         }
@@ -49,8 +49,29 @@ class Filter(object):
     def __init__(self):
         self._checks = []
 
-    def append(self, condition, column, value):
-        self._checks.append(Filter.Check(condition, column, value))
+    def less_equal(self, column, value):
+        self._checks.append(Filter.Check(Filter.Check.Condition.LESS_EQUAL, column, value))
+        return self
+
+    def less(self, column, value):
+        self._checks.append(Filter.Check(Filter.Check.Condition.LESS, column, value))
+        return self
+
+    def greater_equal(self, column, value):
+        self._checks.append(Filter.Check(Filter.Check.Condition.GREATER_EQUAL, column, value))
+        return self
+
+    def greater(self, column, value):
+        self._checks.append(Filter.Check(Filter.Check.Condition.GREATER, column, value))
+        return self
+
+    def equal(self, column, value):
+        self._checks.append(Filter.Check(Filter.Check.Condition.EQUAL, column, value))
+        return self
+
+    def is_in(self, column, value):
+        self._checks.append(Filter.Check(Filter.Check.Condition.IS_IN, column, value))
+        return self
 
     def execute(self, array):
         result = array
