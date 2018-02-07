@@ -14,7 +14,7 @@
 #
 
 from enum import Enum
-
+from array import Array
 import numpy as np
 
 
@@ -55,26 +55,32 @@ class Filter(object):
         self._validate_column_type(type(column))
         self.checks.append(Filter.Check(condition, column, value))
 
-    def append(self, condition, column, value):
-        self._validate_column_type(type(column))
-        self.checks.append(Filter.Check(condition, column, value))
-
-    def execute(self, array):
+    def execute(self, array, copy=False):
+        self._validate_array_type(array.__class__)
         result = array
         for check in self.checks:
             result = check.execute(result)
 
-        return result
+        if copy:
+            return result.copy()
+        else:
+            return result
+
+    def _validate_array_type(self, array_cls):
+        while array_cls is not object:
+            if array_cls is self.cls:
+                return
+            array_cls = array_cls.__base__
+
+        raise TypeError('{0} does not inherit from {1}'.format(str(array_cls), str(self.cls)))
 
     def _validate_column_type(self, column_type):
         current_cls = self.cls
-        while current_cls is not object:
+        while current_cls is not np.ndarray:
             if 'Column' not in current_cls.__dict__.keys():
                 raise TypeError('{0} does not have column enumeration'.format(str(current_cls)))
-
             if column_type is current_cls.Column:
                 return
-
             current_cls = current_cls.__base__
 
         raise TypeError('{0} column type does not belong to {1} or it\'s parent classes'.format(str(column_type),
