@@ -15,30 +15,41 @@
 
 import numpy as np
 
+from smile.array import Array
 
-class Frames:
-    # Columns in original CSV file
-    NODE_MAC_ADDRESS = 0
-    DIRECTION = 1
-    BEGIN_CLOCK_TIMESTAMP = 2
-    BEGIN_SIMULATION_TIMESTAMP = 3
-    BEGIN_TRUE_POSITION_X = 4
-    BEGIN_TRUE_POSITION_Y = 5
-    BEGIN_TRUE_POSITION_Z = 6
-    END_CLOCK_TIMESTAMP = 7
-    END_SIMULATION_TIMESTAMP = 8
-    END_TRUE_POSITION_X = 9
-    END_TRUE_POSITION_Y = 10
-    END_TRUE_POSITION_Z = 11
-    SOURCE_MAC_ADDRESS = 12
-    DESTINATION_MAC_ADDRESS = 13
-    SEQUENCE_NUMBER = 14
 
-    BEGIN_TRUE_POSITION_2D = (BEGIN_TRUE_POSITION_X, BEGIN_TRUE_POSITION_Y)
-    BEGIN_TRUE_POSITION_3D = (BEGIN_TRUE_POSITION_X, BEGIN_TRUE_POSITION_Y, BEGIN_TRUE_POSITION_Z)
+class Frames(Array):
+    def __init__(self, *args):
+        super(self.__class__, self).__init__()
+        self.column_names["node_mac_address"] = 0
+        self.column_names["direction"] = 1
+        self.column_names["begin_clock_timestamp"] = 2
+        self.column_names["begin_simulation_timestamp"] = 3
+        self.column_names["begin_true_position_x"] = 4
+        self.column_names["begin_true_position_y"] = 5
+        self.column_names["begin_true_position_z"] = 6
+        self.column_names["end_clock_timestamp"] = 7
+        self.column_names["end_simulation_timestamp"] = 8
+        self.column_names["end_true_position_x"] = 9
+        self.column_names["end_true_position_y"] = 10
+        self.column_names["end_true_position_z"] = 11
+        self.column_names["source_mac_address"] = 12
+        self.column_names["destination_mac_address"] = 13
+        self.column_names["sequence_number"] = 14
 
-    END_TRUE_POSITION_2D = (END_TRUE_POSITION_X, END_TRUE_POSITION_Y)
-    END_TRUE_POSITION_3D = (END_TRUE_POSITION_X, END_TRUE_POSITION_Y, END_TRUE_POSITION_Z)
+        self.column_names["begin_true_position_2d"] = (self.column_names["begin_true_position_x"],
+                                                       self.column_names["begin_true_position_y"])
+
+        self.column_names["begin_true_position_3d"] = (self.column_names["begin_true_position_x"],
+                                                       self.column_names["begin_true_position_y"],
+                                                       self.column_names["begin_true_position_z"])
+
+        self.column_names["end_true_position_2d"] = (self.column_names["end_true_position_x"],
+                                                     self.column_names["end_true_position_y"])
+
+        self.column_names["end_true_position_3d"] = (self.column_names["end_true_position_x"],
+                                                     self.column_names["end_true_position_y"],
+                                                     self.column_names["end_true_position_z"])
 
     @staticmethod
     def load_csv(file_path):
@@ -47,5 +58,5 @@ class Frames:
 
         :param file_path: Path to CSV file
         """
-        converters = {Frames.DIRECTION: lambda value: hash(value)}
-        return np.loadtxt(file_path, delimiter=',', converters=converters, ndmin=2)
+        converters = {1: lambda value: hash(value)}
+        return Frames(np.loadtxt(file_path, delimiter=',', converters=converters, ndmin=2))
