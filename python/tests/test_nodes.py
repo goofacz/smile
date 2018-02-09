@@ -20,31 +20,26 @@ from smile.nodes import Nodes
 
 
 class TestNodes(unittest.TestCase):
-    def test_load_csv(self):
-        content = StringIO("17592186044417,0.000000,40.000000,0.000000\n17592186044418,75.000000,90.000000,70.000000")
+    content = "17592186044417,0.000000,40.000000,0.000000\n17592186044418,75.000000,90.000000,70.000000"
 
-        # Check whether data is loaded into correct array
-        nodes = Nodes.load_csv(content)
-        self.assertTrue(isinstance(nodes, np.ndarray))
+    def test_load_csv(self):
+        nodes = Nodes.load_csv(StringIO(TestNodes.content))
+        self.assertTrue(isinstance(nodes, Nodes))
         self.assertTupleEqual((2, 4), nodes.shape)
 
+    def test_column_access(self):
+        nodes = Nodes.load_csv(StringIO(TestNodes.content))
+
         # Check field access
-        self.assertEqual(17592186044417, nodes[0, Nodes.MAC_ADDRESS])
-        self.assertEqual(17592186044418, nodes[1, Nodes.MAC_ADDRESS])
+        self.assertEqual(17592186044417, nodes[0, "mac_address"])
+        self.assertEqual(17592186044418, nodes[1, "mac_address"])
 
-        self.assertEqual(75, nodes[1, Nodes.POSITION_X])
-        self.assertEqual(90, nodes[1, Nodes.POSITION_Y])
-        self.assertEqual(70, nodes[1, Nodes.POSITION_Z])
+        self.assertEqual(75, nodes[1, "position_x"])
+        self.assertEqual(90, nodes[1, "position_y"])
+        self.assertEqual(70, nodes[1, "position_z"])
 
-        np.testing.assert_equal((75, 90), nodes[1, Nodes.POSITION_2D])
-        np.testing.assert_equal((75, 90, 70), nodes[1, Nodes.POSITION_3D])
-
-        # Check load_csv() faults
-        with self.assertRaises(ValueError):
-            Nodes.load_csv(None)
-
-        with self.assertRaises(OSError):
-            Nodes.load_csv("nonexisting file")
+        np.testing.assert_equal((75, 90), nodes[1, "position_2d"])
+        np.testing.assert_equal((75, 90, 70), nodes[1, "position_3d"])
 
 
 if __name__ == '__main__':

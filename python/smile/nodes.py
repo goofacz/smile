@@ -14,17 +14,25 @@
 #
 
 import numpy as np
+from smile.array import Array
 
 
-class Nodes:
-    MAC_ADDRESS = 0
-    POSITION_X = 1
-    POSITION_Y = 2
-    POSITION_Z = 3
+class Nodes(Array):
+    def __init__(self, *args):
+        super(self.__class__, self).__init__()
+        self.column_names["mac_address"] = 0
+        self.column_names["position_x"] = 1
+        self.column_names["position_y"] = 2
+        self.column_names["position_z"] = 3
 
-    POSITION_2D = (POSITION_X, POSITION_Y)
-    POSITION_3D = (POSITION_X, POSITION_Y, POSITION_Z)
+        self.column_names["position_2d"] = (self.column_names["position_x"],
+                                            self.column_names["position_y"])
+
+        self.column_names["position_3d"] = (self.column_names["position_x"],
+                                            self.column_names["position_y"],
+                                            self.column_names["position_z"])
 
     @staticmethod
     def load_csv(file_path):
-        return np.loadtxt(file_path, delimiter=',', ndmin=2)
+        array = Nodes(np.loadtxt(file_path, delimiter=',', ndmin=2))
+        return array
