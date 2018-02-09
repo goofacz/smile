@@ -48,8 +48,9 @@ class TestArray(unittest.TestCase):
                                                   [2, 200],
                                                   [3, 300]])
 
-        np.testing.assert_equal(data["first"], [1, 10, 100])
-        np.testing.assert_equal(data["third"], [3, 30, 300])
+        np.testing.assert_equal(data["third"], [100, 200, 300])
+
+        self.assertEqual(data[2, "second"], 30)
 
     def test_numpy_compatibility(self):
         # Run some numpy functions on Array to make sure they still work

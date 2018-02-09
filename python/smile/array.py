@@ -17,7 +17,7 @@ import numpy as np
 
 
 class Array(np.ndarray):
-    def __new__(cls, input_array, info=None):
+    def __new__(cls, input_array):
         instance = np.asarray(input_array).view(cls)
         instance.column_names = {}
         return instance
@@ -30,6 +30,11 @@ class Array(np.ndarray):
 
     def __getitem__(self, index):
         if isinstance(index, str):
-            index = self.column_names[index]
+            index = (slice(None, None, None), self.column_names[index])
+        elif type(index) in (list, tuple):
+            if isinstance(index[0], str):
+                raise IndexError("Rows cannot be indexed with string names")
+            if isinstance(index[1], str):
+                index = (index[0], self.column_names[index[1]])
 
         return super(Array, self).__getitem__(index)
