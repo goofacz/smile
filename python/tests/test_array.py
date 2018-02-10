@@ -58,6 +58,9 @@ class TestArray(unittest.TestCase):
                                          [2, 200],
                                          [3, 300]])
 
+        result = data[(0, 2)]
+        self.assertEqual(result, 100)
+
         result = data["third"]
         self.assertFalse(isinstance(result, TestArray.Data))
         self.assertTrue(isinstance(result, np.ndarray))
@@ -72,6 +75,14 @@ class TestArray(unittest.TestCase):
         self.assertFalse(isinstance(result, TestArray.Data))
         self.assertTrue(isinstance(result, np.ndarray))
         np.testing.assert_equal(result, [1, 2, 3])
+
+        result = data[np.where(data["first"] == 2)]
+        self.assertTrue(isinstance(result, TestArray.Data))
+        np.testing.assert_equal(result, [[2,  20, 200]])
+
+        result = data[data["second"] == 30]
+        self.assertTrue(isinstance(result, TestArray.Data))
+        np.testing.assert_equal(result, [[3,  30, 300]])
 
     def test_setitem(self):
         reference_data = TestArray.Data([[1, 10, 100],

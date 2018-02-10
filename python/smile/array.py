@@ -43,21 +43,35 @@ class Array(np.ndarray):
         return super(Array, self).__setitem__(index, value)
 
     def _process_index(self, index):
-        return_as_ndarray = False
         if isinstance(index, str):
             if index not in self.column_names:
                 raise IndexError("Unknown column name: '{0}'".format(index))
             index = (slice(None, None, None), self.column_names[index])
-            return_as_ndarray = True
-        elif type(index) in (list, tuple):
-            if isinstance(index[0], str):
-                raise IndexError("Rows cannot be indexed with string names")
-            if isinstance(index[1], str):
-                if index[1] not in self.column_names:
-                    raise IndexError("Unknown column name: '{0}'".format(index[1]))
-                index = (index[0], self.column_names[index[1]])
+            return index, True
 
-            if index[1] != slice(None, None, None):
-                return_as_ndarray = True
+        if type(index) in (list, tuple):
+            return_as_ndarray = False
+            if len(index) == 1:
+                index = index[0]
+            elif len(index) == 2:
+                if isinstance(index[0], str):
+                    raise IndexError("Rows cannot be indexed with string names")
+                elif type(index[0]) in (list, tuple) and type(index[0][0]) is np.ndarray:
+                    index = (index[0][0], index[1])
 
-        return index, return_as_ndarray
+                if isinstance(index[1], str):
+                    if index[1] not in self.column_names:
+                        raise IndexError("Unknown column name: '{0}'".format(index[1]))
+                    index = (index[0], self.column_names[index[1]])
+
+                if index[1] != slice(None, None, None):
+                    return_as_ndarray = True
+            else:
+                raise IndexError("Sequence of {0} cannot be used for indexing")
+
+            return index, return_as_ndarray
+
+        if isinstance(index, np.ndarray):
+            return index, False
+
+        raise IndexError('Invalid index')
