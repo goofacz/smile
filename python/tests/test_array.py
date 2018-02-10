@@ -36,23 +36,42 @@ class TestArray(unittest.TestCase):
                                [2, 20, 200],
                                [3, 30, 300]])
 
-        np.testing.assert_equal(data[:, :], [[1, 10, 100],
-                                             [2, 20, 200],
-                                             [3, 30, 300]])
+        result = data[:, :]
+        self.assertTrue(isinstance(result, TestArray.Data))
+        np.testing.assert_equal(result, [[1, 10, 100],
+                                         [2, 20, 200],
+                                         [3, 30, 300]])
 
-        np.testing.assert_equal(data[1, :], [2, 20, 200])
+        result = data[1, :]
+        self.assertTrue(isinstance(result, TestArray.Data))
+        np.testing.assert_equal(result, [2, 20, 200])
 
-        np.testing.assert_equal(data[:, 2], [100, 200, 300])
+        result = data[:, 2]
+        self.assertFalse(isinstance(result, TestArray.Data))
+        self.assertTrue(isinstance(result, np.ndarray))
+        np.testing.assert_equal(result, [100, 200, 300])
 
-        np.testing.assert_equal(data[:, (0, 2)], [[1, 100],
-                                                  [2, 200],
-                                                  [3, 300]])
+        result = data[:, (0, 2)]
+        self.assertFalse(isinstance(result, TestArray.Data))
+        self.assertTrue(isinstance(result, np.ndarray))
+        np.testing.assert_equal(result, [[1, 100],
+                                         [2, 200],
+                                         [3, 300]])
 
-        np.testing.assert_equal(data["third"], [100, 200, 300])
+        result = data["third"]
+        self.assertFalse(isinstance(result, TestArray.Data))
+        self.assertTrue(isinstance(result, np.ndarray))
+        np.testing.assert_equal(result, [100, 200, 300])
 
-        self.assertEqual(data[2, "second"], 30)
+        result = data[2, "second"]
+        self.assertFalse(isinstance(result, TestArray.Data))
+        self.assertTrue(isinstance(result, np.int64))
+        self.assertEqual(result, 30)
 
-        np.testing.assert_equal(data[:, "first"], [1, 2, 3])
+        result = data[:, "first"]
+        self.assertFalse(isinstance(result, TestArray.Data))
+        self.assertTrue(isinstance(result, np.ndarray))
+        np.testing.assert_equal(result, [1, 2, 3])
 
     def test_setitem(self):
         reference_data = TestArray.Data([[1, 10, 100],
@@ -97,16 +116,64 @@ class TestArray(unittest.TestCase):
                                       [3, 30, 300]])
 
         reference_b = np.array([[5, 60, 700],
-                               [5, 60, 700],
-                               [5, 60, 700]])
+                                [5, 60, 700],
+                                [5, 60, 700]])
 
         a = reference_a.copy()
-        np.testing.assert_equal(np.sum(a, axis=0), [6, 60, 600])
+        result = np.sum(a, axis=0)
+        self.assertFalse(isinstance(result, TestArray.Data))
+        self.assertTrue(isinstance(result, np.ndarray))
+        np.testing.assert_equal(result, [6, 60, 600])
 
         a = reference_a.copy()
-        np.testing.assert_equal(a.T, [[1, 2, 3],
+        result = a.T
+        np.testing.assert_equal(result, [[1, 2, 3],
                                          [10, 20, 30],
                                          [100, 200, 300]])
+
+        a = reference_a.copy()
+        result = np.isnan(a)
+        self.assertFalse(isinstance(result, TestArray.Data))
+        self.assertTrue(isinstance(result, np.ndarray))
+        np.testing.assert_equal(result, [[False, False, False],
+                                         [False, False, False],
+                                         [False, False, False]])
+
+        a = reference_a.copy()
+        b = reference_b.copy()
+        a += b
+        self.assertFalse(isinstance(a, TestArray.Data))
+        self.assertTrue(isinstance(a, np.ndarray))
+        np.testing.assert_equal(a, [[6, 70, 800],
+                                    [7, 80, 900],
+                                    [8, 90, 1000]])
+
+        a = reference_a.copy()
+        b = reference_b.copy()
+        b += a
+        self.assertFalse(isinstance(b, TestArray.Data))
+        self.assertTrue(isinstance(b, np.ndarray))
+        np.testing.assert_equal(b, [[6, 70, 800],
+                                    [7, 80, 900],
+                                    [8, 90, 1000]])
+
+        a = reference_a.copy()
+        b = reference_b.copy()
+        result = np.add(a, b)
+        self.assertFalse(isinstance(result, TestArray.Data))
+        self.assertTrue(isinstance(result, np.ndarray))
+        np.testing.assert_equal(result, [[6, 70, 800],
+                                         [7, 80, 900],
+                                         [8, 90, 1000]])
+
+        a = reference_a.copy()
+        b = reference_b.copy()
+        result = np.add(b, a)
+        self.assertFalse(isinstance(result, TestArray.Data))
+        self.assertTrue(isinstance(result, np.ndarray))
+        np.testing.assert_equal(result, [[6, 70, 800],
+                                         [7, 80, 900],
+                                         [8, 90, 1000]])
 
 
 if __name__ == '__main__':

@@ -27,17 +27,26 @@ class Array(np.ndarray):
             return
         self.column_names = getattr(instance, "column_names", None)
 
+    def __array_wrap__(self, out_arr, context=None):
+        return np.ndarray.__array_wrap__(self.view(np.ndarray), out_arr, context)
+
     def __getitem__(self, index):
-        index = self._prepare_index(index)
-        return super(Array, self).__getitem__(index)
+        index, return_as_ndarray = self._process_index(index)
+        result = super(Array, self).__getitem__(index)
+        if return_as_ndarray:
+            return result.view(np.ndarray)
+        else:
+            return result
 
     def __setitem__(self, index, value):
-        index = self._prepare_index(index)
+        index, _ = self._process_index(index)
         return super(Array, self).__setitem__(index, value)
 
-    def _prepare_index(self, index):
+    def _process_index(self, index):
+        return_as_ndarray = False
         if isinstance(index, str):
             index = (slice(None, None, None), self.column_names[index])
+            return_as_ndarray = True
         elif type(index) in (list, tuple):
             if isinstance(index[0], str):
                 raise IndexError("Rows cannot be indexed with string names")
@@ -46,4 +55,7 @@ class Array(np.ndarray):
                     raise IndexError("Unknown column name: '{0}'".format(index[1]))
                 index = (index[0], self.column_names[index[1]])
 
-        return index
+            if index[1] != slice(None, None, None):
+                return_as_ndarray = True
+
+        return index, return_as_ndarray
