@@ -19,7 +19,6 @@ from smile.array import Array
 
 class Results(Array):
     def __init__(self, *args):
-        super(self.__class__, self).__init__()
         self.column_names["position_dimensions"] = 0
         self.column_names["position_x"] = 1
         self.column_names["position_y"] = 2
