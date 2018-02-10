@@ -54,15 +54,57 @@ class TestArray(unittest.TestCase):
 
         np.testing.assert_equal(data[:, "first"], [1, 2, 3])
 
+    def test_setitem(self):
+        reference_data = TestArray.Data([[1, 10, 100],
+                                         [2, 20, 200],
+                                         [3, 30, 300]])
+
+        data = reference_data.copy()
+        data[:, :] = [[5, 50, 500],
+                      [6, 60, 600],
+                      [7, 70, 700]]
+        np.testing.assert_equal(data, [[5, 50, 500],
+                                       [6, 60, 600],
+                                       [7, 70, 700]])
+
+        data = reference_data.copy()
+        data[1, :] = (7, 8, 9)
+        np.testing.assert_equal(data, [[1, 10, 100],
+                                       [7, 8, 9],
+                                       [3, 30, 300]])
+
+        data = reference_data.copy()
+        data[:, 1] = (7, 8, 9)
+        np.testing.assert_equal(data, [[1, 7, 100],
+                                       [2, 8, 200],
+                                       [3, 9, 300]])
+
+        data = reference_data.copy()
+        data[:, "second"] = (11, 12, 13)
+        np.testing.assert_equal(data, [[1, 11, 100],
+                                       [2, 12, 200],
+                                       [3, 13, 300]])
+        data = reference_data.copy()
+        data["third"] = (71, 72, 73)
+        np.testing.assert_equal(data, [[1, 10, 71],
+                                       [2, 20, 72],
+                                       [3, 30, 73]])
+
     def test_numpy_compatibility(self):
         # Run some numpy functions on Array to make sure they still work
-        data = TestArray.Data([[1, 10, 100],
-                               [2, 20, 200],
-                               [3, 30, 300]])
+        reference_a = TestArray.Data([[1, 10, 100],
+                                      [2, 20, 200],
+                                      [3, 30, 300]])
 
-        np.testing.assert_equal(np.sum(data, axis=0), [6, 60, 600])
+        reference_b = np.array([[5, 60, 700],
+                               [5, 60, 700],
+                               [5, 60, 700]])
 
-        np.testing.assert_equal(data.T, [[1, 2, 3],
+        a = reference_a.copy()
+        np.testing.assert_equal(np.sum(a, axis=0), [6, 60, 600])
+
+        a = reference_a.copy()
+        np.testing.assert_equal(a.T, [[1, 2, 3],
                                          [10, 20, 30],
                                          [100, 200, 300]])
 
