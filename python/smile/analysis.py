@@ -19,14 +19,14 @@ from smile.results import Results
 
 
 def _determine_dimensions(results):
-    unique_dimensions = np.unique(results[:, Results.POSITION_DIMENSIONS])
+    unique_dimensions = np.unique(results[:, "position_dimensions"])
     if len(unique_dimensions) is not 1:
         raise ValueError('Cannot process results with different position dimensions (2D and 3D)')
 
-    if results[0, Results.POSITION_DIMENSIONS] == 2:
-        return Results.POSITION_2D, Results.BEGIN_TRUE_POSITION_2D,  Results.END_TRUE_POSITION_2D
+    if results[0, "position_dimensions"] == 2:
+        return "position_2d", "begin_true_position_2d", "end_true_position_2d"
     else:
-        return Results.POSITION_3D, Results.BEGIN_TRUE_POSITION_3D,  Results.END_TRUE_POSITION_3D
+        return "position_3d", "begin_true_position_3d", "end_true_position_3d"
 
 
 def absolute_position_error_histogram(results, return_intermediate_results=False):
@@ -85,12 +85,12 @@ def obtain_unique_results(results):
     position_coordinates, begin_position_coordinates, end_position_coordinates = _determine_dimensions(results)
 
     # We want to have single result per mobile node
-    unique_mac_addresses = np.unique(results[:, Results.MAC_ADDRESS])
+    unique_mac_addresses = np.unique(results[:, "mac_address"])
     unique_results = Results.create_array(len(unique_mac_addresses))
 
     for i in range(0, len(unique_mac_addresses)):
         mac_address = unique_mac_addresses[i]
-        tmp_results = results[results[:, Results.MAC_ADDRESS] == mac_address]
+        tmp_results = results[results[:, "mac_address"] == mac_address]
 
         unique_results[i, :] = tmp_results[0, :]
         # TODO Implement more ways of "squeezing" multiple results into one

@@ -19,23 +19,25 @@ matplotlib.use('AGG')
 
 import unittest
 from smile.analysis import *
+import numpy as np
+from smile.results import Results
 from math import sqrt
 
 
 class TestAnalysis(unittest.TestCase):
     def test_absolute_position_error_histogram(self):
         results = Results.create_array(3, 2)
-        results[0, Results.BEGIN_TRUE_POSITION_2D] = (0, 0)
-        results[0, Results.POSITION_2D] = (15, 0)
-        results[0, Results.END_TRUE_POSITION_2D] = (20, 0)
+        results[0, "begin_true_position_2d"] = (0, 0)
+        results[0, "position_2d"] = (15, 0)
+        results[0, "end_true_position_2d"] = (20, 0)
 
-        results[1, Results.BEGIN_TRUE_POSITION_2D] = (0, 0)
-        results[1, Results.POSITION_2D] = (0, 5)
-        results[1, Results.END_TRUE_POSITION_2D] = (0, 40)
+        results[1, "begin_true_position_2d"] = (0, 0)
+        results[1, "position_2d"] = (0, 5)
+        results[1, "end_true_position_2d"] = (0, 40)
 
-        results[2, Results.BEGIN_TRUE_POSITION_2D] = (0, 0)
-        results[2, Results.POSITION_2D] = (6, 6)
-        results[2, Results.END_TRUE_POSITION_2D] = (20, 20)
+        results[2, "begin_true_position_2d"] = (0, 0)
+        results[2, "position_2d"] = (6, 6)
+        results[2, "end_true_position_2d"] = (20, 20)
 
         true_position, position_errors = absolute_position_error_histogram(results, return_intermediate_results=True)
         self.assertTupleEqual((3, 2), true_position.shape)
@@ -50,17 +52,17 @@ class TestAnalysis(unittest.TestCase):
 
     def test_absolute_position_error_histogram(self):
         results = Results.create_array(3, 2)
-        results[0, Results.BEGIN_TRUE_POSITION_2D] = (0, 0)
-        results[0, Results.POSITION_2D] = (15, 0)
-        results[0, Results.END_TRUE_POSITION_2D] = (20, 0)
+        results[0, "begin_true_position_2d"] = (0, 0)
+        results[0, "position_2d"] = (15, 0)
+        results[0, "end_true_position_2d"] = (20, 0)
 
-        results[1, Results.BEGIN_TRUE_POSITION_2D] = (0, 0)
-        results[1, Results.POSITION_2D] = (0, 5)
-        results[1, Results.END_TRUE_POSITION_2D] = (0, 40)
+        results[1, "begin_true_position_2d"] = (0, 0)
+        results[1, "position_2d"] = (0, 5)
+        results[1, "end_true_position_2d"] = (0, 40)
 
-        results[2, Results.BEGIN_TRUE_POSITION_2D] = (0, 0)
-        results[2, Results.POSITION_2D] = (6, 6)
-        results[2, Results.END_TRUE_POSITION_2D] = (20, 20)
+        results[2, "begin_true_position_2d"] = (0, 0)
+        results[2, "position_2d"] = (6, 6)
+        results[2, "end_true_position_2d"] = (20, 20)
 
         true_position, position_errors = absolute_position_error_histogram(results, return_intermediate_results=True)
         self.assertTupleEqual((3, 2), true_position.shape)
@@ -85,20 +87,20 @@ class TestAnalysis(unittest.TestCase):
         unique_results = obtain_unique_results(results)
         self.assertTupleEqual((3, 11), unique_results.shape)
 
-        self.assertEqual(123, unique_results[0, Results.MAC_ADDRESS])
-        np.testing.assert_equal((20, 25), unique_results[0, Results.POSITION_2D])
-        np.testing.assert_equal((50, 55), unique_results[0, Results.BEGIN_TRUE_POSITION_2D])
-        np.testing.assert_equal((80, 85), unique_results[0, Results.END_TRUE_POSITION_2D])
+        self.assertEqual(123, unique_results[0, "mac_address"])
+        np.testing.assert_equal((20, 25), unique_results[0, "position_2d"])
+        np.testing.assert_equal((50, 55), unique_results[0, "begin_true_position_2d"])
+        np.testing.assert_equal((80, 85), unique_results[0, "end_true_position_2d"])
 
-        self.assertEqual(456, unique_results[1, Results.MAC_ADDRESS])
-        np.testing.assert_equal((100, 0), unique_results[1, Results.POSITION_2D])
-        np.testing.assert_equal((200, 0), unique_results[1, Results.BEGIN_TRUE_POSITION_2D])
-        np.testing.assert_equal((300, 0), unique_results[1, Results.END_TRUE_POSITION_2D])
+        self.assertEqual(456, unique_results[1, "mac_address"])
+        np.testing.assert_equal((100, 0), unique_results[1, "position_2d"])
+        np.testing.assert_equal((200, 0), unique_results[1, "begin_true_position_2d"])
+        np.testing.assert_equal((300, 0), unique_results[1, "end_true_position_2d"])
 
-        self.assertEqual(789, unique_results[2, Results.MAC_ADDRESS])
-        np.testing.assert_equal((10, 11), unique_results[2, Results.POSITION_2D])
-        np.testing.assert_equal((12, 13), unique_results[2, Results.BEGIN_TRUE_POSITION_2D])
-        np.testing.assert_equal((14, 15), unique_results[2, Results.END_TRUE_POSITION_2D])
+        self.assertEqual(789, unique_results[2, "mac_address"])
+        np.testing.assert_equal((10, 11), unique_results[2, "position_2d"])
+        np.testing.assert_equal((12, 13), unique_results[2, "begin_true_position_2d"])
+        np.testing.assert_equal((14, 15), unique_results[2, "end_true_position_2d"])
 
 
 if __name__ == '__main__':

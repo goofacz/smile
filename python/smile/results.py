@@ -14,33 +14,48 @@
 #
 
 import numpy as np
+from smile.array import Array
 
 
-class Results:
-    POSITION_DIMENSIONS = 0
-    POSITION_X = 1
-    POSITION_Y = 2
-    POSITION_Z = 3
-    BEGIN_TRUE_POSITION_X = 4
-    BEGIN_TRUE_POSITION_Y = 5
-    BEGIN_TRUE_POSITION_Z = 6
-    END_TRUE_POSITION_X = 7
-    END_TRUE_POSITION_Y = 8
-    END_TRUE_POSITION_Z = 9
-    MAC_ADDRESS = 10
+class Results(Array):
+    def __init__(self, *args):
+        super(self.__class__, self).__init__()
+        self.column_names["position_dimensions"] = 0
+        self.column_names["position_x"] = 1
+        self.column_names["position_y"] = 2
+        self.column_names["position_z"] = 3
+        self.column_names["begin_true_position_x"] = 4
+        self.column_names["begin_true_position_y"] = 5
+        self.column_names["begin_true_position_z"] = 6
+        self.column_names["end_true_position_x"] = 7
+        self.column_names["end_true_position_y"] = 8
+        self.column_names["end_true_position_z"] = 9
+        self.column_names["mac_address"] = 10
 
-    POSITION_2D = (POSITION_X, POSITION_Y)
-    POSITION_3D = (POSITION_X, POSITION_Y, POSITION_Z)
+        self.column_names["position_2d"] = (self.column_names["position_x"],
+                                            self.column_names["position_y"])
 
-    BEGIN_TRUE_POSITION_2D = (BEGIN_TRUE_POSITION_X, BEGIN_TRUE_POSITION_Y)
-    BEGIN_TRUE_POSITION_3D = (BEGIN_TRUE_POSITION_X, BEGIN_TRUE_POSITION_Y, BEGIN_TRUE_POSITION_Z)
+        self.column_names["position_3d"] = (self.column_names["position_x"],
+                                            self.column_names["position_y"],
+                                            self.column_names["position_z"])
 
-    END_TRUE_POSITION_2D = (END_TRUE_POSITION_X, END_TRUE_POSITION_Y)
-    END_TRUE_POSITION_3D = (END_TRUE_POSITION_X, END_TRUE_POSITION_Y, END_TRUE_POSITION_Z)
+        self.column_names["begin_true_position_2d"] = (self.column_names["begin_true_position_x"],
+                                                       self.column_names["begin_true_position_y"])
+
+        self.column_names["begin_true_position_3d"] = (self.column_names["begin_true_position_x"],
+                                                       self.column_names["begin_true_position_y"],
+                                                       self.column_names["begin_true_position_z"])
+
+        self.column_names["end_true_position_2d"] = (self.column_names["end_true_position_x"],
+                                                     self.column_names["end_true_position_y"])
+
+        self.column_names["end_true_position_3d"] = (self.column_names["end_true_position_x"],
+                                                     self.column_names["end_true_position_y"],
+                                                     self.column_names["end_true_position_z"])
 
     @staticmethod
     def create_array(rows, position_dimensions=2):
-        array = np.zeros((rows, 11))
         assert(position_dimensions in (2, 3))
-        array[:,0] = position_dimensions
-        return array
+        results = Results(np.zeros((rows, 11)))
+        results["position_dimensions"] = position_dimensions
+        return results
