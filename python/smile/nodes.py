@@ -19,7 +19,7 @@ from smile.array import Array
 
 class Nodes(Array):
     def __init__(self, *args):
-        super(self.__class__, self).__init__()
+        super(Nodes, self).__init__()
         self.column_names["mac_address"] = 0
         self.column_names["position_x"] = 1
         self.column_names["position_y"] = 2
