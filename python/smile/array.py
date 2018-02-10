@@ -45,6 +45,8 @@ class Array(np.ndarray):
     def _process_index(self, index):
         return_as_ndarray = False
         if isinstance(index, str):
+            if index not in self.column_names:
+                raise IndexError("Unknown column name: '{0}'".format(index))
             index = (slice(None, None, None), self.column_names[index])
             return_as_ndarray = True
         elif type(index) in (list, tuple):
