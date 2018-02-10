@@ -58,7 +58,7 @@ class Frames(Array):
 
         :param file_path: Path to CSV file
         """
-        converters = Frames()
+        converters = Frames._get_default_converters()
         return Frames(np.loadtxt(file_path, delimiter=',', converters=converters, ndmin=2))
 
     @staticmethod
