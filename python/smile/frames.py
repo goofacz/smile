@@ -20,6 +20,7 @@ from smile.array import Array
 
 class Frames(Array):
     def __init__(self, *args):
+        super(self.__class__, self).__init__()
         self.column_names["node_mac_address"] = 0
         self.column_names["direction"] = 1
         self.column_names["begin_clock_timestamp"] = 2
@@ -57,9 +58,5 @@ class Frames(Array):
 
         :param file_path: Path to CSV file
         """
-        converters = Frames._get_default_converters()
+        converters = {1: lambda value: hash(value)}
         return Frames(np.loadtxt(file_path, delimiter=',', converters=converters, ndmin=2))
-
-    @staticmethod
-    def _get_default_converters():
-        return {1: lambda value: hash(value)}
