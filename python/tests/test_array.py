@@ -31,7 +31,7 @@ class TestArray(unittest.TestCase):
     def test_construction(self):
         TestArray.Data([0, 1, 2])
 
-    def test_getitem(self):
+    def test_getitem_with_array(self):
         data = TestArray.Data([[1, 10, 100],
                                [2, 20, 200],
                                [3, 30, 300]])
@@ -84,7 +84,27 @@ class TestArray(unittest.TestCase):
         self.assertTrue(isinstance(result, TestArray.Data))
         np.testing.assert_equal(result, [[3,  30, 300]])
 
-    def test_setitem(self):
+    def test_getitem_with_array(self):
+        vector = TestArray.Data([1, 20, 300, 4000])
+
+        result = vector[2]
+        self.assertTrue(isinstance(result, np.int64))
+        self.assertEqual(result, 300)
+
+        result = vector[:]
+        self.assertTrue(isinstance(result, TestArray.Data))
+        np.testing.assert_equal(result, vector)
+
+        result = vector[1:3]
+        self.assertFalse(isinstance(result, TestArray.Data))
+        self.assertTrue(isinstance(result, np.ndarray))
+        np.testing.assert_equal(result, [20, 300])
+
+        result = vector["third"]
+        self.assertTrue(isinstance(result, np.int64))
+        np.testing.assert_equal(result, 300)
+
+    def test_setitem_with_array(self):
         reference_data = TestArray.Data([[1, 10, 100],
                                          [2, 20, 200],
                                          [3, 30, 300]])
@@ -119,6 +139,25 @@ class TestArray(unittest.TestCase):
         np.testing.assert_equal(data, [[1, 10, 71],
                                        [2, 20, 72],
                                        [3, 30, 73]])
+
+    def test_setitem_with_vector(self):
+        vector = TestArray.Data([1, 20, 300, 4000])
+
+        data = vector.copy()
+        data[:] = [11, 12, 13, 14]
+        np.testing.assert_equal(data, [11, 12, 13, 14])
+
+        data = vector.copy()
+        data[3] = 99
+        np.testing.assert_equal(data, [1, 20, 300, 99])
+
+        data = vector.copy()
+        data[0:2] = [99, 98]
+        np.testing.assert_equal(data, [99, 98, 300, 4000])
+
+        data = vector.copy()
+        data["third"] = 127
+        np.testing.assert_equal(data, [1, 20, 127, 4000])
 
     def test_numpy_compatibility(self):
         # Run some numpy functions on Array to make sure they still work

@@ -42,7 +42,19 @@ class Array(np.ndarray):
         index, _ = self._process_index(index)
         return super(Array, self).__setitem__(index, value)
 
-    def _process_index(self, index):
+    def _process_vector_index(self, index):
+        if isinstance(index, str):
+            if index not in self.column_names:
+                raise IndexError("Unknown column name: '{0}'".format(index))
+            index = self.column_names[index]
+            return index, True
+
+        if index == slice(None, None, None):
+            return index, False
+
+        return index, True
+
+    def _process_array_index(self, index):
         if isinstance(index, str):
             if index not in self.column_names:
                 raise IndexError("Unknown column name: '{0}'".format(index))
@@ -74,4 +86,14 @@ class Array(np.ndarray):
         if isinstance(index, np.ndarray):
             return index, False
 
+        if isinstance(index, int):
+            index = (index, slice(None, None, None))
+            return index, False
+
         raise IndexError('Invalid index')
+
+    def _process_index(self, index):
+        if len(self.shape) == 1:
+            return self._process_vector_index(index)
+        else:
+            return self._process_array_index(index)
