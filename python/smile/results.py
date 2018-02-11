@@ -54,8 +54,10 @@ class Results(Array):
                                                      self.column_names["end_true_position_z"])
 
     @staticmethod
-    def create_array(rows, position_dimensions=2):
+    def create_array(rows, position_dimensions=2, mac_address=None):
         assert(position_dimensions in (2, 3))
         results = Results(np.zeros((rows, 11)))
         results["position_dimensions"] = position_dimensions
+        if mac_address is not None:
+            results["mac_address"] = mac_address
         return results

@@ -25,6 +25,11 @@ class TestResults(unittest.TestCase):
         self.assertTrue(isinstance(results, Results))
         self.assertTupleEqual((3, 11), results.shape)
 
+        results = Results.create_array(2, position_dimensions=3, mac_address=11223344)
+        self.assertTrue(isinstance(results, Results))
+        np.testing.assert_equal(results, [[3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11223344],
+                                          [3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11223344]])
+
         # Check field access
         results = Results.create_array(3)
         np.testing.assert_equal((2, 2, 2), results["position_dimensions"])
