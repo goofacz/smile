@@ -130,10 +130,11 @@ struct Composer<0, IdealRxCompletion>
 {
   static std::string compose(std::string buffer, const IdealRxCompletion& element)
   {
+    const auto& frame = element.getFrame();
     return composeWithBuffer(std::move(buffer), "RX", element.getOperationBeginClockTimestamp(),
                              element.getOperationBeginSimulationTimestamp(), element.getOperationBeginTruePosition(),
                              element.getOperationEndClockTimestamp(), element.getOperationEndSimulationTimestamp(),
-                             element.getOperationEndTruePosition());
+                             element.getOperationEndTruePosition(), frame->getSrc(), frame->getDest());
   }
 };
 
@@ -142,10 +143,11 @@ struct Composer<0, IdealTxCompletion>
 {
   static std::string compose(std::string buffer, const IdealTxCompletion& element)
   {
+    const auto& frame = element.getFrame();
     return composeWithBuffer(std::move(buffer), "TX", element.getOperationBeginClockTimestamp(),
                              element.getOperationBeginSimulationTimestamp(), element.getOperationBeginTruePosition(),
                              element.getOperationEndClockTimestamp(), element.getOperationEndSimulationTimestamp(),
-                             element.getOperationEndTruePosition());
+                             element.getOperationEndTruePosition(), frame->getSrc(), frame->getDest());
   }
 };
 
