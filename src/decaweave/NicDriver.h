@@ -22,6 +22,7 @@
 #include <inet/mobility/contract/IMobility.h>
 #include <inet/physicallayer/contract/packetlevel/IRadio.h>
 #include <omnetpp.h>
+#include <map>
 #include "../ClockDecorator.h"
 #include "../IRangingNicDriver.h"
 #include "../IdealRxCompletion_m.h"
@@ -32,6 +33,37 @@ namespace decaweave {
 
 class NicDriver : public ClockDecorator<omnetpp::cSimpleModule>, public IRangingNicDriver
 {
+ private:
+  enum class Operation : uint8_t
+  {
+    READ = 0x0,
+    WRITE = 0x1,
+    READ_WRITE = 0x10
+  };
+
+  enum class RegisterFile : uint8_t
+  {
+    DEV_ID = 0x00
+  };
+
+  struct Transaction
+  {
+    enum class Operation
+    {
+      READ,
+      WRITE,
+      READ_WRITE
+    };
+
+    Transaction(Operation newOperation, std::vector<uint16_t> newSubaddress);
+
+    bool readable{false};
+    bool writable{false};
+    std::vector<uint16_t> subaddresses;
+  };
+
+  using TransactionMap = std::map<RegisterFile, Transaction>;
+
  public:
   NicDriver() = default;
   NicDriver(const NicDriver& source) = delete;
@@ -43,9 +75,6 @@ class NicDriver : public ClockDecorator<omnetpp::cSimpleModule>, public IRanging
 
   inet::MACAddress getMacAddress() const override;
 
- protected:
-  using ClockDecorator<omnetpp::cSimpleModule>::receiveSignal;
-
  private:
   void initialize(int stage) override final;
 
@@ -53,6 +82,8 @@ class NicDriver : public ClockDecorator<omnetpp::cSimpleModule>, public IRanging
 
   void receiveSignal(omnetpp::cComponent* source, omnetpp::simsignal_t signalID, long value,
                      omnetpp::cObject* details) override final;
+
+  static const TransactionMap supportedTransactions;
 
   cModule* mac{nullptr};
 };

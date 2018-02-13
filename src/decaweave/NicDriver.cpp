@@ -24,6 +24,10 @@ namespace decaweave {
 
 Define_Module(NicDriver);
 
+const NicDriver::TransactionMap NicDriver::supportedTransactions = {
+    {RegisterFile::DEV_ID, {Transaction::Operation::READ, {}}},
+};
+
 inet::MACAddress NicDriver::getMacAddress() const
 {
   return inet::MACAddress{mac->par("address").stringValue()};
@@ -57,6 +61,23 @@ void NicDriver::receiveSignal(omnetpp::cComponent* source, omnetpp::simsignal_t 
                               omnetpp::cObject* details)
 {
   // TODO
+}
+
+NicDriver::Transaction::Transaction(Operation newOperation, std::vector<uint16_t> newSubaddress) :
+    subaddresses{std::move(newSubaddress)}
+{
+  switch (newOperation) {
+    case Operation::READ:
+      readable = true;
+      break;
+    case Operation::WRITE:
+      writable = true;
+      break;
+    case Operation::READ_WRITE:
+      readable = true;
+      writable = true;
+      break;
+  }
 }
 
 }  // namespace decaweave
