@@ -23,6 +23,7 @@
 #include <inet/physicallayer/contract/packetlevel/IRadio.h>
 #include <omnetpp.h>
 #include <map>
+#include <experimental/optional>
 #include "../ClockDecorator.h"
 #include "../IRangingNicDriver.h"
 #include "../IdealRxCompletion_m.h"
@@ -46,7 +47,7 @@ class NicDriver : public ClockDecorator<omnetpp::cSimpleModule>, public IRanging
     DEV_ID = 0x00
   };
 
-  struct Transaction
+  struct TransactionDescriptor
   {
     enum class Operation
     {
@@ -55,14 +56,15 @@ class NicDriver : public ClockDecorator<omnetpp::cSimpleModule>, public IRanging
       READ_WRITE
     };
 
-    Transaction(Operation newOperation, std::vector<uint16_t> newSubaddress);
+    TransactionDescriptor(Operation newOperation, std::vector<uint16_t> newSubaddress);
 
     bool readable{false};
     bool writable{false};
     std::vector<uint16_t> subaddresses;
   };
 
-  using TransactionMap = std::map<RegisterFile, Transaction>;
+  using TransactionDescriptorMap = std::map<RegisterFile, TransactionDescriptor>;
+  using Transaction = std::tuple<Operation, RegisterFile, std::experimental::optional<uint16_t>, std::vector<uint8_t>>;
 
  public:
   NicDriver() = default;
@@ -83,7 +85,7 @@ class NicDriver : public ClockDecorator<omnetpp::cSimpleModule>, public IRanging
   void receiveSignal(omnetpp::cComponent* source, omnetpp::simsignal_t signalID, long value,
                      omnetpp::cObject* details) override final;
 
-  static const TransactionMap supportedTransactions;
+  static const TransactionDescriptorMap supportedTransactions;
 
   cModule* mac{nullptr};
 };
