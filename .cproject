@@ -23,15 +23,9 @@
 							<builder autoBuildTarget="all" buildPath="${ProjDirPath}" cleanBuildTarget="clean" enableAutoBuild="false" enableCleanBuild="true" enabledIncrementalBuild="true" id="org.omnetpp.cdt.gnu.builder.debug.1123895100" incrementalBuildTarget="all" keepEnvironmentInBuildfile="false" managedBuildOn="false" name="OMNeT++ Make Builder (opp_makemake)" parallelBuildOn="true" parallelizationNumber="optimal" superClass="org.omnetpp.cdt.gnu.builder.debug"/>
 							<tool id="cdt.managedbuild.tool.gnu.archiver.base.1761731509" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.base"/>
 							<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.base.1207984331" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.base">
-								<option id="gnu.cpp.compiler.option.include.paths.1837491624" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
-									<listOptionValue builtIn="false" value="/home/goofy/Projects/omnetpp/dw1000/decadriver"/>
-								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.2124742868" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.c.compiler.base.1264891558" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.base">
-								<option id="gnu.c.compiler.option.include.paths.124216089" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
-									<listOptionValue builtIn="false" value="/home/goofy/Projects/omnetpp/dw1000/decadriver"/>
-								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.123135156" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.c.linker.base.1247239631" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.base"/>
@@ -42,9 +36,6 @@
 								</inputType>
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.assembler.base.433901735" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.base">
-								<option id="gnu.both.asm.option.include.paths.1694912291" superClass="gnu.both.asm.option.include.paths" valueType="includePath">
-									<listOptionValue builtIn="false" value="/home/goofy/Projects/omnetpp/dw1000/decadriver"/>
-								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.1890816242" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
 							</tool>
 						</toolChain>
@@ -78,15 +69,9 @@
 							<builder id="org.omnetpp.cdt.gnu.builder.release.106409899" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="OMNeT++ Make Builder (opp_makemake)" parallelBuildOn="true" parallelizationNumber="optimal" superClass="org.omnetpp.cdt.gnu.builder.release"/>
 							<tool id="cdt.managedbuild.tool.gnu.archiver.base.701270765" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.base"/>
 							<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.base.170720259" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.base">
-								<option id="gnu.cpp.compiler.option.include.paths.1661507083" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
-									<listOptionValue builtIn="false" value="/home/goofy/Projects/omnetpp/dw1000/decadriver"/>
-								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.373694638" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.c.compiler.base.855195235" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.base">
-								<option id="gnu.c.compiler.option.include.paths.165651371" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
-									<listOptionValue builtIn="false" value="/home/goofy/Projects/omnetpp/dw1000/decadriver"/>
-								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.831204034" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.c.linker.base.640807459" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.base"/>
@@ -97,10 +82,23 @@
 								</inputType>
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.assembler.base.1759902565" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.base">
-								<option id="gnu.both.asm.option.include.paths.149897972" superClass="gnu.both.asm.option.include.paths" valueType="includePath">
-									<listOptionValue builtIn="false" value="/home/goofy/Projects/omnetpp/dw1000/decadriver"/>
-								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.1529395968" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
+							</tool>
+						</toolChain>
+					</folderInfo>
+					<folderInfo id="org.omnetpp.cdt.gnu.config.release.708846711.1192538138" name="/" resourcePath="src">
+						<toolChain id="org.omnetpp.cdt.gnu.toolchain.release.485681464" name="GCC for OMNeT++" superClass="org.omnetpp.cdt.gnu.toolchain.release" unusedChildren="">
+							<tool id="cdt.managedbuild.tool.gnu.archiver.base.486744293" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.base.701270765"/>
+							<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.base.88040503" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.base.170720259">
+								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.547678603" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
+							</tool>
+							<tool id="cdt.managedbuild.tool.gnu.c.compiler.base.519392065" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.base.855195235">
+								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.723642016" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
+							</tool>
+							<tool id="cdt.managedbuild.tool.gnu.c.linker.base.1559417233" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.base.640807459"/>
+							<tool id="cdt.managedbuild.tool.gnu.cpp.linker.base.1149788997" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.base.1214677774"/>
+							<tool id="cdt.managedbuild.tool.gnu.assembler.base.665780624" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.base.1759902565">
+								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.2014663857" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
 							</tool>
 						</toolChain>
 					</folderInfo>
@@ -133,6 +131,9 @@
 							<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.PE" id="org.omnetpp.cdt.msvc.targetPlatform.858231411" name="Windows" osList="win32"/>
 							<builder buildPath="${workspace_loc:/simulte}/msvc-debug" id="org.omnetpp.cdt.msvc.builder.debug.414623682" keepEnvironmentInBuildfile="false" name="OMNeT++ Make Builder (opp_nmakemake - not supported)"/>
 						</toolChain>
+					</folderInfo>
+					<folderInfo id="org.omnetpp.cdt.msvc.config.debug.429317958.726169607" name="/" resourcePath="src">
+						<toolChain id="org.omnetpp.cdt.msvc.toolchain.debug.437317047.1888940083" name="Microsoft Visual C++ for OMNeT++" unusedChildren=""/>
 					</folderInfo>
 					<sourceEntries>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="src"/>
