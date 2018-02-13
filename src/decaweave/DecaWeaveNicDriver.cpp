@@ -43,11 +43,13 @@ void deca_sleep(unsigned int time_ms)
 int writetospi(uint16 headerLength, const uint8* headerBuffer, uint32 bodylength, const uint8* bodyBuffer)
 {
   // TODO
+  return -1;
 }
 
 int readfromspi(uint16 headerLength, const uint8* headerBuffer, uint32 readlength, uint8* readBuffer)
 {
   // TODO
+  return -1;
 }
 
 }  // extern "C"
@@ -59,6 +61,7 @@ Define_Module(DecaWeaveNicDriver);
 inet::MACAddress DecaWeaveNicDriver::getMacAddress() const
 {
   // TODO
+  return inet::MACAddress::UNSPECIFIED_ADDRESS;
 }
 
 void DecaWeaveNicDriver::initialize(int stage)
