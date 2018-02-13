@@ -52,6 +52,8 @@ class DecaWeaveNicDriver : public ClockDecorator<omnetpp::cSimpleModule>, public
 
   void receiveSignal(omnetpp::cComponent* source, omnetpp::simsignal_t signalID, long value,
                      omnetpp::cObject* details) override final;
+
+  cModule* mac{nullptr};
 };
 
 }  // namespace smile

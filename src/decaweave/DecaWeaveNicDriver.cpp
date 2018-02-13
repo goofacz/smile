@@ -22,6 +22,46 @@
 #include "../utilities.h"
 #include "deca_device_api.h"
 
+namespace smile {
+
+class NicModuleSingleton final
+{
+ public:
+  friend class NicModuleSingletonGuard;
+
+  NicModuleSingleton(const NicModuleSingleton& source) = delete;
+  NicModuleSingleton(NicModuleSingleton&& source) = delete;
+  ~NicModuleSingleton() = default;
+
+  NicModuleSingleton& operator=(const NicModuleSingleton& source) = delete;
+  NicModuleSingleton& operator=(NicModuleSingleton&& source) = delete;
+
+  DecaWeaveNicDriver* operator->();
+
+ private:
+  NicModuleSingleton() = default;
+
+  static NicModuleSingleton instance;
+
+  DecaWeaveNicDriver* nic{nullptr};
+};
+
+class NicModuleSingletonGuard final
+{
+ public:
+  explicit NicModuleSingletonGuard(DecaWeaveNicDriver* currentNicModule);
+  NicModuleSingletonGuard(const NicModuleSingletonGuard& source) = delete;
+  NicModuleSingletonGuard(NicModuleSingletonGuard&& source) = delete;
+  ~NicModuleSingletonGuard();
+
+  NicModuleSingletonGuard& operator=(const NicModuleSingletonGuard& source) = delete;
+  NicModuleSingletonGuard& operator=(NicModuleSingletonGuard&& source) = delete;
+};
+
+NicModuleSingleton NicModuleSingleton::instance;
+
+}  // namespace smile
+
 extern "C" {
 
 decaIrqStatus_t decamutexon()
@@ -36,7 +76,7 @@ void decamutexoff(decaIrqStatus_t s)
 
 void deca_sleep(unsigned int time_ms)
 {
-  assert(true); // TODO Implement me if needed!
+  assert(true);  // TODO Implement me if needed!
   return;
 }
 
@@ -60,25 +100,57 @@ Define_Module(DecaWeaveNicDriver);
 
 inet::MACAddress DecaWeaveNicDriver::getMacAddress() const
 {
-  // TODO
-  return inet::MACAddress::UNSPECIFIED_ADDRESS;
+  return inet::MACAddress{mac->par("address").stringValue()};
 }
 
 void DecaWeaveNicDriver::initialize(int stage)
 {
   ClockDecorator<cSimpleModule>::initialize(stage);
+
+  if (stage == inet::INITSTAGE_LOCAL) {
+    const auto nicModulePath = par("nicModuleRelativePath").stringValue();
+    auto nic = getModuleByPath(nicModulePath);
+    if (!nic) {
+      throw cRuntimeError{"Failed to find \"%s\" module", nicModulePath};
+    }
+
+    const auto macModulePath = ".mac";
+    mac = nic->getModuleByPath(macModulePath);
+    if (!mac) {
+      throw cRuntimeError{"Failed to find \"%s\" module relative to \"nic\" module", macModulePath};
+    }
+  }
+}
+
+void DecaWeaveNicDriver::handleIncommingMessage(omnetpp::cMessage* newMessage)
+{
+  NicModuleSingletonGuard{this};
   // TODO
 }
 
-void DecaWeaveNicDriver::handleIncommingMessage(omnetpp::cMessage *newMessage)
+void DecaWeaveNicDriver::receiveSignal(omnetpp::cComponent* source, omnetpp::simsignal_t signalID, long value,
+                                       omnetpp::cObject* details)
 {
   // TODO
 }
 
-void DecaWeaveNicDriver::receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_t signalID, long value,
-                                       omnetpp::cObject *details)
+DecaWeaveNicDriver* NicModuleSingleton::operator->()
 {
-  // TODO
+  if (!nic) {
+    throw cRuntimeError{"Trying to use null NicModuleSingleton instance"};
+  }
+
+  return nic;
+}
+
+NicModuleSingletonGuard::NicModuleSingletonGuard(DecaWeaveNicDriver* currentNicModule)
+{
+  NicModuleSingleton::instance.nic = currentNicModule;
+}
+
+NicModuleSingletonGuard::~NicModuleSingletonGuard()
+{
+  NicModuleSingleton::instance.nic = nullptr;
 }
 
 }  // namespace smile
