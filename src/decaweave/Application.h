@@ -18,18 +18,12 @@
 #include "../smile_features.h"
 #ifdef WITH_DECAWEAVE
 
-#include <inet/common/geometry/common/Coord.h>
-#include <inet/mobility/contract/IMobility.h>
-#include <omnetpp.h>
-#include "../ClockDecorator.h"
-#include "../IApplication.h"
-#include "../IRangingNicDriver.h"
-#include "../Logger.h"
+#include "../Application.h"
 
 namespace smile {
 namespace decaweave {
 
-class Application : public ClockDecorator<omnetpp::cSimpleModule>, public IApplication
+class Application : public smile::Application
 {
  public:
   Application() = default;

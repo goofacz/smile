@@ -102,7 +102,7 @@ Define_Module(Application);
 
 void Application::initialize(int stage)
 {
-  ClockDecorator<cSimpleModule>::initialize(stage);
+  smile::Application::initialize(stage);
   // TODO
 }
 
