@@ -15,14 +15,17 @@
 
 #pragma once
 
+#include "../smile_features.h"
+#ifdef WITH_DECAWEAVE
+
 #include <inet/linklayer/ideal/IdealMacFrame_m.h>
 #include <inet/mobility/contract/IMobility.h>
 #include <inet/physicallayer/contract/packetlevel/IRadio.h>
 #include <omnetpp.h>
-#include "ClockDecorator.h"
-#include "IRangingNicDriver.h"
-#include "IdealRxCompletion_m.h"
-#include "IdealTxCompletion_m.h"
+#include "../ClockDecorator.h"
+#include "../IRangingNicDriver.h"
+#include "../IdealRxCompletion_m.h"
+#include "../IdealTxCompletion_m.h"
 
 namespace smile {
 
@@ -52,3 +55,5 @@ class DecaWeaveNicDriver : public ClockDecorator<omnetpp::cSimpleModule>, public
 };
 
 }  // namespace smile
+
+#endif  // WITH_DECAWEAVE

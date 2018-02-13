@@ -1,0 +1,13 @@
+<features cppSourceRoots="src" definesFile="src/smile_features.h">
+    <feature
+        id="decaweave"
+        name="DecaWeave"
+        description = "DecaWeave DW1000 NIC model"
+        initiallyEnabled = "false"
+        requires = ""
+        labels = ""
+        nedPackages = "smile.decaweave"
+        extraSourceFolders = ""
+        compileFlags = "-DWITH_DECAWEAVE -Isrc/decaweave -I../../dw1000/decadriver/"
+        linkerFlags = "-L../../dw1000/decadriver/ -ldw1000"/>
+</features>
