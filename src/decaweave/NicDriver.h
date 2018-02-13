@@ -28,17 +28,18 @@
 #include "../IdealTxCompletion_m.h"
 
 namespace smile {
+namespace decaweave {
 
-class DecaWeaveNicDriver : public ClockDecorator<omnetpp::cSimpleModule>, public IRangingNicDriver
+class NicDriver : public ClockDecorator<omnetpp::cSimpleModule>, public IRangingNicDriver
 {
  public:
-  DecaWeaveNicDriver() = default;
-  DecaWeaveNicDriver(const DecaWeaveNicDriver& source) = delete;
-  DecaWeaveNicDriver(DecaWeaveNicDriver&& source) = delete;
-  ~DecaWeaveNicDriver() = default;
+  NicDriver() = default;
+  NicDriver(const NicDriver& source) = delete;
+  NicDriver(NicDriver&& source) = delete;
+  ~NicDriver() = default;
 
-  DecaWeaveNicDriver& operator=(const DecaWeaveNicDriver& source) = delete;
-  DecaWeaveNicDriver& operator=(DecaWeaveNicDriver&& source) = delete;
+  NicDriver& operator=(const NicDriver& source) = delete;
+  NicDriver& operator=(NicDriver&& source) = delete;
 
   inet::MACAddress getMacAddress() const override;
 
@@ -56,6 +57,7 @@ class DecaWeaveNicDriver : public ClockDecorator<omnetpp::cSimpleModule>, public
   cModule* mac{nullptr};
 };
 
+}  // namespace decaweave
 }  // namespace smile
 
 #endif  // WITH_DECAWEAVE

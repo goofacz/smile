@@ -15,12 +15,10 @@
 
 package smile.decaweave;
 
-import smile.IRangingNicDriver;
-
-simple DecaWeaveNicDriver like IRangingNicDriver
+simple NicDriver like smile.IRangingNicDriver
 {
     parameters:
-        @class(smile::DecaWeaveNicDriver);
+        @class(smile::decaweave::NicDriver);
         @display("i=block/layer");
         @signal[txCompleted](type=smile::IdealTxCompletion);
         @signal[rxCompleted](type=smile::IdealRxCompletion);
