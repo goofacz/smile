@@ -21,6 +21,7 @@
 #include "deca_device_api.h"
 
 extern "C" {
+
 decaIrqStatus_t decamutexon()
 {
   // TODO
@@ -28,49 +29,53 @@ decaIrqStatus_t decamutexon()
 
 void decamutexoff(decaIrqStatus_t s)
 {
-  // TODO}
+  // TODO
+}
 
-  void deca_sleep(unsigned int time_ms)
-  {
-    // TODO}
+void deca_sleep(unsigned int time_ms)
+{
+  // TODO
+}
 
-    int writetospi(uint16 headerLength, const uint8 *headerBuffer, uint32 bodylength, const uint8 *bodyBuffer)
-    {
-      // TODO}
+int writetospi(uint16 headerLength, const uint8* headerBuffer, uint32 bodylength, const uint8* bodyBuffer)
+{
+  // TODO
+}
 
-      int readfromspi(uint16 headerLength, const uint8 *headerBuffer, uint32 readlength, uint8 *readBuffer)
-      {
-        // TODO}
+int readfromspi(uint16 headerLength, const uint8* headerBuffer, uint32 readlength, uint8* readBuffer)
+{
+  // TODO
+}
 
-      }  // extern "C"
+}  // extern "C"
 
-      namespace smile {
+namespace smile {
 
-      Define_Module(DecaWeaveNicDriver);
+Define_Module(DecaWeaveNicDriver);
 
-      inet::MACAddress DecaWeaveNicDriver::getMacAddress() const
-      {
-        dwt_getpartid();
-        // TODO
-      }
+inet::MACAddress DecaWeaveNicDriver::getMacAddress() const
+{
+  dwt_getpartid();
+  // TODO
+}
 
-      void DecaWeaveNicDriver::initialize(int stage)
-      {
-        ClockDecorator<cSimpleModule>::initialize(stage);
-        // TODO
-      }
+void DecaWeaveNicDriver::initialize(int stage)
+{
+  ClockDecorator<cSimpleModule>::initialize(stage);
+  // TODO
+}
 
-      void DecaWeaveNicDriver::handleIncommingMessage(omnetpp::cMessage *newMessage)
-      {
-        // TODO
-      }
+void DecaWeaveNicDriver::handleIncommingMessage(omnetpp::cMessage *newMessage)
+{
+  // TODO
+}
 
-      void DecaWeaveNicDriver::receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_t signalID, long value,
-                                             omnetpp::cObject *details)
-      {
-        // TODO
-      }
+void DecaWeaveNicDriver::receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_t signalID, long value,
+                                       omnetpp::cObject *details)
+{
+  // TODO
+}
 
-      }  // namespace smile
+}  // namespace smile
 
 #endif  // WITH_DECAWEAVE
