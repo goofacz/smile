@@ -42,6 +42,9 @@ class Application : public ClockDecorator<omnetpp::cSimpleModule>, public IAppli
 
  protected:
   void initialize(int stage) override;
+
+ private:
+  void handleIncommingMessage(cMessage* message) override final;
 };
 
 }  // namespace decaweave

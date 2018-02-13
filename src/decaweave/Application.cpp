@@ -106,6 +106,12 @@ void Application::initialize(int stage)
   // TODO
 }
 
+void Application::handleIncommingMessage(cMessage* message)
+{
+  CurrentApplicationGuard{this};
+  // TODO
+}
+
 Application* ApplicationSingleton::operator->()
 {
   if (!application) {
@@ -117,6 +123,7 @@ Application* ApplicationSingleton::operator->()
 
 CurrentApplicationGuard::CurrentApplicationGuard(Application* currentApplication)
 {
+  assert(currentApplication);
   ApplicationSingleton::instance.application = currentApplication;
 }
 
