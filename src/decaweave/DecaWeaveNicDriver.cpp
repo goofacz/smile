@@ -13,6 +13,8 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 //
 
+#include <cassert>
+
 #include "DecaWeaveNicDriver.h"
 
 #ifdef WITH_DECAWEAVE
@@ -24,17 +26,18 @@ extern "C" {
 
 decaIrqStatus_t decamutexon()
 {
-  // TODO
+  return 0;
 }
 
 void decamutexoff(decaIrqStatus_t s)
 {
-  // TODO
+  return;
 }
 
 void deca_sleep(unsigned int time_ms)
 {
-  // TODO
+  assert(true); // TODO Implement me if needed!
+  return;
 }
 
 int writetospi(uint16 headerLength, const uint8* headerBuffer, uint32 bodylength, const uint8* bodyBuffer)
@@ -55,7 +58,6 @@ Define_Module(DecaWeaveNicDriver);
 
 inet::MACAddress DecaWeaveNicDriver::getMacAddress() const
 {
-  dwt_getpartid();
   // TODO
 }
 
