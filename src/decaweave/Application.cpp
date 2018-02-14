@@ -20,6 +20,7 @@
 #include <inet/common/ModuleAccess.h>
 #include <cassert>
 #include "deca_device_api.h"
+#include "deca_regs.h"
 
 namespace smile {
 namespace decaweave {
@@ -100,6 +101,10 @@ namespace decaweave {
 
 Define_Module(Application);
 
+const Application::TransactionDescriptorMap Application::supportedTransactions = {
+    {DEV_ID_ID, {TransactionDescriptor::Operation::READ, {}}},
+};
+
 void Application::initialize(int stage)
 {
   smile::Application::initialize(stage);
@@ -130,6 +135,23 @@ CurrentApplicationGuard::CurrentApplicationGuard(Application* currentApplication
 CurrentApplicationGuard::~CurrentApplicationGuard()
 {
   ApplicationSingleton::instance.application = nullptr;
+}
+
+Application::TransactionDescriptor::TransactionDescriptor(Operation newOperation, std::vector<uint16_t> newSubaddress) :
+    subaddresses{std::move(newSubaddress)}
+{
+  switch (newOperation) {
+    case Operation::READ:
+      readable = true;
+      break;
+    case Operation::WRITE:
+      writable = true;
+      break;
+    case Operation::READ_WRITE:
+      readable = true;
+      writable = true;
+      break;
+  }
 }
 
 }  // namespace decaweave

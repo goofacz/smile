@@ -25,6 +25,34 @@ namespace decaweave {
 
 class Application : public smile::Application
 {
+ private:
+  enum class Operation : uint8_t
+  {
+    READ = 0x0,
+    WRITE = 0x1,
+    READ_WRITE = 0x10
+  };
+
+  struct TransactionDescriptor
+  {
+    enum class Operation
+    {
+      READ,
+      WRITE,
+      READ_WRITE
+    };
+
+    TransactionDescriptor(Operation newOperation, std::vector<uint16_t> newSubaddress);
+
+    bool readable{false};
+    bool writable{false};
+    std::vector<uint16_t> subaddresses;
+  };
+
+  using RegisterFile = uint8_t;
+  using TransactionDescriptorMap = std::map<RegisterFile, TransactionDescriptor>;
+  using Transaction = std::tuple<Operation, RegisterFile, std::experimental::optional<uint16_t>, std::vector<uint8_t>>;
+
  public:
   Application() = default;
   Application(const Application& source) = delete;
@@ -39,6 +67,8 @@ class Application : public smile::Application
 
  private:
   void handleIncommingMessage(cMessage* message) override final;
+
+  static const TransactionDescriptorMap supportedTransactions;
 };
 
 }  // namespace decaweave
