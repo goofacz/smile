@@ -19,7 +19,6 @@
 
 #include <inet/common/ModuleAccess.h>
 #include <cassert>
-#include "deca_device_api.h"
 #include "deca_regs.h"
 
 namespace smile {
@@ -38,6 +37,8 @@ class ApplicationSingleton final
   ApplicationSingleton& operator=(ApplicationSingleton&& source) = delete;
 
   Application* operator->();
+
+  static ApplicationSingleton& getInstance();
 
  private:
   ApplicationSingleton() = default;
@@ -61,10 +62,71 @@ class CurrentApplicationGuard final
 
 ApplicationSingleton ApplicationSingleton::instance;
 
+Define_Module(Application);
+
+void Application::initialize(int stage)
+{
+  smile::Application::initialize(stage);
+  // TODO
+}
+
+void Application::handleIncommingMessage(cMessage* message)
+{
+  CurrentApplicationGuard guard{this};
+  // TODO
+}
+
+int Application::decodeTransaction(uint16_t headerLength, const uint8_t* headerBuffer, uint32_t readlength,
+                                   uint8_t* readBuffer)
+{
+  constexpr uint8_t operationMask{0x80};
+  constexpr uint8_t registerFileMask{0x7F};
+
+  const RegisterFile registerFile{static_cast<uint8_t>(headerBuffer[0] & registerFileMask)};
+  const Operation operation{headerBuffer[0] & operationMask ? Operation::WRITE : Operation::READ};
+
+  switch (registerFile) {
+    case DEV_ID_ID:
+      return handleReadDevId(readlength, readBuffer);
+    default:
+      throw cRuntimeError{"DecaWeave register file 0x%X is not supported", registerFile};
+  }
+}
+
+int Application::handleReadDevId(uint32_t readlength, uint8_t* readBuffer)
+{
+  const uint32_t deviceId{0xDECA0130};
+  memcpy(readBuffer, &deviceId, sizeof(deviceId));
+  return DWT_SUCCESS;
+}
+
+Application* ApplicationSingleton::operator->()
+{
+  if (!application) {
+    throw cRuntimeError{"Trying to use null smile::decaweave::Application instance"};
+  }
+
+  return application;
+}
+
+ApplicationSingleton& ApplicationSingleton::getInstance()
+{
+  return instance;
+}
+
+CurrentApplicationGuard::CurrentApplicationGuard(Application* currentApplication)
+{
+  assert(currentApplication);
+  ApplicationSingleton::instance.application = currentApplication;
+}
+
+CurrentApplicationGuard::~CurrentApplicationGuard()
+{
+  ApplicationSingleton::instance.application = nullptr;
+}
+
 }  // namespace decaweave
 }  // namespace smile
-
-extern "C" {
 
 decaIrqStatus_t decamutexon()
 {
@@ -90,71 +152,8 @@ int writetospi(uint16 headerLength, const uint8* headerBuffer, uint32 bodylength
 
 int readfromspi(uint16 headerLength, const uint8* headerBuffer, uint32 readlength, uint8* readBuffer)
 {
-  // TODO
-  return -1;
+  auto& instance = smile::decaweave::ApplicationSingleton::getInstance();
+  return instance->decodeTransaction(headerLength, headerBuffer, readlength, readBuffer);
 }
-
-}  // extern "C"
-
-namespace smile {
-namespace decaweave {
-
-Define_Module(Application);
-
-const Application::TransactionDescriptorMap Application::supportedTransactions = {
-    {DEV_ID_ID, {TransactionDescriptor::Operation::READ, {}}},
-};
-
-void Application::initialize(int stage)
-{
-  smile::Application::initialize(stage);
-  // TODO
-}
-
-void Application::handleIncommingMessage(cMessage* message)
-{
-  CurrentApplicationGuard{this};
-  // TODO
-}
-
-Application* ApplicationSingleton::operator->()
-{
-  if (!application) {
-    throw cRuntimeError{"Trying to use null smile::decaweave::Application instance"};
-  }
-
-  return application;
-}
-
-CurrentApplicationGuard::CurrentApplicationGuard(Application* currentApplication)
-{
-  assert(currentApplication);
-  ApplicationSingleton::instance.application = currentApplication;
-}
-
-CurrentApplicationGuard::~CurrentApplicationGuard()
-{
-  ApplicationSingleton::instance.application = nullptr;
-}
-
-Application::TransactionDescriptor::TransactionDescriptor(Operation newOperation, std::vector<uint16_t> newSubaddress) :
-    subaddresses{std::move(newSubaddress)}
-{
-  switch (newOperation) {
-    case Operation::READ:
-      readable = true;
-      break;
-    case Operation::WRITE:
-      writable = true;
-      break;
-    case Operation::READ_WRITE:
-      readable = true;
-      writable = true;
-      break;
-  }
-}
-
-}  // namespace decaweave
-}  // namespace smile
 
 #endif  // WITH_DECAWEAVE
