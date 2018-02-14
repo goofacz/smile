@@ -73,6 +73,8 @@ void Application::initialize(int stage)
 {
   smile::Application::initialize(stage);
   // TODO
+  CurrentApplicationGuard guard{this};
+  printf("XTJ>> %x\n", dwt_readdevid());
 }
 
 unsigned int Application::generateDecaLibIndex()
@@ -108,7 +110,7 @@ int Application::readRegisterFile(const std::pair<uint8_t, uint16_t>& registerFi
                                   uint8_t* readBuffer)
 {
   const auto& value = registerFiles.at(registerFileWithSubaddress);
-  std::copy(value.begin(), value.end(), readBuffer);
+  std::copy(value.rbegin(), value.rend(), readBuffer);
   return DWT_SUCCESS;
 }
 
