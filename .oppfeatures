@@ -8,6 +8,6 @@
         labels = ""
         nedPackages = "smile.decaweave"
         extraSourceFolders = ""
-        compileFlags = "-DWITH_DECAWEAVE -Isrc/decaweave -I../../dw1000/decadriver/"
+        compileFlags = "-DWITH_DECAWEAVE -DDWT_NUM_DW_DEV=20000 -Isrc/decaweave -I../../dw1000/decadriver/"
         linkerFlags = "-L../../dw1000/decadriver/ -ldw1000"/>
 </features>
