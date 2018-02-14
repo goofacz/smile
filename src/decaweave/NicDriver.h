@@ -22,8 +22,6 @@
 #include <inet/mobility/contract/IMobility.h>
 #include <inet/physicallayer/contract/packetlevel/IRadio.h>
 #include <omnetpp.h>
-#include <experimental/optional>
-#include <map>
 #include "../ClockDecorator.h"
 #include "../IRangingNicDriver.h"
 #include "../IdealRxCompletion_m.h"
