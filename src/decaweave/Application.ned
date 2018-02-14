@@ -18,6 +18,6 @@ package smile.decaweave;
 simple Application extends smile.Application
 {
     parameters:
-        @class(smile::Application);
+        @class(smile::decaweave::Application);
         @display("i=block/app");
 }
