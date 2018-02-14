@@ -27,8 +27,6 @@ namespace decaweave {
 class ApplicationSingleton final
 {
  public:
-  friend class CurrentApplicationGuard;
-
   ApplicationSingleton(const ApplicationSingleton& source) = delete;
   ApplicationSingleton(ApplicationSingleton&& source) = delete;
   ~ApplicationSingleton() = default;
@@ -37,6 +35,7 @@ class ApplicationSingleton final
   ApplicationSingleton& operator=(ApplicationSingleton&& source) = delete;
 
   Application* operator->();
+  void setApplication(Application* newApplication);
 
   static ApplicationSingleton& getInstance();
 
@@ -64,10 +63,18 @@ ApplicationSingleton ApplicationSingleton::instance;
 
 Define_Module(Application);
 
+Application::Application() : smile::Application(), decaLibIndex{generateDecaLibIndex()} {}
+
 void Application::initialize(int stage)
 {
   smile::Application::initialize(stage);
   // TODO
+}
+
+unsigned int Application::generateDecaLibIndex()
+{
+  static unsigned int index{0};
+  return index++;
 }
 
 void Application::handleIncommingMessage(cMessage* message)
@@ -100,6 +107,11 @@ int Application::handleReadDevId(uint32_t readlength, uint8_t* readBuffer)
   return DWT_SUCCESS;
 }
 
+unsigned int Application::getDecaLibIndex() const
+{
+  return decaLibIndex;
+}
+
 Application* ApplicationSingleton::operator->()
 {
   if (!application) {
@@ -107,6 +119,10 @@ Application* ApplicationSingleton::operator->()
   }
 
   return application;
+}
+void ApplicationSingleton::setApplication(Application* newApplication)
+{
+  application = newApplication;
 }
 
 ApplicationSingleton& ApplicationSingleton::getInstance()
@@ -117,12 +133,22 @@ ApplicationSingleton& ApplicationSingleton::getInstance()
 CurrentApplicationGuard::CurrentApplicationGuard(Application* currentApplication)
 {
   assert(currentApplication);
-  ApplicationSingleton::instance.application = currentApplication;
+  const auto index = currentApplication->getDecaLibIndex();
+
+  const auto result = dwt_setlocaldataptr(index);
+  if (result == DWT_ERROR) {
+    throw cRuntimeError{"Failed to call dwt_setlocaldataptr() with index=%d (DWT_NUM_DW_DEV=%d)", index,
+                        DWT_NUM_DW_DEV};
+  }
+
+  auto& instance = ApplicationSingleton::getInstance();
+  instance.setApplication(currentApplication);
 }
 
 CurrentApplicationGuard::~CurrentApplicationGuard()
 {
-  ApplicationSingleton::instance.application = nullptr;
+  auto& instance = ApplicationSingleton::getInstance();
+  instance.setApplication(nullptr);
 }
 
 }  // namespace decaweave

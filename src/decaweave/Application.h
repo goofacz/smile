@@ -33,6 +33,7 @@ extern int readfromspi(uint16 headerLength, const uint8* headerBuffer, uint32 re
 class Application : public smile::Application
 {
   friend int readfromspi(uint16 headerLength, const uint8* headerBuffer, uint32 readlength, uint8* readBuffer);
+  friend class CurrentApplicationGuard;
 
  private:
   enum class Operation
@@ -44,7 +45,7 @@ class Application : public smile::Application
   using RegisterFile = uint8_t;
 
  public:
-  Application() = default;
+  Application();
   Application(const Application& source) = delete;
   Application(Application&& source) = delete;
   ~Application() = default;
@@ -56,11 +57,17 @@ class Application : public smile::Application
   void initialize(int stage) override;
 
  private:
+  static unsigned int generateDecaLibIndex();
+
   void handleIncommingMessage(cMessage* message) override final;
 
   int decodeTransaction(uint16_t headerLength, const uint8_t* headerBuffer, uint32_t readlength, uint8_t* readBuffer);
 
   int handleReadDevId(uint32_t readlength, uint8_t* readBuffer);
+
+  unsigned int getDecaLibIndex() const;
+
+  const unsigned int decaLibIndex;
 };
 
 }  // namespace decaweave
