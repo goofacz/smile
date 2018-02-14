@@ -18,8 +18,24 @@
 #include "../smile_features.h"
 #ifdef WITH_DECAWEAVE
 
+#include <map>
+#include <vector>
 #include "../Application.h"
 #include "deca_device_api.h"
+
+namespace std {
+
+template <>
+struct hash<std::pair<uint8_t, uint16_t>>
+{
+  std::size_t operator()(const std::pair<uint8_t, uint16_t>& key)
+  {
+    const uint32_t value = (key.first << 16) | key.second;
+    return std::hash<uint32_t>{}(value);
+  }
+};
+
+}  // namespace std
 
 namespace smile {
 namespace decaweave {
@@ -43,6 +59,7 @@ class Application : public smile::Application
   };
 
   using RegisterFile = uint8_t;
+  using RegisterFileMap = std::map<std::pair<uint8_t, uint8_t>, std::vector<uint8_t>>;
 
  public:
   Application();
@@ -63,11 +80,13 @@ class Application : public smile::Application
 
   int decodeTransaction(uint16_t headerLength, const uint8_t* headerBuffer, uint32_t readlength, uint8_t* readBuffer);
 
-  int handleReadDevId(uint32_t readlength, uint8_t* readBuffer);
+  int readRegisterFile(const std::pair<uint8_t, uint16_t>& registerFileWithSubaddress, uint32_t readlength,
+                       uint8_t* readBuffer);
 
   unsigned int getDecaLibIndex() const;
 
   const unsigned int decaLibIndex;
+  RegisterFileMap registerFiles;
 };
 
 }  // namespace decaweave

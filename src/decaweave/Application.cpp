@@ -63,7 +63,11 @@ ApplicationSingleton ApplicationSingleton::instance;
 
 Define_Module(Application);
 
-Application::Application() : smile::Application(), decaLibIndex{generateDecaLibIndex()} {}
+Application::Application() : smile::Application(), decaLibIndex{generateDecaLibIndex()}
+{
+  registerFiles[{DEV_ID_ID, 0}] = {0xDE, 0xCA, 0x01, 0x30};
+  registerFiles[{PMSC_ID, PMSC_CTRL0_OFFSET}] = {0b11110000, 0b00110000, 0b00000010, 0b00000000};
+}
 
 void Application::initialize(int stage)
 {
@@ -94,16 +98,17 @@ int Application::decodeTransaction(uint16_t headerLength, const uint8_t* headerB
 
   switch (registerFile) {
     case DEV_ID_ID:
-      return handleReadDevId(readlength, readBuffer);
+      return readRegisterFile({registerFile, 0}, readlength, readBuffer);
     default:
       throw cRuntimeError{"DecaWeave register file 0x%X is not supported", registerFile};
   }
 }
 
-int Application::handleReadDevId(uint32_t readlength, uint8_t* readBuffer)
+int Application::readRegisterFile(const std::pair<uint8_t, uint16_t>& registerFileWithSubaddress, uint32_t readlength,
+                                  uint8_t* readBuffer)
 {
-  const uint32_t deviceId{0xDECA0130};
-  memcpy(readBuffer, &deviceId, sizeof(deviceId));
+  const auto& value = registerFiles.at(registerFileWithSubaddress);
+  std::copy(value.begin(), value.end(), readBuffer);
   return DWT_SUCCESS;
 }
 
