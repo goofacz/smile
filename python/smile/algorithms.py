@@ -17,5 +17,3 @@
 import numpy as np
 
 
-def sort(array, column):
-    return array[np.argsort(array[:, column]), :]

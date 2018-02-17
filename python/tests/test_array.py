@@ -15,9 +15,7 @@
 
 import unittest
 
-import numpy as np
-
-from smile.array import Array
+from smile.array import *
 
 
 class TestArray(unittest.TestCase):
@@ -78,11 +76,11 @@ class TestArray(unittest.TestCase):
 
         result = data[np.where(data["first"] == 2)]
         self.assertTrue(isinstance(result, TestArray.Data))
-        np.testing.assert_equal(result, [[2,  20, 200]])
+        np.testing.assert_equal(result, [[2, 20, 200]])
 
         result = data[data["second"] == 30]
         self.assertTrue(isinstance(result, TestArray.Data))
-        np.testing.assert_equal(result, [[3,  30, 300]])
+        np.testing.assert_equal(result, [[3, 30, 300]])
 
     def test_getitem_with_array(self):
         vector = TestArray.Data([1, 20, 300, 4000])
@@ -224,6 +222,17 @@ class TestArray(unittest.TestCase):
         np.testing.assert_equal(result, [[6, 70, 800],
                                          [7, 80, 900],
                                          [8, 90, 1000]])
+
+
+class TestSort(unittest.TestCase):
+    def test_sort(self):
+        data = np.array([[4, 5],
+                         [8, 2],
+                         [1, 8]])
+
+        np.testing.assert_equal(sort(data, 0), [[1, 8],
+                                                [4, 5],
+                                                [8, 2]])
 
 
 if __name__ == '__main__':

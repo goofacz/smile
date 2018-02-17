@@ -97,3 +97,7 @@ class Array(np.ndarray):
             return self._process_vector_index(index)
         else:
             return self._process_array_index(index)
+
+
+def sort(array, column):
+    return array[np.argsort(array[:, column]), :]
