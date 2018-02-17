@@ -22,8 +22,8 @@ def doan_vesely(coordinates, distances):
     2015 16th International Radar Symposium (IRS), Dresden, 2015, pp. 800-805.
     """
     # TODO propose better way for arguments checking
-    assert(coordinates.shape == (3, 2))
-    assert(distances.shape == (3,))
+    assert (coordinates.shape == (3, 2))
+    assert (distances.shape == (3,))
     
     L = distances[1]
     R = distances[2]

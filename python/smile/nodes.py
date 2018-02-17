@@ -14,6 +14,7 @@
 #
 
 import numpy as np
+
 from smile.array import Array
 
 

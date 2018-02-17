@@ -15,6 +15,7 @@
 
 # There's no need to display interactive plots
 import matplotlib
+
 matplotlib.use('AGG')
 
 import unittest
@@ -45,10 +46,10 @@ class TestAnalysis(unittest.TestCase):
         np.testing.assert_equal((0, 20), true_position[1, :])
         np.testing.assert_equal((10, 10), true_position[2, :])
 
-        self.assertTupleEqual((3, ), position_errors.shape)
+        self.assertTupleEqual((3,), position_errors.shape)
         self.assertEqual(5, position_errors[0])
         self.assertEqual(15, position_errors[1])
-        self.assertAlmostEqual(sqrt(2 * 10**2) - sqrt(2 * 6**2), position_errors[2], places=10)
+        self.assertAlmostEqual(sqrt(2 * 10 ** 2) - sqrt(2 * 6 ** 2), position_errors[2], places=10)
 
     def test_absolute_position_error_histogram(self):
         results = Results.create_array(3, 2)
@@ -70,10 +71,10 @@ class TestAnalysis(unittest.TestCase):
         np.testing.assert_equal((0, 20), true_position[1, :])
         np.testing.assert_equal((10, 10), true_position[2, :])
 
-        self.assertTupleEqual((3, ), position_errors.shape)
+        self.assertTupleEqual((3,), position_errors.shape)
         self.assertEqual(5, position_errors[0])
         self.assertEqual(15, position_errors[1])
-        self.assertAlmostEqual(sqrt(2 * 10**2) - sqrt(2 * 6**2), position_errors[2], places=10)
+        self.assertAlmostEqual(sqrt(2 * 10 ** 2) - sqrt(2 * 6 ** 2), position_errors[2], places=10)
 
     def test_obtain_unique_results(self):
         results = Results.create_array(6, 2)

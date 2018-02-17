@@ -13,8 +13,9 @@
 # along with this program.  If not, see http:#www.gnu.org/licenses/.
 #
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
+
 from smile.results import Results
 
 

@@ -15,7 +15,9 @@
 
 import unittest
 from io import StringIO
+
 import numpy as np
+
 from smile.nodes import Nodes
 
 

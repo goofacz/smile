@@ -14,6 +14,7 @@
 #
 
 import numpy as np
+
 from smile.array import Array
 
 
@@ -55,7 +56,7 @@ class Results(Array):
 
     @staticmethod
     def create_array(rows, position_dimensions=2, mac_address=None):
-        assert(position_dimensions in (2, 3))
+        assert (position_dimensions in (2, 3))
         results = Results(np.zeros((rows, 11)))
         results["position_dimensions"] = position_dimensions
         if mac_address is not None:

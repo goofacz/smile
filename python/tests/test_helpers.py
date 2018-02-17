@@ -14,6 +14,7 @@
 #
 
 import unittest
+
 from smile.helpers import *
 
 
