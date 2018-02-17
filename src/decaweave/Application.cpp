@@ -94,16 +94,16 @@ int Application::decodeTransaction(uint16_t headerLength, const uint8_t* headerB
   const RegisterFile registerFile{static_cast<uint8_t>(headerBuffer[0] & registerFileMask)};
   const Operation operation{headerBuffer[0] & operationMask ? Operation::WRITE : Operation::READ};
 
-  Subindex subindex{0};
+  RegisterOffset offset{0};
   switch (headerLength) {
     case 1:
       break;
     case 2:
-      subindex = (headerBuffer[1] & 0x7F);
+      offset = (headerBuffer[1] & 0x7F);
       break;
     case 3:
-      subindex = (headerBuffer[2] << 7);
-      subindex |= (headerBuffer[1] & 0x7F);
+      offset = (headerBuffer[2] << 7);
+      offset |= (headerBuffer[1] & 0x7F);
       break;
     default:
       throw cRuntimeError{"DecaWeave transaction header size (%d bytes) is not supported", headerLength};
@@ -114,7 +114,7 @@ int Application::decodeTransaction(uint16_t headerLength, const uint8_t* headerB
       // TODO
       throw cRuntimeError{"Writing DecaWeave registers is not implemented yet"};
     case Operation::READ:
-      return handleReadTransaction({registerFile, subindex}, readlength, readBuffer);
+      return handleReadTransaction({registerFile, offset}, readlength, readBuffer);
   }
 }
 
@@ -130,11 +130,11 @@ int Application::handleReadTransaction(const FullRegisterFile& fullRegisterFile,
   }
 }
 
-int Application::readRegisterFile(const FullRegisterFile& fullRegisterFile, uint32_t readlength, uint8_t* readBuffer)
+int Application::readRegisterFile(const FullRegisterFile& fullRegisterFile, uint32_t readLength, uint8_t* readBuffer)
 {
   try {
-    const auto& value = registerFiles.at(fullRegisterFile);
-    std::copy(value.rbegin(), value.rbegin() + readlength, readBuffer);
+    const auto& value = registerFiles.at(fullRegisterFile.first);
+    std::memcpy(readBuffer, value.data() + fullRegisterFile.second, readLength);
     return DWT_SUCCESS;
   }
   catch (const std::out_of_range&) {
@@ -150,9 +150,10 @@ unsigned int Application::getDecaLibIndex() const
 
 void Application::resetRegisterFiles()
 {
-  registerFiles[{DEV_ID_ID, 0}] = {0xDE, 0xCA, 0x01, 0x30};
-  registerFiles[{PMSC_ID, PMSC_CTRL0_OFFSET}] = {0b11110000, 0b00110000, 0b00000010, 0b00000000};
-  registerFiles[{PMSC_ID, PMSC_CTRL1_OFFSET}] = {0b10000001, 0b00000010, 0b00000111, 0b00111000};
+    registerFiles.clear();
+  registerFiles[DEV_ID_ID, 0] = {0xDE, 0xCA, 0x01, 0x30};
+  registerFiles[PMSC_ID] = {0b11110000, 0b00110000, 0b00000010, 0b00000000, /* CTRL0 */
+                            0b10000001, 0b00000010, 0b00000111, 0b00111000 /* CTRL1 */};
 }
 
 Application* ApplicationSingleton::operator->()

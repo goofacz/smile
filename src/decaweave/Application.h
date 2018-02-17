@@ -23,20 +23,6 @@
 #include "../Application.h"
 #include "deca_device_api.h"
 
-namespace std {
-
-template <>
-struct hash<std::pair<uint8_t, uint16_t>>
-{
-  std::size_t operator()(const std::pair<uint8_t, uint16_t>& key)
-  {
-    const uint32_t value = (key.first << 16) | key.second;
-    return std::hash<uint32_t>{}(value);
-  }
-};
-
-}  // namespace std
-
 namespace smile {
 namespace decaweave {
 
@@ -59,9 +45,9 @@ class Application : public smile::Application
   };
 
   using RegisterFile = uint8_t;
-  using Subindex = uint16_t;
-  using FullRegisterFile = std::pair<RegisterFile, Subindex>;
-  using RegisterFileMap = std::map<FullRegisterFile, std::vector<uint8_t>>;
+  using RegisterOffset = uint16_t;
+  using FullRegisterFile = std::pair<RegisterFile, RegisterOffset>;
+  using RegisterFileMap = std::map<RegisterFile, std::vector<uint8_t>>;
 
  public:
   Application();
@@ -80,11 +66,11 @@ class Application : public smile::Application
 
   void handleIncommingMessage(cMessage* message) override final;
 
-  int decodeTransaction(uint16_t headerLength, const uint8_t* headerBuffer, uint32_t readlength, uint8_t* readBuffer);
+  int decodeTransaction(uint16_t headerLength, const uint8_t* headerBuffer, uint32_t readLength, uint8_t* readBuffer);
 
-  int handleReadTransaction(const FullRegisterFile& fullRegisterFile, uint32_t readlength, uint8_t* readBuffer);
+  int handleReadTransaction(const FullRegisterFile& fullRegisterFile, uint32_t readLength, uint8_t* readBuffer);
 
-  int readRegisterFile(const FullRegisterFile& fullRegisterFile, uint32_t readlength, uint8_t* readBuffer);
+  int readRegisterFile(const FullRegisterFile& fullRegisterFile, uint32_t readLength, uint8_t* readBuffer);
 
   unsigned int getDecaLibIndex() const;
 
