@@ -29,7 +29,7 @@ class Application : public smile::Application
 {
   friend class CurrentApplicationGuard;
 
-private:
+ private:
   using DecalibCallback = std::function<void(const dwt_cb_data_t*)>;
 
  public:

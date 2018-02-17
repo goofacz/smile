@@ -72,7 +72,7 @@ void Application::initialize(int stage)
 
 void Application::main()
 {
-    throw cRuntimeError{"Application::main() have to be overridden!"};
+  throw cRuntimeError{"Application::main() have to be overridden!"};
 }
 
 void Application::dwt_setcallbacks(dwt_cb_t cbTxDone, dwt_cb_t cbRxOk, dwt_cb_t cbRxTo, dwt_cb_t cbRxErr)
