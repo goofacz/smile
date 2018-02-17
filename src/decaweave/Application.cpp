@@ -65,16 +65,12 @@ Define_Module(Application);
 
 Application::Application() : smile::Application(), decaLibIndex{generateDecaLibIndex()}
 {
-  registerFiles[{DEV_ID_ID, 0}] = {0xDE, 0xCA, 0x01, 0x30};
-  registerFiles[{PMSC_ID, PMSC_CTRL0_OFFSET}] = {0b11110000, 0b00110000, 0b00000010, 0b00000000};
+  resetRegisterFiles();
 }
 
 void Application::initialize(int stage)
 {
   smile::Application::initialize(stage);
-  // TODO
-  CurrentApplicationGuard guard{this};
-  printf("XTJ>> %x\n", dwt_readdevid());
 }
 
 unsigned int Application::generateDecaLibIndex()
@@ -98,25 +94,64 @@ int Application::decodeTransaction(uint16_t headerLength, const uint8_t* headerB
   const RegisterFile registerFile{static_cast<uint8_t>(headerBuffer[0] & registerFileMask)};
   const Operation operation{headerBuffer[0] & operationMask ? Operation::WRITE : Operation::READ};
 
-  switch (registerFile) {
-    case DEV_ID_ID:
-      return readRegisterFile({registerFile, 0}, readlength, readBuffer);
+  Subindex subindex{0};
+  switch (headerLength) {
+    case 1:
+      break;
+    case 2:
+      subindex = (headerBuffer[1] & 0x7F);
+      break;
+    case 3:
+      subindex = (headerBuffer[2] << 7);
+      subindex |= (headerBuffer[1] & 0x7F);
+      break;
     default:
-      throw cRuntimeError{"DecaWeave register file 0x%X is not supported", registerFile};
+      throw cRuntimeError{"DecaWeave transaction header size (%d bytes) is not supported", headerLength};
+  }
+
+  switch (operation) {
+    case Operation::WRITE:
+      // TODO
+      throw cRuntimeError{"Writing DecaWeave registers is not implemented yet"};
+    case Operation::READ:
+      return handleReadTransaction({registerFile, subindex}, readlength, readBuffer);
   }
 }
 
-int Application::readRegisterFile(const std::pair<uint8_t, uint16_t>& registerFileWithSubaddress, uint32_t readlength,
-                                  uint8_t* readBuffer)
+int Application::handleReadTransaction(const FullRegisterFile& fullRegisterFile, uint32_t readlength,
+                                       uint8_t* readBuffer)
 {
-  const auto& value = registerFiles.at(registerFileWithSubaddress);
-  std::copy(value.rbegin(), value.rend(), readBuffer);
-  return DWT_SUCCESS;
+  switch (fullRegisterFile.first) {
+    case DEV_ID_ID:
+      return readRegisterFile(fullRegisterFile, readlength, readBuffer);
+    default:
+      throw cRuntimeError{"DecaWeave register file 0x%X:%x is not supported", fullRegisterFile.first,
+                          fullRegisterFile.second};
+  }
+}
+
+int Application::readRegisterFile(const FullRegisterFile& fullRegisterFile, uint32_t readlength, uint8_t* readBuffer)
+{
+  try {
+    const auto& value = registerFiles.at(fullRegisterFile);
+    std::copy(value.rbegin(), value.rend(), readBuffer);
+    return DWT_SUCCESS;
+  }
+  catch (const std::out_of_range&) {
+    throw cRuntimeError{"Reading DecaWeave register file 0x%X:%x is not supported", fullRegisterFile.first,
+                        fullRegisterFile.second};
+  }
 }
 
 unsigned int Application::getDecaLibIndex() const
 {
   return decaLibIndex;
+}
+
+void Application::resetRegisterFiles()
+{
+  registerFiles[{DEV_ID_ID, 0}] = {0xDE, 0xCA, 0x01, 0x30};
+  registerFiles[{PMSC_ID, PMSC_CTRL0_OFFSET}] = {0b11110000, 0b00110000, 0b00000010, 0b00000000};
 }
 
 Application* ApplicationSingleton::operator->()
