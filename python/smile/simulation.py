@@ -18,9 +18,6 @@ from enum import Enum
 
 
 class Simulation(ABC):
-    class Mode(Enum):
-        OFFLINE = 1
-
     @abstractmethod
-    def run(self, directory_path, mode=Mode.OFFLINE):
+    def run_offline(self, directory_path):
         pass
