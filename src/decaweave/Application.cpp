@@ -134,7 +134,7 @@ int Application::readRegisterFile(const FullRegisterFile& fullRegisterFile, uint
 {
   try {
     const auto& value = registerFiles.at(fullRegisterFile);
-    std::copy(value.rbegin(), value.rend(), readBuffer);
+    std::copy(value.rbegin(), value.rbegin() + readlength, readBuffer);
     return DWT_SUCCESS;
   }
   catch (const std::out_of_range&) {
@@ -152,6 +152,7 @@ void Application::resetRegisterFiles()
 {
   registerFiles[{DEV_ID_ID, 0}] = {0xDE, 0xCA, 0x01, 0x30};
   registerFiles[{PMSC_ID, PMSC_CTRL0_OFFSET}] = {0b11110000, 0b00110000, 0b00000010, 0b00000000};
+  registerFiles[{PMSC_ID, PMSC_CTRL1_OFFSET}] = {0b10000001, 0b00000010, 0b00000111, 0b00111000};
 }
 
 Application* ApplicationSingleton::operator->()
