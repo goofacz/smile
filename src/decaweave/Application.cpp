@@ -169,6 +169,12 @@ void Application::resetRegisterFiles()
   registerFiles[DEV_ID_ID, 0] = {0xDE, 0xCA, 0x01, 0x30};
   registerFiles[PMSC_ID] = {0b11110000, 0b00110000, 0b00000010, 0b00000000, /* CTRL0 */
                             0b10000001, 0b00000010, 0b00000111, 0b00111000 /* CTRL1 */};
+  registerFiles[AON_ID] = {0b00000000, 0b00000000, /* AON_WCFG */
+                           0b00000000, /* CTRL */
+                           0b00000000, /* RDAT - TODO No default value? */
+                           0b00000000, /* ADDR - TODO No default value? */
+                           0b00000000, /* RES1 - TODO No default value? */
+                           0b01010000, 0b11111111, 0b00011111, 0b11101110, /* CFG0 */};
 }
 
 Application* ApplicationSingleton::operator->()
