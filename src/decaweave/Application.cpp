@@ -130,6 +130,9 @@ int Application::handleReadTransaction(const FullRegisterFile& fullRegisterFile,
     }
 
     std::memcpy(readBuffer, value.data() + fullRegisterFile.second, readLength);
+
+    EV_DETAIL << "Read " << readLength << " bytes from 0x" << std::hex << fullRegisterFile.first << ":"
+              << fullRegisterFile.second << " register" << endl;
     return DWT_SUCCESS;
   }
   catch (const std::out_of_range&) {
@@ -150,6 +153,9 @@ int Application::handleWriteTransaction(const FullRegisterFile& fullRegisterFile
     }
 
     std::memcpy(value.data() + fullRegisterFile.second, writeBuffer, writeLength);
+
+    EV_DETAIL << "Write " << writeLength << " bytes to 0x" << std::hex << fullRegisterFile.first << ":"
+              << fullRegisterFile.second << " register" << endl;
     return DWT_SUCCESS;
   }
   catch (const std::out_of_range&) {
