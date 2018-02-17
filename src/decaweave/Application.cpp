@@ -123,6 +123,12 @@ int Application::handleReadTransaction(const FullRegisterFile& fullRegisterFile,
 {
   try {
     const auto& value = registerFiles.at(fullRegisterFile.first);
+    const auto expectedRegisterLength = fullRegisterFile.second + readLength;
+    if (value.size() < expectedRegisterLength) {
+      throw cRuntimeError{"Cannot read DecaWeave register file 0x%X:%x, it is partially supported",
+                          fullRegisterFile.first, fullRegisterFile.second};
+    }
+
     std::memcpy(readBuffer, value.data() + fullRegisterFile.second, readLength);
     return DWT_SUCCESS;
   }
@@ -137,6 +143,12 @@ int Application::handleWriteTransaction(const FullRegisterFile& fullRegisterFile
 {
   try {
     auto& value = registerFiles.at(fullRegisterFile.first);
+    const auto expectedRegisterLength = fullRegisterFile.second + writeLength;
+    if (value.size() < expectedRegisterLength) {
+      throw cRuntimeError{"Cannot write DecaWeave register file 0x%X:%x, it is partially supported",
+                          fullRegisterFile.first, fullRegisterFile.second};
+    }
+
     std::memcpy(value.data() + fullRegisterFile.second, writeBuffer, writeLength);
     return DWT_SUCCESS;
   }
