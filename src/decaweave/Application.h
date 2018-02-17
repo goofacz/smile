@@ -41,6 +41,7 @@ class Application : public smile::Application
 
  protected:
   void initialize(int stage) override;
+  virtual void main();
 
  private:
   void handleIncommingMessage(cMessage* message) override final;
