@@ -30,11 +30,14 @@ extern "C" {
 
 extern int readfromspi(uint16 headerLength, const uint8* headerBuffer, uint32 readlength, uint8* readBuffer);
 
+extern int writetospi(uint16 headerLength, const uint8* headerBuffer, uint32 bodylength, const uint8* bodyBuffer);
+
 }  // extern "C"
 
 class Application : public smile::Application
 {
   friend int readfromspi(uint16 headerLength, const uint8* headerBuffer, uint32 readlength, uint8* readBuffer);
+  friend int writetospi(uint16 headerLength, const uint8* headerBuffer, uint32 bodylength, const uint8* bodyBuffer);
   friend class CurrentApplicationGuard;
 
  private:
@@ -66,11 +69,13 @@ class Application : public smile::Application
 
   void handleIncommingMessage(cMessage* message) override final;
 
-  int decodeTransaction(uint16_t headerLength, const uint8_t* headerBuffer, uint32_t readLength, uint8_t* readBuffer);
+  int decodeTransaction(uint16_t headerLength, const uint8_t* headerBuffer, uint32_t dataLength, uint8_t* readBuffer,
+                        const uint8_t* writeBuffer);
 
   int handleReadTransaction(const FullRegisterFile& fullRegisterFile, uint32_t readLength, uint8_t* readBuffer);
 
-  int readRegisterFile(const FullRegisterFile& fullRegisterFile, uint32_t readLength, uint8_t* readBuffer);
+  int handleWriteTransaction(const FullRegisterFile& fullRegisterFile, uint32_t writeLength,
+                             const uint8_t* writeBuffer);
 
   unsigned int getDecaLibIndex() const;
 

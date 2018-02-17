@@ -85,14 +85,11 @@ void Application::handleIncommingMessage(cMessage* message)
   // TODO
 }
 
-int Application::decodeTransaction(uint16_t headerLength, const uint8_t* headerBuffer, uint32_t readlength,
-                                   uint8_t* readBuffer)
+int Application::decodeTransaction(uint16_t headerLength, const uint8_t* headerBuffer, uint32_t dataLength,
+                                   uint8_t* readBuffer, const uint8_t* writeBuffer)
 {
   constexpr uint8_t operationMask{0x80};
   constexpr uint8_t registerFileMask{0x7F};
-
-  const RegisterFile registerFile{static_cast<uint8_t>(headerBuffer[0] & registerFileMask)};
-  const Operation operation{headerBuffer[0] & operationMask ? Operation::WRITE : Operation::READ};
 
   RegisterOffset offset{0};
   switch (headerLength) {
@@ -109,28 +106,20 @@ int Application::decodeTransaction(uint16_t headerLength, const uint8_t* headerB
       throw cRuntimeError{"DecaWeave transaction header size (%d bytes) is not supported", headerLength};
   }
 
+  const RegisterFile registerFile{static_cast<RegisterFile>(headerBuffer[0] & registerFileMask)};
+  const Operation operation{headerBuffer[0] & operationMask ? Operation::WRITE : Operation::READ};
   switch (operation) {
     case Operation::WRITE:
-      // TODO
-      throw cRuntimeError{"Writing DecaWeave registers is not implemented yet"};
+      assert(writeBuffer);
+      return handleWriteTransaction({registerFile, offset}, dataLength, writeBuffer);
     case Operation::READ:
-      return handleReadTransaction({registerFile, offset}, readlength, readBuffer);
+      assert(readBuffer);
+      return handleReadTransaction({registerFile, offset}, dataLength, readBuffer);
   }
 }
 
-int Application::handleReadTransaction(const FullRegisterFile& fullRegisterFile, uint32_t readlength,
+int Application::handleReadTransaction(const FullRegisterFile& fullRegisterFile, uint32_t readLength,
                                        uint8_t* readBuffer)
-{
-  switch (fullRegisterFile.first) {
-    case DEV_ID_ID:
-      return readRegisterFile(fullRegisterFile, readlength, readBuffer);
-    default:
-      throw cRuntimeError{"DecaWeave register file 0x%X:%x is not supported", fullRegisterFile.first,
-                          fullRegisterFile.second};
-  }
-}
-
-int Application::readRegisterFile(const FullRegisterFile& fullRegisterFile, uint32_t readLength, uint8_t* readBuffer)
 {
   try {
     const auto& value = registerFiles.at(fullRegisterFile.first);
@@ -143,6 +132,20 @@ int Application::readRegisterFile(const FullRegisterFile& fullRegisterFile, uint
   }
 }
 
+int Application::handleWriteTransaction(const FullRegisterFile& fullRegisterFile, uint32_t writeLength,
+                                        const uint8_t* writeBuffer)
+{
+  try {
+    auto& value = registerFiles.at(fullRegisterFile.first);
+    std::memcpy(value.data() + fullRegisterFile.second, writeBuffer, writeLength);
+    return DWT_SUCCESS;
+  }
+  catch (const std::out_of_range&) {
+    throw cRuntimeError{"Writing DecaWeave register file 0x%X:%x is not supported", fullRegisterFile.first,
+                        fullRegisterFile.second};
+  }
+}
+
 unsigned int Application::getDecaLibIndex() const
 {
   return decaLibIndex;
@@ -150,7 +153,7 @@ unsigned int Application::getDecaLibIndex() const
 
 void Application::resetRegisterFiles()
 {
-    registerFiles.clear();
+  registerFiles.clear();
   registerFiles[DEV_ID_ID, 0] = {0xDE, 0xCA, 0x01, 0x30};
   registerFiles[PMSC_ID] = {0b11110000, 0b00110000, 0b00000010, 0b00000000, /* CTRL0 */
                             0b10000001, 0b00000010, 0b00000111, 0b00111000 /* CTRL1 */};
@@ -216,14 +219,14 @@ void deca_sleep(unsigned int time_ms)
 
 int writetospi(uint16 headerLength, const uint8* headerBuffer, uint32 bodylength, const uint8* bodyBuffer)
 {
-  // TODO
-  return -1;
+  auto& instance = smile::decaweave::ApplicationSingleton::getInstance();
+  return instance->decodeTransaction(headerLength, headerBuffer, bodylength, nullptr, bodyBuffer);
 }
 
 int readfromspi(uint16 headerLength, const uint8* headerBuffer, uint32 readlength, uint8* readBuffer)
 {
   auto& instance = smile::decaweave::ApplicationSingleton::getInstance();
-  return instance->decodeTransaction(headerLength, headerBuffer, readlength, readBuffer);
+  return instance->decodeTransaction(headerLength, headerBuffer, readlength, readBuffer, nullptr);
 }
 
 #endif  // WITH_DECAWEAVE
