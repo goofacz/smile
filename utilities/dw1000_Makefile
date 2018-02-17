@@ -1,8 +1,0 @@
-CXX = g++
-FILES = deca_device.c deca_params_init.c
-
-all: $(FILES)
-	$(CXX) -std=c++14 -O3 $(FILES) -DDWT_NUM_DW_DEV=20000 -fPIC -shared -o libdw1000.so
-
-clean:
-	rm -f libdw1000.so
