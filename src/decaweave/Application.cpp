@@ -166,7 +166,7 @@ unsigned int Application::getDecaLibIndex() const
 void Application::resetRegisterFiles()
 {
   registerFiles.clear();
-  registerFiles[DEV_ID_ID, 0] = {0xDE, 0xCA, 0x01, 0x30};
+  registerFiles[DEV_ID_ID] = {0xDE, 0xCA, 0x01, 0x30};
 
   registerFiles[PMSC_ID] = {0b11110000, 0b00110000, 0b00000010, 0b00000000, /* CTRL0 */
                             0b10000001, 0b00000010, 0b00000111, 0b00111000 /* CTRL1 */};
@@ -176,9 +176,27 @@ void Application::resetRegisterFiles()
                            0b00000000, /* RDAT - TODO No default value? */
                            0b00000000, /* ADDR - TODO No default value? */
                            0b00000000, /* RES1 - TODO No default value? */
-                           0b01010000, 0b11111111, 0b00011111, 0b11101110, /* CFG0 */};
+                           0b01010000, 0b11111111, 0b00011111, 0b11101110,
+                           /* CFG0 */};
 
   registerFiles[EXT_SYNC_ID] = {0b00000000, 0b00000000, 0b00000000, 0b00000000 /* CTRL */};
+
+  registerFiles[OTP_IF_ID] = {0b00000000, 0b00000000, 0b00000000, 0b00000000, /* WDAT */
+                              0b00000000, 0b00000000, /* ADDR */
+                              0b00000000, 0b00000000, /* CTRL */
+                              0b00000000, 0b00000000, /* STAT */
+                              0b00000000, 0b00000000, 0b00000000, 0b00000000, /* RDAT */
+                              0b00000000, 0b00000000, 0b00000000, 0b00000000, /* SRDAT */
+                              0b00000000, /* SF */};
+
+  registerFiles[FS_CTRL_ID] = {0b00000000, 0b00000000, 0b00000000, 0b00000000,
+                               0b00000000, 0b00000000, 0b00000000, /* RES1 - TODO No default value? */
+                               0b00000000, 0b00000000, 0b00000000, 0b00000000, /* PLLCFG - TODO No default value? */
+                               0b00000000, /* PLLTUNE - TODO No default value? */
+                               0b00000000, 0b00000000, /* RES2 - TODO No default value? */
+                               0b01100000, /* XTALT - TODO No default value? */};
+
+  registerFiles[SYS_CFG_ID] = {0b00000000, 0b00000000, 0b00010010, 0b00000000};
 }
 
 Application* ApplicationSingleton::operator->()

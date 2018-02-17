@@ -50,7 +50,8 @@ class Application : public smile::Application
   using RegisterFile = uint8_t;
   using RegisterOffset = uint16_t;
   using FullRegisterFile = std::pair<RegisterFile, RegisterOffset>;
-  using RegisterFileMap = std::map<RegisterFile, std::vector<uint8_t>>;
+  using RegisterContent = std::vector<uint8_t>;
+  using RegisterFileMap = std::map<RegisterFile, RegisterContent>;
 
  public:
   Application();
