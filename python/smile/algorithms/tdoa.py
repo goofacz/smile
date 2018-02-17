@@ -14,6 +14,7 @@
 #
 
 import numpy as np
+import scipy.constants as scc
 
 
 def doan_vesely(coordinates, distances):
@@ -24,7 +25,13 @@ def doan_vesely(coordinates, distances):
     # TODO propose better way for arguments checking
     assert (coordinates.shape == (3, 2))
     assert (distances.shape == (3,))
-    
+
+    assert (scc.unit('speed of light in vacuum') == 'm s^-1')
+    c = scc.value('speed of light in vacuum')
+    c = c * 1e-12  # m/s -> m/ps
+
+    distances = distances * c
+
     L = distances[1]
     R = distances[2]
     Xl = coordinates[1, 0] - coordinates[0, 0]
