@@ -1,55 +1,18 @@
-%includes:
-#include "../../src/Logger.h"
-
-%module: LogGenerator
-using namespace inet;
-using namespace smile;
-
-class LogGenerator : public cSimpleModule
-{
-  public:
-    LogGenerator() = default;
-    void initialize(int stage) override;
-};
-
-Define_Module(LogGenerator);
-
-void LogGenerator::initialize(int stage)
-{
-	cModule::initialize(stage);
-	if(stage != INITSTAGE_LOCAL)	{
-		return;
-	}
-	
-	auto logger = check_and_cast<Logger*>(getModuleByPath("^.logger"));
-	logger->obtainHandle("foo");
-	logger->obtainHandle("baz");
-}
-
 %file: test.ned
 import smile.Logger;
-
-simple LogGenerator
-{ }
 
 network Test
 {
     submodules:
         logger: Logger    {
             directoryPath = "level1/level2";
-            fileNamePrefix = "log";
-            extension = "csv";
-            overwrite = true;
+            fileName = "log_foo.csv";
         }
-        
-        logGenerator: LogGenerator;
 }
 
 %inifile: omnet.ini
 [General]
 cmdenv-express-mode = false
-**.cmdenv-log-level = detail
 network = Test
 
 %file-exists: level1/level2/log_foo.csv
-%file-exists: level1/level2/log_baz.csv

@@ -51,7 +51,7 @@ Logger::ExistingFilePolicy Logger::stringToExistingFilePolicy(const std::string 
     return ExistingFilePolicy::APPEND;
   }
   else {
-    throw cRuntimeError{"invalid Logger's \"existingFilePolicy\" value: %s", value.c_str()};
+    throw cRuntimeError{"Invalid Logger's \"existingFilePolicy\" parameter value: %s", value.c_str()};
   }
 }
 

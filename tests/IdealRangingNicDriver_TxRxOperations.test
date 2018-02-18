@@ -12,6 +12,7 @@ network Test
         radioMedium: IdealRadioMedium;
         logger: Logger    {
             directoryPath = ".";
+            fileName = "log.csv";
         }
 
         TestNode1: RadioNode {
