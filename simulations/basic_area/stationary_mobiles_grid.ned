@@ -16,7 +16,6 @@
 package smile.simulations.basic_area;
 
 import smile.RadioNode;
-import smile.Logger;
 import inet.mobility.single.LinearMobility;
 import inet.physicallayer.idealradio.IdealRadioMedium;
 import inet.visualizer.integrated.IntegratedCanvasVisualizer;
@@ -42,13 +41,9 @@ network stationary_mobiles_grid
             @display("p=24,166");
         }
 
-        logger: Logger {
-            @display("p=102,158");
-        }
-
         mobileNodes[mobilesNumber]: RadioNode {
         }
-        
+
         anchorNodes[anchorsNumber]: RadioNode {
         }
 }
