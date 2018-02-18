@@ -27,7 +27,6 @@ void Application::initialize(int stage)
   if (stage == inet::INITSTAGE_LOCAL) {
     mobility = inet::getModuleFromPar<inet::IMobility>(par("mobilityModule"), this, true);
     nicDriver = inet::getModuleFromPar<IRangingNicDriver>(par("nicDriverModule"), this, true);
-    logger = inet::getModuleFromPar<Logger>(par("loggerModule"), this, true);
   }
 }
 
@@ -39,12 +38,6 @@ int Application::numInitStages() const
 inet::Coord Application::getCurrentTruePosition() const
 {
   return mobility->getCurrentPosition();
-}
-
-Logger& Application::getLogger()
-{
-  assert(logger);
-  return *logger;
 }
 
 IRangingNicDriver& Application::getNicDriver()

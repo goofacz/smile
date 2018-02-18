@@ -23,37 +23,45 @@ Define_Module(Logger);
 
 Logger::~Logger()
 {
-  for (auto& logFile : logFiles) {
-    auto& logStream = logFile.second;
-    logStream.exceptions(std::ifstream::goodbit);
-    logStream.flush();
+  if (!logStream.is_open()) {
+    return;
+  }
+
+  logStream.exceptions(std::ifstream::goodbit);
+  logStream.flush();
+}
+
+void Logger::append(const std::string& entry)
+{
+  logStream << entry;
+  if (entry.back() != '\n') {
+    logStream << "\n";
   }
 }
 
-Logger::Handle Logger::obtainHandle(const std::string& name)
+Logger::ExistingFilePolicy Logger::stringToExistingFilePolicy(const std::string value)
 {
-  auto predicate = [name](auto& logFile) { return logFile.first == name; };
-  auto foundLogFile = std::find_if(logFiles.begin(), logFiles.end(), predicate);
-  if (foundLogFile != logFiles.end()) {
-    return {std::distance(logFiles.begin(), foundLogFile)};
+  if (value == "abort") {
+    return ExistingFilePolicy::ABORT;
   }
-
-  auto newLogFile = logFiles.emplace(logFiles.end(), name, openFile(name));
-  return {std::distance(logFiles.begin(), newLogFile)};
+  else if (value == "overwrite") {
+    return ExistingFilePolicy::OVERWRITE;
+  }
+  else if (value == "append") {
+    return ExistingFilePolicy::APPEND;
+  }
+  else {
+    throw cRuntimeError{"invalid Logger's \"existingFilePolicy\" value: %s", value.c_str()};
+  }
 }
 
-void Logger::append(const Handle& handle, const std::string& entry)
+void Logger::initialize(int stage)
 {
-  try {
-    auto& logFile = logFiles.at(handle.index);
-    auto& logStream = logFile.second;
-    logStream << entry;
-    if (entry.back() != '\n') {
-      logStream << "\n";
-    }
-  }
-  catch (const std::out_of_range&) {
-    throw cRuntimeError("Failed to find log file registered at index: %d", handle.index);
+  cSimpleModule::initialize(stage);
+
+  if (stage == inet::INITSTAGE_LOCAL) {
+    const auto directoryPath = createDirectory();
+    logStream = openFile(directoryPath);
   }
 }
 
@@ -85,41 +93,29 @@ std::experimental::filesystem::path Logger::createDirectory() const
   }
 }
 
-std::string Logger::composeFileName(const std::string& middlePart) const
-{
-  std::string buffer{par("fileNamePrefix").stdstringValue()};
-  buffer += "_";
-  buffer += middlePart;
-  buffer += ".";
-  buffer += par("extension").stdstringValue();
-  return buffer;
-}
-
-std::ofstream Logger::openFile(const std::string& name)
+std::ofstream Logger::openFile(const std::experimental::filesystem::path& directoryPath)
 {
   using namespace std::experimental;
   try {
     // Prepare & verify file path
-    const auto overwrite = par("overwrite").boolValue();
-    const auto fileName = composeFileName(name);
-    auto filePath = createDirectory();
-    filePath.append(fileName);
-    if (filesystem::exists(filePath)) {
-      if (!filesystem::is_regular_file(filePath)) {
-        throw cRuntimeError{"Log file \"%s\" already exists and it is not a regular file", filePath.c_str()};
-      }
+    const auto existingFilePolicy = stringToExistingFilePolicy(par("existingFilePolicy").stdstringValue());
+    const auto fileName = par("fileName").stdstringValue();
+    if(fileName.empty())    {
+      throw cRuntimeError{"Logger property \"fileName\" cannot be empty"};
+    }
 
-      if (filesystem::file_size(filePath) > 0 && !overwrite) {
-        throw cRuntimeError{"Log file \"%s\" has content and cannot be overwritten", filePath.c_str()};
-      }
+    auto filePath = directoryPath;
+    filePath.append(fileName);
+    if (filesystem::exists(filePath) && existingFilePolicy == ExistingFilePolicy::ABORT) {
+      throw cRuntimeError{"Log file \"%s\" already exists, aborting simulation", filePath.c_str()};
     }
 
     // Open file
     std::ofstream logFile;
     logFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-    const auto mode = std::ios_base::out | (overwrite ? std::ios_base::trunc : std::ios_base::ate);
+    auto mode = existingFilePolicy == ExistingFilePolicy::OVERWRITE ? std::ios_base::trunc : std::ios_base::ate;
+    mode |= std::ios_base::out;
     logFile.open(filePath, mode);
-
     return logFile;
   }
   catch (const filesystem::filesystem_error& error) {
@@ -129,7 +125,5 @@ std::ofstream Logger::openFile(const std::string& name)
     throw cRuntimeError{"Failed to open log file: %s", error.what()};
   }
 }
-
-Logger::Handle::Handle(Index initialIndex) : index{initialIndex} {}
 
 }  // namespace smile

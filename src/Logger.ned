@@ -24,7 +24,7 @@ simple Logger
         @class(smile::Logger);
         @display("i=block/buffer");
         string directoryPath = default("."); // Directory wher output files should be stored
-        string fileNamePrefix = default("log"); // Output files name prefix
-        string extension = default("csv"); // Output files extension
-        bool overwrite = default(false); // Whenever files should be overwritten or not
+        string fileName = default(""); // Desired file name
+        string existingFilePolicy = default("abort"); //  Action applied for existing files:
+                                                      // "overwrite", "append", "abort".
 }

@@ -29,29 +29,11 @@ namespace smile {
 class Logger : public omnetpp::cSimpleModule
 {
  private:
-  using LogFile = std::pair<std::string, std::ofstream>;
-  using LogFileVector = std::vector<LogFile>;
-
- public:
-  class Handle final
+  enum class ExistingFilePolicy
   {
-    friend Logger;
-
-   private:
-    using Index = std::iterator_traits<LogFileVector::iterator>::difference_type;
-
-   public:
-    Handle() = default;
-    Handle(const Handle& source) = default;
-    Handle(Handle&& source) = default;
-    ~Handle() = default;
-
-    Handle& operator=(const Handle& source) = default;
-    Handle& operator=(Handle&& source) = default;
-
-   private:
-    Handle(Index initialIndex);
-    Index index{-1};
+    ABORT,
+    OVERWRITE,
+    APPEND
   };
 
  public:
@@ -63,15 +45,17 @@ class Logger : public omnetpp::cSimpleModule
   Logger& operator=(const Logger& source) = delete;
   Logger& operator=(Logger&& source) = delete;
 
-  Handle obtainHandle(const std::string& name);
-  void append(const Handle& handle, const std::string& entry);
+  void append(const std::string& entry);
 
  private:
-  std::experimental::filesystem::path createDirectory() const;
-  std::string composeFileName(const std::string& middlePart) const;
-  std::ofstream openFile(const std::string& name);
+  static ExistingFilePolicy stringToExistingFilePolicy(const std::string value);
 
-  LogFileVector logFiles;
+  void initialize(int stage) override;
+
+  std::experimental::filesystem::path createDirectory() const;
+  std::ofstream openFile(const std::experimental::filesystem::path& directoryPath);
+
+  std::ofstream logStream;
 };
 
 }  // namespace smile
