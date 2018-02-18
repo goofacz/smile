@@ -33,7 +33,8 @@ class Logger : public omnetpp::cSimpleModule
   {
     ABORT,
     OVERWRITE,
-    APPEND
+    APPEND,
+    PRESERVE
   };
 
  public:
@@ -48,13 +49,17 @@ class Logger : public omnetpp::cSimpleModule
   void append(const std::string& entry);
 
  private:
-  static ExistingFilePolicy stringToExistingFilePolicy(const std::string value);
+  static ExistingFilePolicy stringToExistingFilePolicy(const std::string& value);
 
   void initialize(int stage) override;
 
-  std::experimental::filesystem::path createDirectory() const;
-  std::ofstream openFile(const std::experimental::filesystem::path& directoryPath);
+  ExistingFilePolicy getExistingFilePolicy() const;
 
+  std::experimental::filesystem::path createDirectory() const;
+  void openFile(const std::experimental::filesystem::path& directoryPath);
+
+  ExistingFilePolicy existingFilePolicy{ExistingFilePolicy::ABORT};
+  std::experimental::filesystem::path filePath;
   std::ofstream logStream;
 };
 

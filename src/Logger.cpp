@@ -33,13 +33,22 @@ Logger::~Logger()
 
 void Logger::append(const std::string& entry)
 {
+  if (!logStream.is_open()) {
+    if (existingFilePolicy == ExistingFilePolicy::PRESERVE) {
+      return;
+    }
+    else {
+      throw cRuntimeError{"Cannot append log to closed file: \"%s\"", filePath.c_str()};
+    }
+  }
+
   logStream << entry;
   if (entry.back() != '\n') {
     logStream << "\n";
   }
 }
 
-Logger::ExistingFilePolicy Logger::stringToExistingFilePolicy(const std::string value)
+Logger::ExistingFilePolicy Logger::stringToExistingFilePolicy(const std::string& value)
 {
   if (value == "abort") {
     return ExistingFilePolicy::ABORT;
@@ -49,6 +58,9 @@ Logger::ExistingFilePolicy Logger::stringToExistingFilePolicy(const std::string 
   }
   else if (value == "append") {
     return ExistingFilePolicy::APPEND;
+  }
+  else if (value == "preserve") {
+    return ExistingFilePolicy::PRESERVE;
   }
   else {
     throw cRuntimeError{"Invalid Logger's \"existingFilePolicy\" parameter value: \"%s\"", value.c_str()};
@@ -60,9 +72,16 @@ void Logger::initialize(int stage)
   cSimpleModule::initialize(stage);
 
   if (stage == inet::INITSTAGE_LOCAL) {
+    existingFilePolicy = stringToExistingFilePolicy(par("existingFilePolicy").stdstringValue());
+
     const auto directoryPath = createDirectory();
-    logStream = openFile(directoryPath);
+    openFile(directoryPath);
   }
+}
+
+Logger::ExistingFilePolicy Logger::getExistingFilePolicy() const
+{
+  return existingFilePolicy;
 }
 
 std::experimental::filesystem::path Logger::createDirectory() const
@@ -93,32 +112,35 @@ std::experimental::filesystem::path Logger::createDirectory() const
   }
 }
 
-std::ofstream Logger::openFile(const std::experimental::filesystem::path& directoryPath)
+void Logger::openFile(const std::experimental::filesystem::path& directoryPath)
 {
   using namespace std::experimental;
   try {
     // Prepare & verify file path
-    const auto existingFilePolicy = stringToExistingFilePolicy(par("existingFilePolicy").stdstringValue());
     const auto fileName = par("fileName").stdstringValue();
-    if(fileName.empty())    {
+    if (fileName.empty()) {
       throw cRuntimeError{"Logger property \"fileName\" cannot be empty"};
     }
 
-    auto filePath = directoryPath;
+    filePath = directoryPath;
     filePath.append(fileName);
-    if (filesystem::exists(filePath) && existingFilePolicy == ExistingFilePolicy::ABORT) {
-      throw cRuntimeError{"Log file \"%s\" already exists, aborting simulation", filePath.c_str()};
+
+    if (filesystem::exists(filePath)) {
+      if (getExistingFilePolicy() == ExistingFilePolicy::ABORT) {
+        throw cRuntimeError{"Log file \"%s\" already exists, aborting simulation", filePath.c_str()};
+      }
+      else if (getExistingFilePolicy() == ExistingFilePolicy::PRESERVE) {
+        // Preserve current file
+        return;
+      }
     }
 
     // Open file
-    std::ofstream logFile;
-    logFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-    auto mode = existingFilePolicy == ExistingFilePolicy::OVERWRITE ? std::ios_base::trunc : std::ios_base::app;
+    logStream.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+    auto mode = getExistingFilePolicy() == ExistingFilePolicy::OVERWRITE ? std::ios_base::trunc : std::ios_base::app;
     mode |= std::ios_base::out;
 
-    logFile.open(filePath, mode);
-
-    return logFile;
+    logStream.open(filePath, mode);
   }
   catch (const filesystem::filesystem_error& error) {
     throw cRuntimeError{"Failed to create or open log file: %s", error.what()};

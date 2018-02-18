@@ -26,5 +26,6 @@ simple Logger
         string directoryPath = default("."); // Directory wher output files should be stored
         string fileName = default(""); // Desired file name
         string existingFilePolicy = default("abort"); //  Action applied for existing files:
-                                                      // "overwrite", "append", "abort".
+                                                      // "overwrite", "append", "abort" and 
+                                                      // "preserve".
 }
