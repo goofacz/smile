@@ -1,0 +1,24 @@
+%file: test.ned
+import smile.Logger;
+
+simple LogGenerator {}
+
+network Test
+{
+  submodules:
+    logger: Logger    {
+        directoryPath = ".";
+        fileName = "omnet.ini";
+        existingFilePolicy = "invalid_policy";
+    }
+}
+
+%inifile: omnet.ini
+[General]
+cmdenv-express-mode = false
+**.cmdenv-log-level = detail
+network = Test
+
+%exitcode: 1
+%contains: stderr
+<!> Error: Invalid Logger's "existingFilePolicy" parameter value: "invalid_policy"

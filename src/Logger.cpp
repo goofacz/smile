@@ -51,7 +51,7 @@ Logger::ExistingFilePolicy Logger::stringToExistingFilePolicy(const std::string 
     return ExistingFilePolicy::APPEND;
   }
   else {
-    throw cRuntimeError{"Invalid Logger's \"existingFilePolicy\" parameter value: %s", value.c_str()};
+    throw cRuntimeError{"Invalid Logger's \"existingFilePolicy\" parameter value: \"%s\"", value.c_str()};
   }
 }
 
@@ -113,9 +113,11 @@ std::ofstream Logger::openFile(const std::experimental::filesystem::path& direct
     // Open file
     std::ofstream logFile;
     logFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-    auto mode = existingFilePolicy == ExistingFilePolicy::OVERWRITE ? std::ios_base::trunc : std::ios_base::ate;
+    auto mode = existingFilePolicy == ExistingFilePolicy::OVERWRITE ? std::ios_base::trunc : std::ios_base::app;
     mode |= std::ios_base::out;
+
     logFile.open(filePath, mode);
+
     return logFile;
   }
   catch (const filesystem::filesystem_error& error) {

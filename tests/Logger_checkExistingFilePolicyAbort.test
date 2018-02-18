@@ -1,0 +1,24 @@
+%file: test.ned
+import smile.Logger;
+
+simple LogGenerator {}
+
+network Test
+{
+  submodules:
+    logger: Logger    {
+        directoryPath = ".";
+        fileName = "omnet.ini";
+        existingFilePolicy = "abort";
+    }
+}
+
+%inifile: omnet.ini
+[General]
+cmdenv-express-mode = false
+**.cmdenv-log-level = detail
+network = Test
+
+%exitcode: 1
+%contains: stderr
+<!> Error: Log file "./omnet.ini" already exists, aborting simulation

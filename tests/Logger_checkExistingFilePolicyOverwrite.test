@@ -1,0 +1,59 @@
+%includes:
+#include "../../src/Logger.h"
+#include "../../src/CsvLogger.h"
+
+%module: LogGenerator
+using namespace inet;
+using namespace smile;
+
+class LogGenerator : public cSimpleModule
+{
+  public:
+    LogGenerator() = default;
+    void initialize(int stage) override;
+};
+
+Define_Module(LogGenerator);
+
+void LogGenerator::initialize(int stage)
+{
+   cModule::initialize(stage);
+   if(stage != INITSTAGE_LOCAL)    {
+     return;
+   }
+
+   auto logger = check_and_cast<Logger*>(getModuleByPath("^.logger"));
+   logger->append(csv_logger::compose(std::string{"one"}, std::string{"two"}, std::string{"three"}));
+}
+
+
+%file: test.ned
+import smile.Logger;
+
+simple LogGenerator {}
+
+network Test
+{
+  submodules:
+    logger: Logger    {
+        directoryPath = ".";
+        fileName = "log_foo.csv";
+        existingFilePolicy = "overwrite";
+    }
+
+    logGenerator: LogGenerator;
+}
+
+%file: log_foo.csv
+first; second; third
+one,two,three
+1.200000,1.300000,1.400000,244837814046721
+
+%inifile: omnet.ini
+[General]
+cmdenv-express-mode = false
+**.cmdenv-log-level = detail
+network = Test
+
+%contains: log_foo.csv
+one,two,three
