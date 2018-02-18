@@ -16,69 +16,84 @@
 import unittest
 
 from smile.algorithms.tdoa import *
+import scipy.constants as scc
 
-# TEST SCENARIO no. 1
-#
-#   ^
-#   |                    *
-#   |                     (5, 10) anchor2
-#   |
-#   |
-#   |
-#   |*                   *                  *
-#   | (0, 5) anchor1      (5, 5) mobile      (10,5) anchor3
-#   |
-#   |
-#   |
-#   |---------------------------------->
-#
 
-test_scenario_1_anchors_coordinates = np.asarray(((0, 5),  # Anchor 1
-                                                  (5, 10),  # Anchor 2
-                                                  (10, 5)))  # Anchor 3
+def test_scenario_1():
+    # TEST SCENARIO no. 1
+    #
+    #   ^
+    #   |                    *
+    #   |                     (5, 10) anchor2
+    #   |
+    #   |
+    #   |
+    #   |*                   *                  *
+    #   | (0, 5) anchor1      (5, 5) mobile      (10,5) anchor3
+    #   |
+    #   |
+    #   |
+    #   |---------------------------------->
+    #
+    assert (scc.unit('speed of light in vacuum') == 'm s^-1')
+    c = scc.value('speed of light in vacuum')
 
-test_scenario_1_tdoas = np.asarray((0,
-                                    0,
-                                    0))
+    mobile_position = np.asarray((5, 5))
 
-test_scenario_1_mobile_position = np.asarray((5, 5))
+    coordinates = np.asarray(((0, 5),  # Anchor 1
+                              (5, 10),  # Anchor 2
+                              (10, 5)))  # Anchor 3
 
-# TEST SCENARIO no. 1
-#
-#   ^
-#   |
-#   |
-#   |                   *                *(5, 9) anchor2
-#   |*                   (5, 5) mobile
-#   | (0, 4) anchor1
-#   |                                  *
-#   |                                   (9,2) anchor3
-#   |---------------------------------->
-#
+    distances = np.asarray((np.abs(np.linalg.norm(mobile_position - coordinates[0, :])),
+                            np.abs(np.linalg.norm(mobile_position - coordinates[1, :])),
+                            np.abs(np.linalg.norm(mobile_position - coordinates[2, :]))))
+    tdoas = distances / c
 
-test_scenario_2_anchors_coordinates = np.asarray(((0, 4),  # Anchor 1
-                                                  (10, 5),  # Anchor 2
-                                                  (9, 2)))  # Anchor 3
+    return coordinates, tdoas, mobile_position
 
-test_scenario_2_tdoas = np.asarray((np.abs(np.linalg.norm(np.asarray((5, 5)) - np.asarray((0, 4)))) - 5,
-                                    0,
-                                    np.abs(np.linalg.norm(np.asarray((5, 5)) - np.asarray((9, 2)))) - 5,))
+def test_scenario_2():
+    # TEST SCENARIO no. 1
+    #
+    #   ^
+    #   *                                   *
+    #   |(0,10 anchor1                       (10,10) anchor2
+    #   |
+    #   |
+    #   |                   *
+    #   |                    (5, 5) mobile
+    #   |
+    #   |
+    #   |                                     (10,0) anchor3
+    #   |------------------------------------*--->
+    #
+    assert (scc.unit('speed of light in vacuum') == 'm s^-1')
+    c = scc.value('speed of light in vacuum')
 
-test_scenario_2_mobile_position = np.asarray((5, 5))
+    mobile_position = np.asarray((5, 5))
+
+    coordinates = np.asarray(((0, 0),  # Anchor 1
+                              (10, 10),  # Anchor 2
+                              (10, 0)))  # Anchor 3
+
+    distances = np.asarray((np.abs(np.linalg.norm(mobile_position - coordinates[0,:])),
+                            np.abs(np.linalg.norm(mobile_position - coordinates[1,:])),
+                            np.abs(np.linalg.norm(mobile_position - coordinates[2,:]))))
+
+    tdoas = distances / c
+
+    return coordinates, tdoas, mobile_position
 
 
 class TestDoanVesely(unittest.TestCase):
-    def test_scenario1(self):
-        coordinates = test_scenario_1_anchors_coordinates
-        distances = test_scenario_1_tdoas
+    def test_scenario_1(self):
+        coordinates, distances, true_mobile_position = test_scenario_1()
         position = doan_vesely(coordinates, distances)
-        np.testing.assert_almost_equal(position, test_scenario_1_mobile_position, decimal=7)
+        np.testing.assert_almost_equal(position, true_mobile_position, decimal=7)
 
-    def test_scenario2(self):
-        coordinates = test_scenario_2_anchors_coordinates
-        distances = test_scenario_2_tdoas
+    def test_scenario_2(self):
+        coordinates, distances, true_mobile_position = test_scenario_2()
         position = doan_vesely(coordinates, distances)
-        np.testing.assert_almost_equal(position, test_scenario_2_mobile_position, decimal=1)
+        np.testing.assert_almost_equal(position, true_mobile_position, decimal=7)
 
 
 if __name__ == '__main__':
