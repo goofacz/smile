@@ -15,8 +15,9 @@
 
 import unittest
 
-from smile.algorithms.tdoa import *
 import scipy.constants as scc
+
+from smile.algorithms.tdoa import *
 
 
 def test_scenario_1():
@@ -51,6 +52,7 @@ def test_scenario_1():
 
     return coordinates, tdoas, mobile_position
 
+
 def test_scenario_2():
     # TEST SCENARIO no. 1
     #
@@ -75,9 +77,9 @@ def test_scenario_2():
                               (10, 10),  # Anchor 2
                               (10, 0)))  # Anchor 3
 
-    distances = np.asarray((np.abs(np.linalg.norm(mobile_position - coordinates[0,:])),
-                            np.abs(np.linalg.norm(mobile_position - coordinates[1,:])),
-                            np.abs(np.linalg.norm(mobile_position - coordinates[2,:]))))
+    distances = np.asarray((np.abs(np.linalg.norm(mobile_position - coordinates[0, :])),
+                            np.abs(np.linalg.norm(mobile_position - coordinates[1, :])),
+                            np.abs(np.linalg.norm(mobile_position - coordinates[2, :]))))
 
     tdoas = distances / c
 

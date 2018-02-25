@@ -36,4 +36,3 @@ def simple_least_squares(anchors_coordinates, distances):
 
     position = np.linalg.solve(A, B)
     return position + anchors_coordinates[0, :]
-
