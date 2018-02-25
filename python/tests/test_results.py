@@ -62,6 +62,15 @@ class TestResults(unittest.TestCase):
 
         self.assertEqual(123456789, results[0, "mac_address"])
 
+    def test_determine_dimensions(self):
+        results = Results.create_array(1, position_dimensions=2)
+        self.assertSequenceEqual(results.determine_dimensions(), ("position_2d", "begin_true_position_2d",
+                                                                  "end_true_position_2d"))
+
+        results = Results.create_array(1, position_dimensions=3)
+        self.assertSequenceEqual(results.determine_dimensions(), ("position_3d", "begin_true_position_3d",
+                                                                  "end_true_position_3d"))
+
 
 if __name__ == '__main__':
     unittest.main()

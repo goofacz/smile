@@ -54,6 +54,16 @@ class Results(Array):
                                                      self.column_names["end_true_position_y"],
                                                      self.column_names["end_true_position_z"])
 
+    def determine_dimensions(self):
+        unique_dimensions = np.unique(self[:, "position_dimensions"])
+        if len(unique_dimensions) is not 1:
+            raise ValueError('Cannot process results with different position dimensions (2D and 3D)')
+
+        if self[0, "position_dimensions"] == 2:
+            return "position_2d", "begin_true_position_2d", "end_true_position_2d"
+        else:
+            return "position_3d", "begin_true_position_3d", "end_true_position_3d"
+
     @staticmethod
     def create_array(rows, position_dimensions=2, mac_address=None):
         assert (position_dimensions in (2, 3))
