@@ -13,92 +13,13 @@
 # along with this program.  If not, see http:#www.gnu.org/licenses/.
 #
 
-import matplotlib.pyplot as plt
 import numpy as np
 
 from smile.results import Results
 
 
-def _determine_dimensions(results):
-    unique_dimensions = np.unique(results[:, "position_dimensions"])
-    if len(unique_dimensions) is not 1:
-        raise ValueError('Cannot process results with different position dimensions (2D and 3D)')
-
-    if results[0, "position_dimensions"] == 2:
-        return "position_2d", "begin_true_position_2d", "end_true_position_2d"
-    else:
-        return "position_3d", "begin_true_position_3d", "end_true_position_3d"
-
-
-def absolute_position_error_histogram(results, return_intermediate_results=False):
-    position_coordinates, begin_position_coordinates, end_position_coordinates = _determine_dimensions(results)
-    # Mobile node cloud move during localization procedure
-    true_positions = (results[:, begin_position_coordinates] + results[:, end_position_coordinates]) / 2
-    position_errors = np.abs(np.linalg.norm(true_positions - results[:, position_coordinates], axis=1))
-
-    plt.hist(position_errors)
-    plt.title('Histogram of absolute error values')
-    plt.xlabel('Position error [m]')
-    plt.ylabel('Number of localization results')
-    plt.grid(True)
-    plt.show()
-
-    if return_intermediate_results:
-        return true_positions, position_errors
-
-
-def absolute_position_error_surface(results, return_intermediate_results=False):
-    position_coordinates, begin_position_coordinates, end_position_coordinates = _determine_dimensions(results)
-
-    # Mobile node cloud move during localization procedure
-    true_positions = (results[:, begin_position_coordinates] + results[:, end_position_coordinates]) / 2
-    position_errors = np.abs(np.linalg.norm(true_positions - results[:, position_coordinates], axis=1))
-
-    x, y = np.meshgrid(np.unique(true_positions[:, 0]), np.unique(true_positions[:, 1]), indexing='xy')
-    z = np.zeros(x.shape)
-
-    # Assign position errors (z) to correct node coordinates (x, y)
-    for i in range(0, len(true_positions)):
-        tmp_true_position = true_positions[i, :]
-        tmp_position_error = position_errors[i]
-
-        tmp_z_indices = np.where(np.logical_and(x == tmp_true_position[0], y == tmp_true_position[1]))
-        z[tmp_z_indices] = tmp_position_error
-
-    plt.pcolormesh(x, y, z)
-    y_min, y_max = plt.ylim()
-    plt.ylim(y_max, y_min)
-    axis = plt.gca()
-    axis.xaxis.set_ticks_position('top')
-    axis.xaxis.set_label_position('top')
-    plt.colorbar().set_label('Error value [m]')
-    plt.grid()
-    plt.title('Map of absolute position errors', y=-0.1)
-    plt.xlabel('X [m]')
-    plt.ylabel('Y [m]')
-    plt.show()
-
-    if return_intermediate_results:
-        return true_positions, position_errors
-
-
-def plot_absolute_position_error_cdf(results):
-    position_coordinates, begin_position_coordinates, end_position_coordinates = _determine_dimensions(results)
-
-    true_positions = (results[:, begin_position_coordinates] + results[:, end_position_coordinates]) / 2
-    position_errors = np.abs(np.linalg.norm(true_positions - results[:, position_coordinates], axis=1))
-    position_errors = np.sort(position_errors)
-    n = np.array(range(position_errors.size)) / np.float(position_errors.size)
-
-    plt.plot(position_errors, n)
-    plt.grid()
-    plt.title('CDF of absolute position error')
-    plt.xlabel('Error [m]')
-    plt.show()
-
-
 def obtain_unique_results(results):
-    position_coordinates, begin_position_coordinates, end_position_coordinates = _determine_dimensions(results)
+    position_coordinates, begin_position_coordinates, end_position_coordinates = results.determine_dimensions()
 
     # We want to have single result per mobile node
     unique_mac_addresses = np.unique(results[:, "mac_address"])
