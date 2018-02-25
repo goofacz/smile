@@ -69,7 +69,7 @@ def plot_absolute_position_error_surface(results, return_intermediate_results=Fa
         return true_positions, position_errors
 
 
-def plot_absolute_position_error_cdf(results):
+def plot_absolute_position_error_cdf(results, return_intermediate_results=False):
     position_coordinates, begin_position_coordinates, end_position_coordinates = results.determine_dimensions()
 
     true_positions = (results[:, begin_position_coordinates] + results[:, end_position_coordinates]) / 2
@@ -82,3 +82,6 @@ def plot_absolute_position_error_cdf(results):
     plt.title('CDF of absolute position error')
     plt.xlabel('Error [m]')
     plt.show()
+
+    if return_intermediate_results:
+        return position_errors, n
