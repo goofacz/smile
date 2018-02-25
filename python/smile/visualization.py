@@ -17,7 +17,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-def absolute_position_error_histogram(results, return_intermediate_results=False):
+def plot_absolute_position_error_histogram(results, return_intermediate_results=False):
     position_coordinates, begin_position_coordinates, end_position_coordinates = results.determine_dimensions()
     # Mobile node cloud move during localization procedure
     true_positions = (results[:, begin_position_coordinates] + results[:, end_position_coordinates]) / 2
@@ -34,7 +34,7 @@ def absolute_position_error_histogram(results, return_intermediate_results=False
         return true_positions, position_errors
 
 
-def absolute_position_error_surface(results, return_intermediate_results=False):
+def plot_absolute_position_error_surface(results, return_intermediate_results=False):
     position_coordinates, begin_position_coordinates, end_position_coordinates = results.determine_dimensions()
 
     # Mobile node cloud move during localization procedure
