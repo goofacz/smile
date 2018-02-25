@@ -25,7 +25,7 @@ from smile.results import Results
 
 
 class TestAnalysis(unittest.TestCase):
-    def test_obtain_unique_results(self):
+    def test_squeeze_results(self):
         results = Results.create_array(6, 2)
         results[0, :] = (2, 10, 15, 0, 40, 45, 0, 70, 75, 0, 123)
         results[1, :] = (2, 20, 25, 0, 50, 55, 0, 80, 85, 0, 123)
@@ -34,19 +34,46 @@ class TestAnalysis(unittest.TestCase):
         results[4, :] = (2, 100, 0, 0, 200, 0, 0, 300, 0, 0, 456)
         results[5, :] = (2, 10, 11, 0, 12, 13, 0, 14, 15, 0, 789)
 
-        unique_results = obtain_unique_results(results)
+        unique_results = squeeze_results(results, grouping_method="mac_address", averaging_method="mean")
         self.assertTupleEqual((3, 11), unique_results.shape)
-
         self.assertEqual(123, unique_results[0, "mac_address"])
         np.testing.assert_equal((20, 25), unique_results[0, "position_2d"])
         np.testing.assert_equal((50, 55), unique_results[0, "begin_true_position_2d"])
         np.testing.assert_equal((80, 85), unique_results[0, "end_true_position_2d"])
-
         self.assertEqual(456, unique_results[1, "mac_address"])
         np.testing.assert_equal((100, 0), unique_results[1, "position_2d"])
         np.testing.assert_equal((200, 0), unique_results[1, "begin_true_position_2d"])
         np.testing.assert_equal((300, 0), unique_results[1, "end_true_position_2d"])
+        self.assertEqual(789, unique_results[2, "mac_address"])
+        np.testing.assert_equal((10, 11), unique_results[2, "position_2d"])
+        np.testing.assert_equal((12, 13), unique_results[2, "begin_true_position_2d"])
+        np.testing.assert_equal((14, 15), unique_results[2, "end_true_position_2d"])
 
+        unique_results = squeeze_results(results, grouping_method="mac_address", averaging_method="max")
+        self.assertTupleEqual((3, 11), unique_results.shape)
+        self.assertEqual(123, unique_results[0, "mac_address"])
+        np.testing.assert_equal((30, 35), unique_results[0, "position_2d"])
+        np.testing.assert_equal((60, 65), unique_results[0, "begin_true_position_2d"])
+        np.testing.assert_equal((90, 95), unique_results[0, "end_true_position_2d"])
+        self.assertEqual(456, unique_results[1, "mac_address"])
+        np.testing.assert_equal((100, 0), unique_results[1, "position_2d"])
+        np.testing.assert_equal((200, 0), unique_results[1, "begin_true_position_2d"])
+        np.testing.assert_equal((300, 0), unique_results[1, "end_true_position_2d"])
+        self.assertEqual(789, unique_results[2, "mac_address"])
+        np.testing.assert_equal((10, 11), unique_results[2, "position_2d"])
+        np.testing.assert_equal((12, 13), unique_results[2, "begin_true_position_2d"])
+        np.testing.assert_equal((14, 15), unique_results[2, "end_true_position_2d"])
+
+        unique_results = squeeze_results(results, grouping_method="mac_address", averaging_method="min")
+        self.assertTupleEqual((3, 11), unique_results.shape)
+        self.assertEqual(123, unique_results[0, "mac_address"])
+        np.testing.assert_equal((10, 15), unique_results[0, "position_2d"])
+        np.testing.assert_equal((40, 45), unique_results[0, "begin_true_position_2d"])
+        np.testing.assert_equal((70, 75), unique_results[0, "end_true_position_2d"])
+        self.assertEqual(456, unique_results[1, "mac_address"])
+        np.testing.assert_equal((100, 0), unique_results[1, "position_2d"])
+        np.testing.assert_equal((200, 0), unique_results[1, "begin_true_position_2d"])
+        np.testing.assert_equal((300, 0), unique_results[1, "end_true_position_2d"])
         self.assertEqual(789, unique_results[2, "mac_address"])
         np.testing.assert_equal((10, 11), unique_results[2, "position_2d"])
         np.testing.assert_equal((12, 13), unique_results[2, "begin_true_position_2d"])
