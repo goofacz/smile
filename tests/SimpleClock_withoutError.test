@@ -23,7 +23,7 @@ void TestModule::initialize(int stage)
     scheduleAt(SimTime{237, SIMTIME_MS}, new cMessage{"237ms"});
     scheduleAt(SimTime{18, SIMTIME_PS}, new cMessage{"18ps"});
     scheduleAt(SimTime{4, SIMTIME_S}, new cMessage{"4s"});
-    EV_DEBUG << "Self messages were sent" << endl;
+    EV_INFO << "Self messages were sent" << endl;
   }
 }
 
@@ -34,7 +34,7 @@ int TestModule::numInitStages() const
 
 void TestModule::handleSelfMessage(omnetpp::cMessage* message)
 {
-  EV_DEBUG << "Received scheduled message \"" << message << "\" at " << simTime() << endl;
+  EV_INFO << "Received scheduled message \"" << message << "\" at " << simTime() << endl;
   delete message;
 }
 
@@ -70,6 +70,6 @@ network = Test
 
 %contains: stdout
 Running simulation...
-[DEBUG] testModule: Received scheduled message "(omnetpp::cMessage)18ps" at 0.000000000018
-[DEBUG] testModule: Received scheduled message "(omnetpp::cMessage)237ms" at 0.237
-[DEBUG] testModule: Received scheduled message "(omnetpp::cMessage)4s" at 4
+[INFO] testModule: Received scheduled message "(omnetpp::cMessage)18ps" at 0.000000000018
+[INFO] testModule: Received scheduled message "(omnetpp::cMessage)237ms" at 0.237
+[INFO] testModule: Received scheduled message "(omnetpp::cMessage)4s" at 4
