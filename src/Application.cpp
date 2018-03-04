@@ -42,7 +42,7 @@ inet::Coord Application::getCurrentTruePosition() const
 
 IRangingNicDriver& Application::getNicDriver()
 {
-  assert(logger);
+  assert(nicDriver);
   return *nicDriver;
 }
 
