@@ -39,5 +39,22 @@ class TestX(unittest.TestCase):
         np.testing.assert_almost_equal(position, true_mobile_position, decimal=7)
 
 
+class TestFoyTaylorSeries(unittest.TestCase):
+    def test_scenario_1(self):
+        coordinates, distances, true_mobile_position = test_scenario_1()
+        # Check different initial guesses
+        position = foy_taylor_series(coordinates, distances, np.array((0, 0)), expected_delta=0.00001)
+        np.testing.assert_almost_equal(position, true_mobile_position, decimal=7)
+
+        position = foy_taylor_series(coordinates, distances, np.array((1, 5)), expected_delta=0.00001)
+        np.testing.assert_almost_equal(position, true_mobile_position, decimal=7)
+
+        position = foy_taylor_series(coordinates, distances, np.array((-1, -5)), expected_delta=0.00000001)
+        np.testing.assert_almost_equal(position, true_mobile_position, decimal=7)
+
+        position = foy_taylor_series(coordinates, distances, np.array((10, 10)), expected_delta=0.00000001)
+        np.testing.assert_almost_equal(position, true_mobile_position, decimal=7)
+
+
 if __name__ == '__main__':
     unittest.main()
