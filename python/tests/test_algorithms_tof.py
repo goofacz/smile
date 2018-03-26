@@ -17,9 +17,27 @@ import unittest
 
 from smile.algorithms.tof import *
 
+# Test scenarios contains following information
+# - Anchors' coordinates in 2D
+# - True tag position in 2D
+# - True distances between tag and anchors
 
 def test_scenario_1():
     mobile_position = np.asarray((1, 5))
+
+    anchors_coordinates = np.asarray(((0, 0),  # Anchor 1
+                                      (0, 100),  # Anchor 2
+                                      (100, 100)))  # Anchor 3
+
+    distances = mobile_position - anchors_coordinates
+    distances = np.linalg.norm(distances, axis=1)
+    distances = np.abs(distances)
+
+    return anchors_coordinates, distances, mobile_position
+
+
+def test_scenario_2():
+    mobile_position = np.asarray((34, 85))
 
     anchors_coordinates = np.asarray(((0, 0),  # Anchor 1
                                       (0, 100),  # Anchor 2
@@ -38,6 +56,11 @@ class TestX(unittest.TestCase):
         position = simple_least_squares(anchors_coordinates, distances)
         np.testing.assert_almost_equal(position, true_mobile_position, decimal=7)
 
+    def test_scenario_2(self):
+        anchors_coordinates, distances, true_mobile_position = test_scenario_2()
+        position = simple_least_squares(anchors_coordinates, distances)
+        np.testing.assert_almost_equal(position, true_mobile_position, decimal=7)
+
 
 class TestFoyTaylorSeries(unittest.TestCase):
     def test_scenario_1(self):
@@ -47,6 +70,21 @@ class TestFoyTaylorSeries(unittest.TestCase):
         np.testing.assert_almost_equal(position, true_mobile_position, decimal=7)
 
         position = foy_taylor_series(coordinates, distances, np.array((1, 5)), expected_delta=0.00001)
+        np.testing.assert_almost_equal(position, true_mobile_position, decimal=7)
+
+        position = foy_taylor_series(coordinates, distances, np.array((-1, -5)), expected_delta=0.00000001)
+        np.testing.assert_almost_equal(position, true_mobile_position, decimal=7)
+
+        position = foy_taylor_series(coordinates, distances, np.array((10, 10)), expected_delta=0.00000001)
+        np.testing.assert_almost_equal(position, true_mobile_position, decimal=7)
+
+    def test_scenario_2(self):
+        coordinates, distances, true_mobile_position = test_scenario_2()
+        # Check different initial guesses
+        position = foy_taylor_series(coordinates, distances, np.array((0, 0)), expected_delta=0.00000001)
+        np.testing.assert_almost_equal(position, true_mobile_position, decimal=7)
+
+        position = foy_taylor_series(coordinates, distances, np.array((1, 5)), expected_delta=0.00000001)
         np.testing.assert_almost_equal(position, true_mobile_position, decimal=7)
 
         position = foy_taylor_series(coordinates, distances, np.array((-1, -5)), expected_delta=0.00000001)

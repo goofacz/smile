@@ -19,71 +19,57 @@ import scipy.constants as scc
 
 from smile.algorithms.tdoa import *
 
+# Test scenarios contains following information
+# - Anchors' coordinates in 2D
+# - True tag position in 2D
+# - True differences in distances between tag and Anchors no. 2 and 3 relative to distance between tag and Anchor no.1
 
 def test_scenario_1():
-    # TEST SCENARIO no. 1
-    #
-    #   ^
-    #   |                    *
-    #   |                     (5, 10) anchor2
-    #   |
-    #   |
-    #   |
-    #   |*                   *                  *
-    #   | (0, 5) anchor1      (5, 5) mobile      (10,5) anchor3
-    #   |
-    #   |
-    #   |
-    #   |---------------------------------->
-    #
-    assert (scc.unit('speed of light in vacuum') == 'm s^-1')
-    c = scc.value('speed of light in vacuum')
+    mobile_position = np.asarray((1, 4))
 
-    mobile_position = np.asarray((5, 5))
-
-    coordinates = np.asarray(((0, 5),  # Anchor 1
-                              (5, 10),  # Anchor 2
-                              (10, 5)))  # Anchor 3
+    coordinates = np.asarray(((0, 0),  # Anchor 1
+                              (0, 10),  # Anchor 2
+                              (10, 10)))  # Anchor 3
 
     distances = np.asarray((np.abs(np.linalg.norm(mobile_position - coordinates[0, :])),
                             np.abs(np.linalg.norm(mobile_position - coordinates[1, :])),
                             np.abs(np.linalg.norm(mobile_position - coordinates[2, :]))))
-    tdoas = distances / c
 
-    return coordinates, tdoas, mobile_position
+    distances -= distances[0]
+
+    return coordinates, distances, mobile_position
 
 
 def test_scenario_2():
-    # TEST SCENARIO no. 1
-    #
-    #   ^
-    #   *                                   *
-    #   |(0,10 anchor1                       (10,10) anchor2
-    #   |
-    #   |
-    #   |                   *
-    #   |                    (5, 5) mobile
-    #   |
-    #   |
-    #   |                                     (10,0) anchor3
-    #   |------------------------------------*--->
-    #
-    assert (scc.unit('speed of light in vacuum') == 'm s^-1')
-    c = scc.value('speed of light in vacuum')
-
     mobile_position = np.asarray((5, 5))
 
     coordinates = np.asarray(((0, 0),  # Anchor 1
-                              (10, 10),  # Anchor 2
-                              (10, 0)))  # Anchor 3
+                              (0, 10),  # Anchor 2
+                              (10, 10)))  # Anchor 3
 
     distances = np.asarray((np.abs(np.linalg.norm(mobile_position - coordinates[0, :])),
                             np.abs(np.linalg.norm(mobile_position - coordinates[1, :])),
                             np.abs(np.linalg.norm(mobile_position - coordinates[2, :]))))
 
-    tdoas = distances / c
+    distances -= distances[0]
 
-    return coordinates, tdoas, mobile_position
+    return coordinates, distances, mobile_position
+
+
+def test_scenario_3():
+    mobile_position = np.asarray((7, 6))
+
+    coordinates = np.asarray(((0, 0),  # Anchor 1
+                              (0, 10),  # Anchor 2
+                              (10, 10)))  # Anchor 3
+
+    distances = np.asarray((np.abs(np.linalg.norm(mobile_position - coordinates[0, :])),
+                            np.abs(np.linalg.norm(mobile_position - coordinates[1, :])),
+                            np.abs(np.linalg.norm(mobile_position - coordinates[2, :]))))
+
+    distances -= distances[0]
+
+    return coordinates, distances, mobile_position
 
 
 class TestDoanVesely(unittest.TestCase):
@@ -94,6 +80,11 @@ class TestDoanVesely(unittest.TestCase):
 
     def test_scenario_2(self):
         coordinates, distances, true_mobile_position = test_scenario_2()
+        position = doan_vesely(coordinates, distances)
+        np.testing.assert_almost_equal(position, true_mobile_position, decimal=7)
+
+    def test_scenario_3(self):
+        coordinates, distances, true_mobile_position = test_scenario_3()
         position = doan_vesely(coordinates, distances)
         np.testing.assert_almost_equal(position, true_mobile_position, decimal=7)
 

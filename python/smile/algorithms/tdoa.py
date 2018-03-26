@@ -26,24 +26,22 @@ def doan_vesely(coordinates, distances):
     assert (coordinates.shape == (3, 2))
     assert (distances.shape == (3,))
 
-    assert (scc.unit('speed of light in vacuum') == 'm s^-1')
-    c = scc.value('speed of light in vacuum')
-    c = c * 1e-12  # m/s -> m/ps
+    coordinates = np.matrix(coordinates)
+    distances = np.matrix(distances)
+    distances -= distances[0,0]
 
-    distances = distances * c
-
-    L = distances[1]
-    R = distances[2]
+    L = distances[0,1]
+    R = distances[0,2]
     Xl = coordinates[1, 0] - coordinates[0, 0]
     Yl = coordinates[1, 1] - coordinates[0, 1]
     Xr = coordinates[2, 0] - coordinates[0, 0]
     Yr = coordinates[2, 1] - coordinates[0, 1]
 
-    A = -2 * np.asanyarray(((Xl, Yl),
-                            (Xr, Yr)))
+    A = -2 * np.matrix(((Xl, Yl),
+                        (Xr, Yr)))
 
-    B = np.asanyarray(((-2 * L, L ** 2 - Xl ** 2 - Yl ** 2),
-                       (2 * R, R ** 2 - Xr ** 2 - Yr ** 2)))
+    B = np.matrix(((2 * L, L ** 2 - Xl ** 2 - Yl ** 2),
+                   (2 * R, R ** 2 - Xr ** 2 - Yr ** 2)))
 
     tmp, _, _, _ = np.linalg.lstsq(A, B, rcond=None)
     a = tmp[0, 0] ** 2 + tmp[1, 0] ** 2 - 1
