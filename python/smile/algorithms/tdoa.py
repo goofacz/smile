@@ -14,7 +14,6 @@
 #
 
 import numpy as np
-import scipy.constants as scc
 
 
 def doan_vesely(coordinates, distances):
@@ -28,10 +27,10 @@ def doan_vesely(coordinates, distances):
 
     coordinates = np.matrix(coordinates)
     distances = np.matrix(distances)
-    distances -= distances[0,0]
+    distances -= distances[0, 0]
 
-    L = distances[0,1]
-    R = distances[0,2]
+    L = distances[0, 1]
+    R = distances[0, 2]
     Xl = coordinates[1, 0] - coordinates[0, 0]
     Yl = coordinates[1, 1] - coordinates[0, 1]
     Xr = coordinates[2, 0] - coordinates[0, 0]
