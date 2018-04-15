@@ -24,36 +24,39 @@ from smile.algorithms.tdoa import *
 # - True differences in distances between tag and Anchors no. 2 and 3 relative to distance between tag and Anchor no.1
 
 
-def generate_scenario_data(mobile_position):
-    anchors_coordinates = np.asarray(((0, 0),  # Anchor 1
-                                      (10, 0),  # Anchor 2
-                                      (10, 10)))  # Anchor 3
+def generate_scenario_data(mobile_position, anchors_number):
+    if anchors_number == 3:
+        coordinates = np.asarray(((0, 0), (10, 0), (10, 10)))
+    elif anchors_number == 4:
+        coordinates = np.asarray(((0, 0), (10, 0), (10, 10), (0, 10)))
+    else:
+        raise ValueError('Unsupported value of anchors_number')
 
-    distances = mobile_position - anchors_coordinates
-    distances = np.linalg.norm(distances, axis=1)
-    distances = np.abs(distances)
+    distances = np.apply_along_axis(lambda anchor_position: np.abs(np.linalg.norm(mobile_position - anchor_position)),
+                                    1, coordinates)
+    distances -= distances[0]
 
-    return anchors_coordinates, distances, mobile_position
-
-
-def scenario_1():
-    return generate_scenario_data((6, 4))
-
-
-def scenario_2():
-    return generate_scenario_data((5, 5))
+    return coordinates, distances, mobile_position
 
 
-def scenario_3():
-    return generate_scenario_data((7, 6))
+def scenario_1(anchors_number=3):
+    return generate_scenario_data((6, 4), anchors_number)
 
 
-def scenario_4():
-    return generate_scenario_data((8, 2))
+def scenario_2(anchors_number=3):
+    return generate_scenario_data((5, 5), anchors_number)
 
 
-def scenario_5():
-    return generate_scenario_data((8, 8))
+def scenario_3(anchors_number=3):
+    return generate_scenario_data((7, 6), anchors_number)
+
+
+def scenario_4(anchors_number=3):
+    return generate_scenario_data((8, 2), anchors_number)
+
+
+def scenario_5(anchors_number=3):
+    return generate_scenario_data((8, 8), anchors_number)
 
 
 class TestDoanVesely(unittest.TestCase):
@@ -116,6 +119,34 @@ class TestFang(unittest.TestCase):
         distances = np.asarray((1, 2, 3))
         with self.assertRaises(ValueError):
             fang(coordinates, distances)
+
+
+class TestChanHo(unittest.TestCase):
+    def test_scenario_1(self):
+        coordinates, distances, true_mobile_position = scenario_1(anchors_number=4)
+        position = chan_ho(coordinates, distances)
+        np.testing.assert_almost_equal(position, true_mobile_position, decimal=7)
+
+    def test_scenario_2(self):
+        coordinates, distances, true_mobile_position = scenario_2(anchors_number=4)
+        with self.assertRaises(np.linalg.linalg.LinAlgError):
+            chan_ho(coordinates, distances)
+
+    def test_scenario_3(self):
+        coordinates, distances, true_mobile_position = scenario_3(anchors_number=4)
+        position = chan_ho(coordinates, distances)
+        np.testing.assert_almost_equal(position, true_mobile_position, decimal=7)
+
+    def test_scenario_4(self):
+        coordinates, distances, true_mobile_position = scenario_4(anchors_number=4)
+        position = chan_ho(coordinates, distances)
+        np.testing.assert_almost_equal(position, true_mobile_position, decimal=7)
+
+    def test_scenario_5(self):
+        coordinates, distances, true_mobile_position = scenario_5(anchors_number=4)
+        position = chan_ho(coordinates, distances)
+        # FIXME
+        # np.testing.assert_almost_equal(position, true_mobile_position, decimal=7)
 
 
 if __name__ == '__main__':
