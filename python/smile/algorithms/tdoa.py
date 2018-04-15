@@ -53,3 +53,42 @@ def doan_vesely(coordinates, distances):
     Y = tmp[1, 0] * K + tmp[1, 1] + coordinates[0, 1]
 
     return np.asarray((X, Y))
+
+
+def fang(coordinates, distances):
+    """
+    B. T. Fang, "Simple solutions for hyperbolic and related position fixes," in IEEE Transactions on Aerospace
+    and Electronic Systems, vol. 26, no. 5, pp. 748-753, Sep 1990.
+    """
+    # TODO propose better way for arguments checking
+    assert (coordinates.shape == (3, 2))
+    assert (distances.shape == (3,))
+
+    coordinates = np.matrix(coordinates)
+    if coordinates[1, 1] != 0:
+        raise ValueError('Second anchor has to lie along a first station baseline')
+
+    distances = np.matrix(distances)
+    distances -= distances[0, 0]
+
+    R_ab = distances[0, 1]
+    if np.isclose(R_ab, 0):
+        raise ValueError('Solver doesn\'t accept R_ab equal zero')
+
+    R_ac = distances[0, 2]
+    c_x = coordinates[2, 0]
+    c_y = coordinates[2, 1]
+
+    b = np.abs(np.linalg.norm(coordinates[1, :] - coordinates[0, :]))
+    c = np.sqrt(np.sum(np.power(coordinates[2, 0:2], 2)))
+
+    g = ((R_ac * (b / R_ab)) - c_x) / c_y
+    h = (np.power(c, 2) - np.power(R_ac, 2) + R_ac * R_ab * (1 - np.power(b / R_ab, 2))) / (2 * c_y)
+    d = -(1 - np.power(b / R_ab, 2) + np.power(g, 2))
+    e = b * (1 - np.power(b / R_ab, 2)) - 2 * g * h
+    f = (np.power(R_ab, 2) / 4) * np.power(1 - np.power(b / R_ab, 2), 2) - np.power(h, 2)
+
+    x = np.max(np.real(np.roots((d, e, f))))
+    y = g * x + h
+
+    return x, y
