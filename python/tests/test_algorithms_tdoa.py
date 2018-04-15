@@ -15,9 +15,8 @@
 
 import unittest
 
-import scipy.constants as scc
-
 from smile.algorithms.tdoa import *
+
 
 # Test scenarios contains following information
 # - Anchors' coordinates in 2D
@@ -26,17 +25,15 @@ from smile.algorithms.tdoa import *
 
 
 def generate_scenario_data(mobile_position):
-    coordinates = np.asarray(((0, 0),  # Anchor 1
-                              (10, 0),  # Anchor 2
-                              (10, 10)))  # Anchor 3
+    anchors_coordinates = np.asarray(((0, 0),  # Anchor 1
+                                      (10, 0),  # Anchor 2
+                                      (10, 10)))  # Anchor 3
 
-    distances = np.asarray((np.abs(np.linalg.norm(mobile_position - coordinates[0, :])),
-                            np.abs(np.linalg.norm(mobile_position - coordinates[1, :])),
-                            np.abs(np.linalg.norm(mobile_position - coordinates[2, :]))))
+    distances = mobile_position - anchors_coordinates
+    distances = np.linalg.norm(distances, axis=1)
+    distances = np.abs(distances)
 
-    distances -= distances[0]
-
-    return coordinates, distances, mobile_position
+    return anchors_coordinates, distances, mobile_position
 
 
 def scenario_1():
@@ -53,6 +50,10 @@ def scenario_3():
 
 def scenario_4():
     return generate_scenario_data((8, 2))
+
+
+def scenario_5():
+    return generate_scenario_data((8, 8))
 
 
 class TestDoanVesely(unittest.TestCase):
@@ -76,6 +77,11 @@ class TestDoanVesely(unittest.TestCase):
         position = doan_vesely(coordinates, distances)
         np.testing.assert_almost_equal(position, true_mobile_position, decimal=7)
 
+    def test_scenario_5(self):
+        coordinates, distances, true_mobile_position = scenario_5()
+        position = doan_vesely(coordinates, distances)
+        np.testing.assert_almost_equal(position, true_mobile_position, decimal=7)
+
 
 class TestFang(unittest.TestCase):
     def test_scenario_1(self):
@@ -83,7 +89,10 @@ class TestFang(unittest.TestCase):
         position = fang(coordinates, distances)
         np.testing.assert_almost_equal(position, true_mobile_position, decimal=7)
 
-    # Scenario no. 2 doesn't apply to Fang algorithm
+    def test_scenario_2(self):
+        coordinates, distances, true_mobile_position = scenario_2()
+        with self.assertRaises(ValueError):
+            fang(coordinates, distances)
 
     def test_scenario_3(self):
         coordinates, distances, true_mobile_position = scenario_3()
@@ -94,6 +103,19 @@ class TestFang(unittest.TestCase):
         coordinates, distances, true_mobile_position = scenario_4()
         position = fang(coordinates, distances)
         np.testing.assert_almost_equal(position, true_mobile_position, decimal=7)
+
+    def test_scenario_5(self):
+        coordinates, distances, true_mobile_position = scenario_5()
+        position = fang(coordinates, distances)
+        np.testing.assert_almost_equal(position, true_mobile_position, decimal=7)
+
+    def test_incorrect_anchors_deployment(self):
+        coordinates = np.asarray(((0, 0),  # Anchor 1
+                                  (10, 50),  # Anchor 2
+                                  (10, 10)))  # Anchor 3
+        distances = np.asarray((1, 2, 3))
+        with self.assertRaises(ValueError):
+            fang(coordinates, distances)
 
 
 if __name__ == '__main__':

@@ -50,7 +50,7 @@ def test_scenario_2():
     return anchors_coordinates, distances, mobile_position
 
 
-class TestX(unittest.TestCase):
+class TestSimpleLeastSquares(unittest.TestCase):
     def test_scenario_1(self):
         anchors_coordinates, distances, true_mobile_position = test_scenario_1()
         position = simple_least_squares(anchors_coordinates, distances)
