@@ -133,34 +133,32 @@ def chan_ho(coordinates, distances):
 
     l_1 = (r_32 * K_1) + (r_21 * K_3) - (r_31 * K_2)
     l_2 = (r_43 * K_1) + (r_31 * K_4) - (r_41 * K_3)
-    l_3 = (r_42 * K_1) + (r_21 * K_4) - (r_41 * K_2)
-    l_4 = (r_43 * K_2) + (r_32 * K_4) - (r_42 * K_3)
 
     m_1 = -2 * ((r_32 * x_1) + (r_21 * x_3) - (r_31 * x_2))
     m_2 = -2 * ((r_43 * x_1) + (r_31 * x_4) - (r_41 * x_3))
-    m_3 = -2 * ((r_42 * x_1) + (r_21 * x_4) - (r_41 * x_2))
-    m_4 = -2 * ((r_43 * x_2) + (r_32 * x_4) - (r_42 * x_3))
 
     u_1 = -2 * ((r_32 * y_1) + (r_21 * y_3) - (r_31 * y_2))
     u_2 = -2 * ((r_43 * y_1) + (r_31 * y_4) - (r_41 * y_3))
-    u_3 = -2 * ((r_42 * y_1) + (r_21 * y_4) - (r_41 * y_2))
-    u_4 = -2 * ((r_43 * y_2) + (r_32 * y_4) - (r_42 * y_3))
 
     A1 = np.matrix(((m_1, u_1),
                     (m_2, u_2)))
 
-    A2 = np.matrix(((m_3, u_3),
-                    (m_4, u_4)))
-
     B1 = np.matrix(((np.float(r_32 * r_21 * r_31 - l_1)),
                     (np.float(r_43 * r_31 * r_41 - l_2))))
 
-    B2 = np.matrix(((np.float(r_42 * r_21 * r_41 - l_3)),
-                    (np.float(r_43 * r_32 * r_42 - l_4))))
+    position = np.linalg.solve(A1, B1.T)
 
-    position1 = np.linalg.solve(A1, B1.T)
-    position2 = np.linalg.solve(A2, B2.T)
+    # Another matrix for computing position
+    # l_3 = (r_42 * K_1) + (r_21 * K_4) - (r_41 * K_2)
+    # l_4 = (r_43 * K_2) + (r_32 * K_4) - (r_42 * K_3)
+    # m_3 = -2 * ((r_42 * x_1) + (r_21 * x_4) - (r_41 * x_2))
+    # m_4 = -2 * ((r_43 * x_2) + (r_32 * x_4) - (r_42 * x_3))
+    # u_3 = -2 * ((r_42 * y_1) + (r_21 * y_4) - (r_41 * y_2))
+    # u_4 = -2 * ((r_43 * y_2) + (r_32 * y_4) - (r_42 * y_3))
+    # A2 = np.matrix(((m_3, u_3),
+    #                (m_4, u_4)))
+    # B2 = np.matrix(((np.float(r_42 * r_21 * r_41 - l_3)),
+    #                (np.float(r_43 * r_32 * r_42 - l_4))))
+    # position2 = np.linalg.solve(A2, B2.T)
 
-    # FIXME Validate solution and choose one position
-
-    return np.asarray((position2[0, 0], position2[1, 0]))
+    return np.asarray((position[0, 0], position[1, 0]))

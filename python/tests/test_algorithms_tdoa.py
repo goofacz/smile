@@ -39,6 +39,13 @@ def generate_scenario_data(mobile_position, anchors_number):
     return coordinates, distances, mobile_position
 
 
+def sort_measurements(coordinates, distances):
+    indices = np.argsort(distances)
+    distances = distances[indices]
+    coordinates = coordinates[indices, :]
+    return coordinates, distances
+
+
 def scenario_1(anchors_number=3):
     return generate_scenario_data((6, 4), anchors_number)
 
@@ -57,6 +64,10 @@ def scenario_4(anchors_number=3):
 
 def scenario_5(anchors_number=3):
     return generate_scenario_data((8, 8), anchors_number)
+
+
+def scenario_6(anchors_number=3):
+    return generate_scenario_data((0, 0), anchors_number)
 
 
 class TestDoanVesely(unittest.TestCase):
@@ -82,6 +93,11 @@ class TestDoanVesely(unittest.TestCase):
 
     def test_scenario_5(self):
         coordinates, distances, true_mobile_position = scenario_5()
+        position = doan_vesely(coordinates, distances)
+        np.testing.assert_almost_equal(position, true_mobile_position, decimal=7)
+
+    def test_scenario_6(self):
+        coordinates, distances, true_mobile_position = scenario_6()
         position = doan_vesely(coordinates, distances)
         np.testing.assert_almost_equal(position, true_mobile_position, decimal=7)
 
@@ -112,6 +128,11 @@ class TestFang(unittest.TestCase):
         position = fang(coordinates, distances)
         np.testing.assert_almost_equal(position, true_mobile_position, decimal=7)
 
+    def test_scenario_6(self):
+        coordinates, distances, true_mobile_position = scenario_6()
+        position = fang(coordinates, distances)
+        np.testing.assert_almost_equal(position, true_mobile_position, decimal=7)
+
     def test_incorrect_anchors_deployment(self):
         coordinates = np.asarray(((0, 0),  # Anchor 1
                                   (10, 50),  # Anchor 2
@@ -124,29 +145,39 @@ class TestFang(unittest.TestCase):
 class TestChanHo(unittest.TestCase):
     def test_scenario_1(self):
         coordinates, distances, true_mobile_position = scenario_1(anchors_number=4)
+        coordinates, distances = sort_measurements(coordinates, distances)
         position = chan_ho(coordinates, distances)
         np.testing.assert_almost_equal(position, true_mobile_position, decimal=7)
 
     def test_scenario_2(self):
         coordinates, distances, true_mobile_position = scenario_2(anchors_number=4)
+        coordinates, distances = sort_measurements(coordinates, distances)
         with self.assertRaises(np.linalg.linalg.LinAlgError):
             chan_ho(coordinates, distances)
 
     def test_scenario_3(self):
         coordinates, distances, true_mobile_position = scenario_3(anchors_number=4)
+        coordinates, distances = sort_measurements(coordinates, distances)
         position = chan_ho(coordinates, distances)
         np.testing.assert_almost_equal(position, true_mobile_position, decimal=7)
 
     def test_scenario_4(self):
         coordinates, distances, true_mobile_position = scenario_4(anchors_number=4)
+        coordinates, distances = sort_measurements(coordinates, distances)
         position = chan_ho(coordinates, distances)
         np.testing.assert_almost_equal(position, true_mobile_position, decimal=7)
 
     def test_scenario_5(self):
         coordinates, distances, true_mobile_position = scenario_5(anchors_number=4)
+        coordinates, distances = sort_measurements(coordinates, distances)
         position = chan_ho(coordinates, distances)
-        # FIXME
-        # np.testing.assert_almost_equal(position, true_mobile_position, decimal=7)
+        np.testing.assert_almost_equal(position, true_mobile_position, decimal=7)
+
+    def test_scenario_6(self):
+        coordinates, distances, true_mobile_position = scenario_6(anchors_number=4)
+        coordinates, distances = sort_measurements(coordinates, distances)
+        position = chan_ho(coordinates, distances)
+        np.testing.assert_almost_equal(position, true_mobile_position, decimal=7)
 
 
 if __name__ == '__main__':
