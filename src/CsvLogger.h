@@ -18,6 +18,7 @@
 #include <inet/common/geometry/common/Coord.h>
 #include <inet/linklayer/common/MACAddress.h>
 #include <omnetpp.h>
+#include <string>
 #include <utility>
 #include "IdealRxCompletion_m.h"
 #include "IdealTxCompletion_m.h"
