@@ -20,11 +20,11 @@
 
 namespace smile {
 
-template <typename O, typename I>
-auto dynamic_unique_ptr_cast(std::unique_ptr<I> object)
+template <typename OutputType, typename InputType>
+auto dynamic_unique_ptr_cast(std::unique_ptr<InputType> object)
 {
-  omnetpp::check_and_cast<O*>(object.get());
-  return std::unique_ptr<O>(static_cast<O*>(object.release()));
+  omnetpp::check_and_cast<OutputType*>(object.get());
+  return std::unique_ptr<OutputType>(static_cast<OutputType*>(object.release()));
 };
 
 }  // namespace smile
