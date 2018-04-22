@@ -15,6 +15,7 @@
 
 import unittest
 
+from smile.algorithms.common import *
 from smile.algorithms.tdoa import *
 
 
@@ -37,13 +38,6 @@ def generate_scenario_data(mobile_position, anchors_number):
     distances -= distances[0]
 
     return coordinates, distances, mobile_position
-
-
-def sort_measurements(coordinates, distances):
-    indices = np.argsort(distances)
-    distances = distances[indices]
-    coordinates = coordinates[indices, :]
-    return coordinates, distances
 
 
 def scenario_1(anchors_number=3):
@@ -145,37 +139,37 @@ class TestFang(unittest.TestCase):
 class TestChanHo(unittest.TestCase):
     def test_scenario_1(self):
         coordinates, distances, true_mobile_position = scenario_1(anchors_number=4)
-        coordinates, distances = sort_measurements(coordinates, distances)
+        coordinates, distances = sort_distances(coordinates, distances)
         position = chan_ho(coordinates, distances)
         np.testing.assert_almost_equal(position, true_mobile_position, decimal=7)
 
     def test_scenario_2(self):
         coordinates, distances, true_mobile_position = scenario_2(anchors_number=4)
-        coordinates, distances = sort_measurements(coordinates, distances)
+        coordinates, distances = sort_distances(coordinates, distances)
         with self.assertRaises(np.linalg.linalg.LinAlgError):
             chan_ho(coordinates, distances)
 
     def test_scenario_3(self):
         coordinates, distances, true_mobile_position = scenario_3(anchors_number=4)
-        coordinates, distances = sort_measurements(coordinates, distances)
+        coordinates, distances = sort_distances(coordinates, distances)
         position = chan_ho(coordinates, distances)
         np.testing.assert_almost_equal(position, true_mobile_position, decimal=7)
 
     def test_scenario_4(self):
         coordinates, distances, true_mobile_position = scenario_4(anchors_number=4)
-        coordinates, distances = sort_measurements(coordinates, distances)
+        coordinates, distances = sort_distances(coordinates, distances)
         position = chan_ho(coordinates, distances)
         np.testing.assert_almost_equal(position, true_mobile_position, decimal=7)
 
     def test_scenario_5(self):
         coordinates, distances, true_mobile_position = scenario_5(anchors_number=4)
-        coordinates, distances = sort_measurements(coordinates, distances)
+        coordinates, distances = sort_distances(coordinates, distances)
         position = chan_ho(coordinates, distances)
         np.testing.assert_almost_equal(position, true_mobile_position, decimal=7)
 
     def test_scenario_6(self):
         coordinates, distances, true_mobile_position = scenario_6(anchors_number=4)
-        coordinates, distances = sort_measurements(coordinates, distances)
+        coordinates, distances = sort_distances(coordinates, distances)
         position = chan_ho(coordinates, distances)
         np.testing.assert_almost_equal(position, true_mobile_position, decimal=7)
 
