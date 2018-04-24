@@ -26,13 +26,13 @@ def __generate_distances(anchors_coordinates, mobile_coordinates):
     return np.apply_along_axis(__compute_distance, 1, anchors_coordinates, mobile_coordinates)
 
 
-def sort_distances(coordinates, distances):
+def sort_measurements(coordinates, distances):
     if len(distances.shape) != 1:
-        raise AttributeError("distances has to be a vector")
+        raise ValueError("distances has to be a vector")
     if distances.shape[0] != coordinates.shape[0]:
-        raise AttributeError("distances and coordinates must have the same number of entries")
+        raise ValueError("distances and coordinates must have the same number of entries")
     if len(coordinates.shape) == 1 or coordinates.shape[1] not in (2, 3):
-        raise AttributeError("coordinates ,ust have two or thee columns")
+        raise ValueError("coordinates ,ust have two or thee columns")
 
     indices = np.argsort(distances)
     return coordinates[indices, :], distances[indices]

@@ -18,14 +18,14 @@ import unittest
 from smile.algorithms.common import *
 
 
-class TestSortDistances(unittest.TestCase):
+class TestSortMeasurements(unittest.TestCase):
     def test_2d_coordinates(self):
         reference_distances = np.asarray([1, 2, 3, 4])
         reference_coordinates = np.asarray([[10, 10], [20, 20], [30, 30], [40, 40]])
         distances = np.asarray([4, 2, 1, 3])
         coordinates = np.asarray([[40, 40], [20, 20], [10, 10], [30, 30]])
 
-        coordinates, distances = sort_distances(coordinates, distances)
+        coordinates, distances = sort_measurements(coordinates, distances)
         np.testing.assert_equal(distances, reference_distances)
         np.testing.assert_equal(coordinates, reference_coordinates)
 
@@ -35,7 +35,7 @@ class TestSortDistances(unittest.TestCase):
         distances = np.asarray([4, 2, 1, 3])
         coordinates = np.asarray([[40, 40, 44], [20, 20, 22], [10, 10, 11], [30, 30, 33]])
 
-        coordinates, distances = sort_distances(coordinates, distances)
+        coordinates, distances = sort_measurements(coordinates, distances)
         np.testing.assert_equal(distances, reference_distances)
         np.testing.assert_equal(coordinates, reference_coordinates)
 
@@ -43,25 +43,25 @@ class TestSortDistances(unittest.TestCase):
         distances = np.asarray([4, 2, 1, 3])
         coordinates = np.asarray([[40, 40], [10, 10], [30, 30]])
 
-        with self.assertRaises(AttributeError):
-            sort_distances(coordinates, distances)
+        with self.assertRaises(ValueError):
+            sort_measurements(coordinates, distances)
 
     def test_invalid_distances(self):
         distances = np.asarray([[4, 4], [1, 1], [3, 3]])
         coordinates = np.asarray([[40, 40], [10, 10], [30, 30]])
 
-        with self.assertRaises(AttributeError):
-            sort_distances(coordinates, distances)
+        with self.assertRaises(ValueError):
+            sort_measurements(coordinates, distances)
 
     def test_invalid_coordinates(self):
         distances = np.asarray([4, 2, 3])
         coordinates_1d = np.asarray([4, 2, 3])
-        with self.assertRaises(AttributeError):
-            sort_distances(coordinates_1d, distances)
+        with self.assertRaises(ValueError):
+            sort_measurements(coordinates_1d, distances)
 
         coordinates_4d = np.asarray([[40, 40, 44, 44], [20, 20, 22, 22], [30, 30, 33, 33]])
-        with self.assertRaises(AttributeError):
-            sort_distances(coordinates_4d, distances)
+        with self.assertRaises(ValueError):
+            sort_measurements(coordinates_4d, distances)
 
 
 class TestGenerateTofMeasurements(unittest.TestCase):
