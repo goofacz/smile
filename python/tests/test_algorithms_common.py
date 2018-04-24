@@ -66,8 +66,7 @@ class TestSortMeasurements(unittest.TestCase):
 
 class TestGenerateTofMeasurements(unittest.TestCase):
     def test_small_grid(self):
-        anchor_coordinates = (np.asanyarray((0, 0)), np.asanyarray((0, 2)),
-                              np.asanyarray((2, 0)), np.asanyarray((2, 1)))
+        anchor_coordinates = np.asanyarray(((0, 0), (0, 2), (2, 0), (2, 1)))
         grid_size = 2
         grid_gap = 1
 
@@ -89,11 +88,41 @@ class TestGenerateTofMeasurements(unittest.TestCase):
         np.testing.assert_equal(mobile_positions, reference_mobile_positions)
         np.testing.assert_almost_equal(tof_values, reference_tof_values)
 
+    def test_invalid_anchors_coordinates(self):
+        grid_size = 2
+        grid_gap = 1
+
+        with self.assertRaises(ValueError):
+            list(*generate_tof_measurements(np.asanyarray(()), grid_size, grid_gap))
+
+        with self.assertRaises(ValueError):
+            list(*generate_tof_measurements(np.asanyarray((1)), grid_size, grid_gap))
+
+        with self.assertRaises(ValueError):
+            list(*generate_tof_measurements(np.asanyarray((1, 2, 4, 5)), grid_size, grid_gap))
+
+    def test_invalid_grid(self):
+        anchor_coordinates = np.asanyarray([(0, 0)])
+
+        with self.assertRaises(ValueError):
+            zip(*generate_tof_measurements(anchor_coordinates, -2, 1))
+
+        with self.assertRaises(ValueError):
+            zip(*generate_tof_measurements(anchor_coordinates, 0, 1))
+
+        with self.assertRaises(ValueError):
+            zip(*generate_tof_measurements(anchor_coordinates, 3, 0))
+
+        with self.assertRaises(ValueError):
+            zip(*generate_tof_measurements(anchor_coordinates, 3, 3))
+
+        with self.assertRaises(ValueError):
+            zip(*generate_tof_measurements(anchor_coordinates, 3, 5))
+
 
 class TestGenerateTdoaMeasurements(unittest.TestCase):
     def test_small_grid(self):
-        anchor_coordinates = (np.asanyarray((0, 0)), np.asanyarray((0, 2)),
-                              np.asanyarray((2, 0)), np.asanyarray((2, 1)))
+        anchor_coordinates = np.asanyarray(((0, 0), (0, 2), (2, 0), (2, 1)))
         grid_size = 2
         grid_gap = 1
 

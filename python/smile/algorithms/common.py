@@ -14,6 +14,7 @@
 #
 
 import itertools
+
 import numpy as np
 import scipy.constants as sc
 
@@ -39,6 +40,17 @@ def sort_measurements(coordinates, distances):
 
 
 def generate_tof_measurements(anchor_coordinates, grid_size, grid_gap):
+    if len(anchor_coordinates.shape) != 2:
+        raise ValueError("Anchors coordinates has to be 2D array")
+    if anchor_coordinates.shape[0] == 0:
+        raise ValueError("At least one anchor has to be provided")
+    if anchor_coordinates.shape[1] not in (2, 3):
+        raise ValueError("Anchors' coordinates has to be either in 2D or 3D")
+    if grid_size <= 0:
+        raise ValueError("Grid size cannot be <= 0")
+    if not (0 < grid_gap < grid_size):
+        raise ValueError("Grid gap hast bo in range (0, grid size)")
+
     assert (sc.unit('speed of light in vacuum') == 'm s^-1')
     c = sc.value('speed of light in vacuum')
     c = c * 1e-12  # m/s -> m/ps
@@ -51,4 +63,3 @@ def generate_tof_measurements(anchor_coordinates, grid_size, grid_gap):
 def generate_tdoa_measurements(anchor_coordinates, grid_size, grid_gap):
     for mobile_coordinates, measurements in generate_tof_measurements(anchor_coordinates, grid_size, grid_gap):
         yield mobile_coordinates, measurements - min(measurements)
-
