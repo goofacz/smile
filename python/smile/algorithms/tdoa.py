@@ -27,7 +27,6 @@ def doan_vesely(coordinates, distances):
 
     coordinates = np.matrix(coordinates)
     distances = np.matrix(distances)
-    distances -= distances[0, 0]
 
     L = distances[0, 1]
     R = distances[0, 2]
@@ -65,11 +64,10 @@ def fang(coordinates, distances):
     assert (distances.shape == (3,))
 
     coordinates = np.matrix(coordinates)
-    if coordinates[1, 1] != 0:
+    if coordinates[1, 1] != coordinates[0, 1]:
         raise ValueError('Second anchor has to lie along a first station baseline')
 
     distances = np.matrix(distances)
-    distances -= distances[0, 0]
 
     R_ab = distances[0, 1]
     if np.isclose(R_ab, 0):
@@ -105,7 +103,6 @@ def chan_ho(coordinates, distances):
 
     coordinates = np.matrix(coordinates)
     distances = np.matrix(distances)
-    distances -= distances[0, 0]
 
     K = np.power(coordinates, 2)
     K = np.sum(K, 1)
