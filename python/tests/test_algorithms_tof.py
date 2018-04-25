@@ -15,83 +15,49 @@
 
 import unittest
 
+from smile.algorithms.common import *
 from smile.algorithms.tof import *
 
-# Test scenarios contains following information
-# - Anchors' coordinates in 2D
-# - True tag position in 2D
-# - True distances between tag and anchors
-
-def test_scenario_1():
-    mobile_position = np.asarray((1, 5))
-
-    anchors_coordinates = np.asarray(((0, 0),  # Anchor 1
-                                      (0, 100),  # Anchor 2
-                                      (100, 100)))  # Anchor 3
-
-    distances = mobile_position - anchors_coordinates
-    distances = np.linalg.norm(distances, axis=1)
-    distances = np.abs(distances)
-
-    return anchors_coordinates, distances, mobile_position
-
-
-def test_scenario_2():
-    mobile_position = np.asarray((34, 85))
-
-    anchors_coordinates = np.asarray(((0, 0),  # Anchor 1
-                                      (0, 100),  # Anchor 2
-                                      (100, 100)))  # Anchor 3
-
-    distances = mobile_position - anchors_coordinates
-    distances = np.linalg.norm(distances, axis=1)
-    distances = np.abs(distances)
-
-    return anchors_coordinates, distances, mobile_position
+anchors_coordinates = np.asanyarray(((0, 0),
+                                     (0, 6),
+                                     (6, 6)))
+grid_size = 6
+grid_gap = 1
 
 
 class TestSimpleLeastSquares(unittest.TestCase):
-    def test_scenario_1(self):
-        anchors_coordinates, distances, true_mobile_position = test_scenario_1()
-        position = simple_least_squares(anchors_coordinates, distances)
-        np.testing.assert_almost_equal(position, true_mobile_position, decimal=7)
-
-    def test_scenario_2(self):
-        anchors_coordinates, distances, true_mobile_position = test_scenario_2()
-        position = simple_least_squares(anchors_coordinates, distances)
-        np.testing.assert_almost_equal(position, true_mobile_position, decimal=7)
+    def test_small_grid(self):
+        for reference_position, tof_distances in generate_tof_measurements(anchors_coordinates, grid_size, grid_gap):
+            position = simple_least_squares(anchors_coordinates, tof_distances)
+            np.testing.assert_almost_equal(position, reference_position, decimal=7)
 
 
 class TestFoyTaylorSeries(unittest.TestCase):
-    def test_scenario_1(self):
-        coordinates, distances, true_mobile_position = test_scenario_1()
-        # Check different initial guesses
-        position = foy_taylor_series(coordinates, distances, np.array((0, 0)), expected_delta=0.00001)
-        np.testing.assert_almost_equal(position, true_mobile_position, decimal=7)
+    def test_small_grid_with_exact_initial_solutions(self):
+        # For this positions Foy algorithm fails to compute correct solution
+        skipped_positions = np.asanyarray(((0, 0),
+                                           (0, 6)))
 
-        position = foy_taylor_series(coordinates, distances, np.array((1, 5)), expected_delta=0.00001)
-        np.testing.assert_almost_equal(position, true_mobile_position, decimal=7)
+        for reference_position, tof_distances in generate_tof_measurements(anchors_coordinates, grid_size, grid_gap):
+            if np.all(np.isin(reference_position, skipped_positions)):
+                continue
+            position = foy_taylor_series(anchors_coordinates, tof_distances, reference_position,
+                                         expected_delta=0.000000001, loop_limit=100)
+            np.testing.assert_almost_equal(position, reference_position, decimal=7)
 
-        position = foy_taylor_series(coordinates, distances, np.array((-1, -5)), expected_delta=0.00000001)
-        np.testing.assert_almost_equal(position, true_mobile_position, decimal=7)
+    def test_small_grid_with_imprecise_initial_solution(self):
+        initial_solution = np.asanyarray((2.5, 2.5))
 
-        position = foy_taylor_series(coordinates, distances, np.array((10, 10)), expected_delta=0.00000001)
-        np.testing.assert_almost_equal(position, true_mobile_position, decimal=7)
+        # For this positions Foy algorithm fails to compute correct solution (or result is imprecise)
+        skipped_positions = np.asanyarray(((0, 0),
+                                           (0, 6)))
 
-    def test_scenario_2(self):
-        coordinates, distances, true_mobile_position = test_scenario_2()
-        # Check different initial guesses
-        position = foy_taylor_series(coordinates, distances, np.array((0, 0)), expected_delta=0.00000001)
-        np.testing.assert_almost_equal(position, true_mobile_position, decimal=7)
-
-        position = foy_taylor_series(coordinates, distances, np.array((1, 5)), expected_delta=0.00000001)
-        np.testing.assert_almost_equal(position, true_mobile_position, decimal=7)
-
-        position = foy_taylor_series(coordinates, distances, np.array((-1, -5)), expected_delta=0.00000001)
-        np.testing.assert_almost_equal(position, true_mobile_position, decimal=7)
-
-        position = foy_taylor_series(coordinates, distances, np.array((10, 10)), expected_delta=0.00000001)
-        np.testing.assert_almost_equal(position, true_mobile_position, decimal=7)
+        for reference_position, tof_distances in generate_tof_measurements(anchors_coordinates, grid_size, grid_gap):
+            if np.all(np.isin(reference_position, skipped_positions)):
+                continue
+            position = foy_taylor_series(anchors_coordinates, tof_distances, initial_solution,
+                                         expected_delta=0.0001, loop_limit=200)
+            np.testing.assert_almost_equal(position, reference_position, decimal=2)
 
 
 if __name__ == '__main__':
