@@ -34,7 +34,7 @@ class TestSimpleLeastSquares(unittest.TestCase):
 
 class TestFoyTaylorSeries(unittest.TestCase):
     def test_small_grid_with_exact_initial_solutions(self):
-        # For this positions Foy algorithm fails to compute correct solution
+        # For these positions algorithm fails to compute correct solution
         skipped_positions = np.asanyarray(((0, 0),
                                            (0, 6)))
 
@@ -48,7 +48,7 @@ class TestFoyTaylorSeries(unittest.TestCase):
     def test_small_grid_with_imprecise_initial_solution(self):
         initial_solution = np.asanyarray((2.5, 2.5))
 
-        # For this positions Foy algorithm fails to compute correct solution (or result is imprecise)
+        # For these positions algorithm fails to compute correct solution
         skipped_positions = np.asanyarray(((0, 0),
                                            (0, 6)))
 

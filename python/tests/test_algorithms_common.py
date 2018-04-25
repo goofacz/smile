@@ -122,7 +122,7 @@ class TestGenerateTofMeasurements(unittest.TestCase):
 
 class TestGenerateTdoaMeasurements(unittest.TestCase):
     def test_small_grid(self):
-        anchor_coordinates = np.asanyarray(((0, 0), (0, 2), (2, 0), (2, 1)))
+        reference_anchor_coordinates = np.asanyarray(((0, 0), (0, 2), (2, 0), (2, 1)))
         grid_size = 2
         grid_gap = 1
 
@@ -140,7 +140,7 @@ class TestGenerateTdoaMeasurements(unittest.TestCase):
                                  np.asanyarray((2.23606798, 2.23606798, 1, 0)),
                                  np.asanyarray((1.82842712, 1, 1, 0)))
 
-        mobile_positions, tdoa_values = zip(*generate_tdoa_measurements(anchor_coordinates, grid_size, grid_gap))
+        mobile_positions, tdoa_values = zip(*generate_tdoa_measurements(reference_anchor_coordinates, grid_size, grid_gap))
         np.testing.assert_equal(mobile_positions, reference_mobile_positions)
         np.testing.assert_almost_equal(tdoa_values, reference_tdoa_values)
 
