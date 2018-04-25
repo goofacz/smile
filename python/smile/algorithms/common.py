@@ -16,7 +16,6 @@
 import itertools
 
 import numpy as np
-import scipy.constants as sc
 
 
 def __compute_distance(anchor_coordinates, mobile_coordinates):
@@ -51,15 +50,11 @@ def generate_tof_measurements(anchor_coordinates, grid_size, grid_gap):
     if not (0 < grid_gap < grid_size):
         raise ValueError("Grid gap hast bo in range (0, grid size)")
 
-    assert (sc.unit('speed of light in vacuum') == 'm s^-1')
-    c = sc.value('speed of light in vacuum')
-    c = c * 1e-12  # m/s -> m/ps
-
     for mobile_coordinates in itertools.product(range(0, grid_size + 1, grid_gap), repeat=2):
-        measurements = __generate_distances(anchor_coordinates, mobile_coordinates)
-        yield np.asanyarray(mobile_coordinates), measurements * c
+        distances = __generate_distances(anchor_coordinates, mobile_coordinates)
+        yield np.asanyarray(mobile_coordinates), distances
 
 
 def generate_tdoa_measurements(anchor_coordinates, grid_size, grid_gap):
-    for mobile_coordinates, measurements in generate_tof_measurements(anchor_coordinates, grid_size, grid_gap):
-        yield mobile_coordinates, measurements - min(measurements)
+    for mobile_coordinates, distances in generate_tof_measurements(anchor_coordinates, grid_size, grid_gap):
+        yield mobile_coordinates, distances - min(distances)
