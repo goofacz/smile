@@ -57,7 +57,7 @@ def foy_taylor_series(coordinates, distances, initial_position, R=None, expected
 
     position = initial_position
 
-    while range(loop_limit):
+    for _ in range(loop_limit):
         D = coordinates - position
         D = np.power(D, 2)
         D = np.sum(D, 1)
