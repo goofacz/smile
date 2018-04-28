@@ -14,6 +14,18 @@
 #
 
 import numpy as np
+import itertools
+
+
+def verify_position(mobile_position, anchors_coordinates, tdoa_distances):
+    new_distances = []
+    for anchor_coordinates in anchors_coordinates:
+        new_distances.append(np.linalg.norm(anchor_coordinates - mobile_position))
+
+    new_distances = np.asanyarray(new_distances)
+    new_distances -= new_distances[0]
+
+    return np.allclose(tdoa_distances, new_distances)
 
 
 def _fang_forward_transformation(coordinates):
@@ -22,6 +34,7 @@ def _fang_forward_transformation(coordinates):
 
     B = [coordinates[1, 0], coordinates[1, 1]]
     C = [coordinates[2, 0], coordinates[2, 1]]
+
     angle = np.arctan2(*B) - np.pi / 2
     rotation = np.array(((np.cos(angle), -np.sin(angle)),
                          (np.sin(angle), np.cos(angle))))
@@ -38,6 +51,19 @@ def _fang_backward_transformation(translation, angle, point):
 
     point = np.dot(rotation, point)
     return point + translation
+
+
+def _fang_order_input(coordinates, distances):
+    for indices in itertools.permutations((0, 1, 2), 3):
+        indices = np.asanyarray(indices)
+        tmp_distances = distances[indices]
+        if tmp_distances[1] != 0:
+            return coordinates[indices, :], tmp_distances
+
+        if tmp_distances[0] != tmp_distances[1]:
+            return coordinates[indices, :], tmp_distances - tmp_distances[0]
+
+    raise ValueError('Cannot find right order of anchors, it looks that R_ab == R_ac == 0')
 
 
 def doan_vesely(coordinates, distances):
@@ -86,6 +112,8 @@ def fang(coordinates, distances):
     # TODO propose better way for arguments checking
     assert (coordinates.shape == (3, 2))
     assert (distances.shape == (3,))
+
+    coordinates, distances = _fang_order_input(coordinates, distances)
 
     coordinates = np.matrix(coordinates)
     translation, rotation, coordinates = _fang_forward_transformation(coordinates)

@@ -19,6 +19,14 @@ from smile.algorithms.common import *
 from smile.algorithms.tdoa import *
 
 
+def _is_skipped_position(reference_position, skipped_positions):
+    for skipped_position in skipped_positions:
+        if np.array_equal(reference_position, skipped_position):
+            return True
+
+    return False
+
+
 class TestDoanVesely(unittest.TestCase):
     def test_small_grid(self):
         anchors_coordinates = np.asanyarray(((0, 0),
@@ -28,10 +36,10 @@ class TestDoanVesely(unittest.TestCase):
         grid_gap = 1
 
         # For these positions algorithm fails to compute correct solution
-        skipped_positions = np.asanyarray(((0, 5), (1, 6)))
+        skipped_positions = [(0, 5), (1, 6)]
 
         for reference_position, tdoa_distances in generate_tdoa_measurements(anchors_coordinates, grid_size, grid_gap):
-            if np.all(np.isin(reference_position, skipped_positions)):
+            if _is_skipped_position(reference_position, skipped_positions):
                 continue
             sorted_anchors_coordinates, sorted_tdoa_distances = sort_measurements(anchors_coordinates, tdoa_distances)
             position = doan_vesely(sorted_anchors_coordinates, sorted_tdoa_distances)
@@ -40,20 +48,31 @@ class TestDoanVesely(unittest.TestCase):
 
 class TestFang(unittest.TestCase):
     def test_small_grid(self):
-        anchors_coordinates = np.asanyarray(((0, 6),
+        anchors_coordinates = np.asanyarray(((0, 0),
                                              (6, 6),
                                              (6, 0)))
         grid_size = 6
         grid_gap = 1
 
+        # Area boundaries
+        top_left = (0, 5)
+        bottom_right = (5, 0)
+
         # For these positions algorithm fails to compute correct solution
-        skipped_positions = np.asanyarray(((0, 1), (0, 2), (0, 3), (0, 4), (0, 5), (0, 6)))
+        skipped_positions = [(3, 3)]
 
         for reference_position, tdoa_distances in generate_tdoa_measurements(anchors_coordinates, grid_size, grid_gap):
-            if np.all(np.isin(reference_position, skipped_positions)):
+            if _is_skipped_position(reference_position, skipped_positions):
                 continue
-            position = fang(anchors_coordinates, tdoa_distances)
-            np.testing.assert_almost_equal(position, reference_position, decimal=7)
+
+            sorted_anchors_coordinates, sorted_tdoa_distances = sort_measurements(anchors_coordinates, tdoa_distances)
+
+            positions = fang(sorted_anchors_coordinates, sorted_tdoa_distances)
+
+            positions = [position for position in positions if does_area_contain_position(position, top_left,bottom_right)]
+            positions = [position for position in positions if verify_position(position, sorted_anchors_coordinates, sorted_tdoa_distances)]
+
+            np.testing.assert_almost_equal(positions[0], reference_position, decimal=7)
 
 
 class TestChanHo(unittest.TestCase):
@@ -75,6 +94,8 @@ class TestChanHo(unittest.TestCase):
             position = chan_ho(sorted_anchors_coordinates, sorted_tdoa_distances)
             np.testing.assert_almost_equal(position, reference_position, decimal=7)
 
+
+# TODO class TestVerifyPosition(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
