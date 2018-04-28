@@ -70,19 +70,15 @@ class TestGenerateTofMeasurements(unittest.TestCase):
         grid_size = 2
         grid_gap = 1
 
-        reference_mobile_positions = (np.asanyarray((0, 0)), np.asanyarray((0, 1)), np.asanyarray((0, 2)),
-                                      np.asanyarray((1, 0)), np.asanyarray((1, 1)), np.asanyarray((1, 2)),
-                                      np.asanyarray((2, 0)), np.asanyarray((2, 1)), np.asanyarray((2, 2)))
+        reference_mobile_positions = (np.asanyarray((0, 0)),
+                                      np.asanyarray((0, 1)),
+                                      np.asanyarray((1, 0)),
+                                      np.asanyarray((1, 1)))
 
         reference_tof_values = (np.asanyarray((0, 2, 2, 2.23606798)),
                                 np.asanyarray((1, 1, 2.23606798, 2)),
-                                np.asanyarray((2, 0, 2.82842712, 2.23606798)),
                                 np.asanyarray((1, 2.23606798, 1, 1.41421356)),
-                                np.asanyarray((1.41421356, 1.41421356, 1.41421356, 1.)),
-                                np.asanyarray((2.23606798, 1., 2.23606798, 1.41421356)),
-                                np.asanyarray((2, 2.82842712, 0, 1)),
-                                np.asanyarray((2.23606798, 2.23606798, 1, 0)),
-                                np.asanyarray((2.82842712, 2, 2, 1)))
+                                np.asanyarray((1.41421356, 1.41421356, 1.41421356, 1.)))
 
         mobile_positions, tof_values = zip(*generate_tof_measurements(anchor_coordinates, grid_size, grid_gap))
         np.testing.assert_equal(mobile_positions, reference_mobile_positions)
@@ -126,19 +122,15 @@ class TestGenerateTdoaMeasurements(unittest.TestCase):
         grid_size = 2
         grid_gap = 1
 
-        reference_mobile_positions = (np.asanyarray((0, 0)), np.asanyarray((0, 1)), np.asanyarray((0, 2)),
-                                      np.asanyarray((1, 0)), np.asanyarray((1, 1)), np.asanyarray((1, 2)),
-                                      np.asanyarray((2, 0)), np.asanyarray((2, 1)), np.asanyarray((2, 2)))
+        reference_mobile_positions = (np.asanyarray((0, 0)),
+                                      np.asanyarray((0, 1)),
+                                      np.asanyarray((1, 0)),
+                                      np.asanyarray((1, 1)))
 
         reference_tdoa_values = (np.asanyarray((0, 2, 2, 2.23606798)),
                                  np.asanyarray((0, 0, 1.23606798, 1)),
-                                 np.asanyarray((2, 0, 2.82842712, 2.23606798)),
                                  np.asanyarray((0, 1.23606798, 0, 0.41421356)),
-                                 np.asanyarray((0.41421356, 0.41421356, 0.41421356, 0)),
-                                 np.asanyarray((1.23606798, 0, 1.23606798, 0.41421356)),
-                                 np.asanyarray((2, 2.82842712, 0, 1)),
-                                 np.asanyarray((2.23606798, 2.23606798, 1, 0)),
-                                 np.asanyarray((1.82842712, 1, 1, 0)))
+                                 np.asanyarray((0.41421356, 0.41421356, 0.41421356, 0)))
 
         mobile_positions, tdoa_values = zip(*generate_tdoa_measurements(reference_anchor_coordinates, grid_size, grid_gap))
         np.testing.assert_equal(mobile_positions, reference_mobile_positions)

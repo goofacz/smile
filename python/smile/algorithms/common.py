@@ -50,7 +50,7 @@ def generate_tof_measurements(anchor_coordinates, grid_size, grid_gap):
     if not (0 < grid_gap < grid_size):
         raise ValueError("Grid gap hast bo in range (0, grid size)")
 
-    for mobile_coordinates in itertools.product(range(0, grid_size + 1, grid_gap), repeat=2):
+    for mobile_coordinates in itertools.product(range(0, grid_size, grid_gap), repeat=2):
         distances = __generate_distances(anchor_coordinates, mobile_coordinates)
         yield np.asanyarray(mobile_coordinates), distances
 
