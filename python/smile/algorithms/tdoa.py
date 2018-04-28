@@ -16,6 +16,30 @@
 import numpy as np
 
 
+def _fang_forward_transformation(coordinates):
+    translation = [coordinates[0, 0], coordinates[0, 1]]
+    coordinates -= translation
+
+    B = [coordinates[1, 0], coordinates[1, 1]]
+    C = [coordinates[2, 0], coordinates[2, 1]]
+    angle = np.arctan2(*B) - np.pi / 2
+    rotation = np.array(((np.cos(angle), -np.sin(angle)),
+                         (np.sin(angle), np.cos(angle))))
+
+    B = np.dot(rotation, B)
+    C = np.dot(rotation, C)
+
+    return translation, angle, np.matrix([[0, 0], B, C])
+
+
+def _fang_backward_transformation(translation, angle, point):
+    rotation = np.array(((np.cos(-angle), -np.sin(-angle)),
+                         (np.sin(-angle), np.cos(-angle))))
+
+    point = np.dot(rotation, point)
+    return point + translation
+
+
 def doan_vesely(coordinates, distances):
     """
     S. Van Doan and J. Vesely, "The effectivity comparison of TDOA analytical solution methods,"
@@ -64,7 +88,8 @@ def fang(coordinates, distances):
     assert (distances.shape == (3,))
 
     coordinates = np.matrix(coordinates)
-    if coordinates[1, 1] != coordinates[0, 1]:
+    translation, rotation, coordinates = _fang_forward_transformation(coordinates)
+    if not np.isclose(coordinates[1, 1], coordinates[0, 1]):
         raise ValueError('Second anchor has to lie along a first station baseline')
 
     distances = np.matrix(distances)
@@ -86,10 +111,12 @@ def fang(coordinates, distances):
     e = b * (1 - np.power(b / R_ab, 2)) - 2 * g * h
     f = (np.power(R_ab, 2) / 4) * np.power(1 - np.power(b / R_ab, 2), 2) - np.power(h, 2)
 
-    x = np.max(np.real(np.roots((d, e, f))))
-    y = g * x + h
+    positions = []
+    for x in np.real(np.roots((d, e, f))):
+        y = g * x + h
+        positions.append(_fang_backward_transformation(translation, rotation, [x, y]))
 
-    return x, y
+    return positions
 
 
 def chan_ho(coordinates, distances):
