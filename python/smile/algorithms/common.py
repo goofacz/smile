@@ -58,3 +58,17 @@ def generate_tof_measurements(anchor_coordinates, grid_size, grid_gap):
 def generate_tdoa_measurements(anchor_coordinates, grid_size, grid_gap):
     for mobile_coordinates, distances in generate_tof_measurements(anchor_coordinates, grid_size, grid_gap):
         yield mobile_coordinates, distances - min(distances)
+
+
+def does_area_contain_position(position, top_left, bottom_right, rtol=1.e-5, atol=1.e-8):
+    if position[0] < top_left[0] and (not np.isclose(top_left[0], position[0], rtol=rtol, atol=atol)):
+        return False
+    if position[0] > bottom_right[0] and (not np.isclose(bottom_right[0], position[0], rtol=rtol, atol=atol)):
+        return False
+
+    if position[1] > top_left[1] and (not np.isclose(top_left[1], position[1], rtol=rtol, atol=atol)):
+        return False
+    if position[1] < bottom_right[1] and (not np.isclose(bottom_right[1], position[1], rtol=rtol, atol=atol)):
+        return False
+
+    return True

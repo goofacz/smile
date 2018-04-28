@@ -137,5 +137,24 @@ class TestGenerateTdoaMeasurements(unittest.TestCase):
         np.testing.assert_almost_equal(tdoa_values, reference_tdoa_values)
 
 
+class TestDoesAreaContainPosition(unittest.TestCase):
+    def test_positive_cases(self):
+        top_left_cornet = (0, 5)
+        bottom_right_cornet = (10, 0)
+
+        self.assertTrue(does_area_contain_position((0, 0), top_left_cornet, bottom_right_cornet))
+        self.assertTrue(does_area_contain_position((10, 5), top_left_cornet, bottom_right_cornet))
+        self.assertTrue(does_area_contain_position((2, 4), top_left_cornet, bottom_right_cornet))
+        self.assertTrue(does_area_contain_position((10.00000000001, 5), top_left_cornet, bottom_right_cornet))
+
+    def test_negative_cases(self):
+        top_left_cornet = (0, 5)
+        bottom_right_cornet = (10, 0)
+
+        self.assertFalse(does_area_contain_position((0, -2), top_left_cornet, bottom_right_cornet))
+        self.assertFalse(does_area_contain_position((11, 5), top_left_cornet, bottom_right_cornet))
+        self.assertFalse(does_area_contain_position((10, 5.001), top_left_cornet, bottom_right_cornet))
+
+
 if __name__ == '__main__':
     unittest.main()
