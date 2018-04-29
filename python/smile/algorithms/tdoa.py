@@ -78,37 +78,36 @@ def doan_vesely(coordinates, distances):
     S. Van Doan and J. Vesely, "The effectivity comparison of TDOA analytical solution methods,"
     2015 16th International Radar Symposium (IRS), Dresden, 2015, pp. 800-805.
     """
-    # TODO propose better way for arguments checking
-    assert (coordinates.shape == (3, 2))
-    assert (distances.shape == (3,))
+    if coordinates.shape != (3, 2):
+        raise ValueError('Invalid shape of anchors coordinates array')
+    if distances.shape != (3,):
+        raise ValueError('Invalid shape of distances array')
 
-    coordinates = np.matrix(coordinates)
-    distances = np.matrix(distances)
-
-    L = distances[0, 1]
-    R = distances[0, 2]
+    L = distances[1]
+    R = distances[2]
     Xl = coordinates[1, 0] - coordinates[0, 0]
     Yl = coordinates[1, 1] - coordinates[0, 1]
     Xr = coordinates[2, 0] - coordinates[0, 0]
     Yr = coordinates[2, 1] - coordinates[0, 1]
 
-    A = -2 * np.matrix(((Xl, Yl),
-                        (Xr, Yr)))
+    A = -2 * np.asarray(((Xl, Yl),
+                         (Xr, Yr)))
 
-    B = np.matrix(((2 * L, L ** 2 - Xl ** 2 - Yl ** 2),
-                   (2 * R, R ** 2 - Xr ** 2 - Yr ** 2)))
+    B = np.asarray(((2 * L, L ** 2 - Xl ** 2 - Yl ** 2),
+                    (2 * R, R ** 2 - Xr ** 2 - Yr ** 2)))
 
     tmp, _, _, _ = np.linalg.lstsq(A, B, rcond=None)
     a = tmp[0, 0] ** 2 + tmp[1, 0] ** 2 - 1
     b = 2 * (tmp[0, 0] * tmp[0, 1] + tmp[1, 0] * tmp[1, 1])
     c = tmp[0, 1] ** 2 + tmp[1, 1] ** 2
 
-    K = np.max(np.real(np.roots((a, b, c))))
+    positions = []
+    for K in np.real(np.roots((a, b, c))):
+        X = tmp[0, 0] * K + tmp[0, 1] + coordinates[0, 0]
+        Y = tmp[1, 0] * K + tmp[1, 1] + coordinates[0, 1]
+        positions.append((X, Y))
 
-    X = tmp[0, 0] * K + tmp[0, 1] + coordinates[0, 0]
-    Y = tmp[1, 0] * K + tmp[1, 1] + coordinates[0, 1]
-
-    return np.asarray((X, Y))
+    return np.asarray(positions)
 
 
 def fang(coordinates, distances):

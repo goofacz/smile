@@ -35,15 +35,23 @@ class TestDoanVesely(unittest.TestCase):
         grid_size = 6
         grid_gap = 1
 
-        # For these positions algorithm fails to compute correct solution
-        skipped_positions = [(0, 5), (1, 6)]
+        # Area boundaries
+        top_left = (0, 5)
+        bottom_right = (5, 0)
 
         for reference_position, tdoa_distances in generate_tdoa_measurements(anchors_coordinates, grid_size, grid_gap):
-            if _is_skipped_position(reference_position, skipped_positions):
-                continue
+            error_message = 'Reference position: ({0}, {1})'.format(*reference_position)
             sorted_anchors_coordinates, sorted_tdoa_distances = sort_measurements(anchors_coordinates, tdoa_distances)
-            position = doan_vesely(sorted_anchors_coordinates, sorted_tdoa_distances)
-            np.testing.assert_almost_equal(position, reference_position, decimal=7)
+
+            positions = doan_vesely(sorted_anchors_coordinates, sorted_tdoa_distances)
+
+            if np.allclose(positions[0], positions[1]):
+                positions = [positions[0]]
+            positions = [position for position in positions if does_area_contain_position(position, top_left,bottom_right)]
+            positions = [position for position in positions if verify_position(position, sorted_anchors_coordinates, sorted_tdoa_distances)]
+
+            self.assertEqual(1, len(positions), msg=error_message)
+            np.testing.assert_almost_equal(positions[0], reference_position, decimal=7, err_msg=error_message)
 
 
 class TestFang(unittest.TestCase):
