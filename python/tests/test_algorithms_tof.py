@@ -25,6 +25,14 @@ grid_size = 6
 grid_gap = 1
 
 
+def _is_skipped_position(reference_position, skipped_positions):
+    for skipped_position in skipped_positions:
+        if np.array_equal(reference_position, skipped_position):
+            return True
+
+    return False
+
+
 class TestSimpleLeastSquares(unittest.TestCase):
     def test_small_grid(self):
         for reference_position, tof_distances in generate_tof_measurements(anchors_coordinates, grid_size, grid_gap):
@@ -35,29 +43,38 @@ class TestSimpleLeastSquares(unittest.TestCase):
 class TestFoyTaylorSeries(unittest.TestCase):
     def test_small_grid_with_exact_initial_solutions(self):
         # For these positions algorithm fails to compute correct solution
-        skipped_positions = np.asanyarray(((0, 0),
-                                           (0, 6)))
+        skipped_positions = [(0, 0)]
 
         for reference_position, tof_distances in generate_tof_measurements(anchors_coordinates, grid_size, grid_gap):
-            if np.all(np.isin(reference_position, skipped_positions)):
+            if _is_skipped_position(reference_position, skipped_positions):
                 continue
+
+            error_message = 'Reference position: ({0}, {1})'.format(*reference_position)
             position = foy_taylor_series(anchors_coordinates, tof_distances, reference_position,
                                          expected_delta=0.000000001, loop_limit=100)
-            np.testing.assert_almost_equal(position, reference_position, decimal=7)
+            np.testing.assert_almost_equal(position, reference_position, decimal=7, err_msg=error_message)
 
     def test_small_grid_with_imprecise_initial_solution(self):
         initial_solution = np.asanyarray((2.5, 2.5))
 
         # For these positions algorithm fails to compute correct solution
-        skipped_positions = np.asanyarray(((0, 0),
-                                           (0, 6)))
+        skipped_positions = [(0, 0)]
 
         for reference_position, tof_distances in generate_tof_measurements(anchors_coordinates, grid_size, grid_gap):
-            if np.all(np.isin(reference_position, skipped_positions)):
+            if _is_skipped_position(reference_position, skipped_positions):
                 continue
+
+            error_message = 'Reference position: ({0}, {1})'.format(*reference_position)
             position = foy_taylor_series(anchors_coordinates, tof_distances, initial_solution,
                                          expected_delta=0.0001, loop_limit=200)
-            np.testing.assert_almost_equal(position, reference_position, decimal=2)
+            np.testing.assert_almost_equal(position, reference_position, decimal=2, err_msg=error_message)
+
+    def test_invalid_to_distances(self):
+        # Reference point is at (0, 0)
+        tof_distances = np.asarray((0, 6, 8.48528137))
+
+        with self.assertRaises(ValueError):
+            foy_taylor_series(anchors_coordinates, tof_distances, (0, 0), expected_delta=0.000000001, loop_limit=100)
 
 
 if __name__ == '__main__':

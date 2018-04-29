@@ -40,12 +40,20 @@ def simple_least_squares(anchors_coordinates, distances):
 
 def foy_taylor_series(coordinates, distances, initial_position, R=None, expected_delta=0.02, loop_limit=100):
     """
-    W. H. FOY, "Position-Location Solutions by Taylor-Series Estimation," in IEEE Transactions on Aerospace
+    W. H. Foy, "Position-Location Solutions by Taylor-Series Estimation," in IEEE Transactions on Aerospace
     and Electronic Systems, vol. AES-12, no. 2, pp. 187-194, March 1976.
     """
-    coordinates = np.matrix(coordinates)
-    distances = np.matrix(distances)
-    initial_position = np.matrix(initial_position)
+    if coordinates.shape != (3, 2):
+        raise ValueError('Invalid shape of anchors coordinates array')
+    if distances.shape[0] != 3:
+        raise ValueError('Invalid shape of distances array')
+
+    if len(distances.shape) == 1:
+        distances = distances[np.newaxis]
+
+    if np.count_nonzero(distances) != distances.shape[1]:
+        raise ValueError('All ToF distances have to be nonzero values')
+
     if R is None:
         R = np.ones(distances.shape)
 
@@ -62,12 +70,11 @@ def foy_taylor_series(coordinates, distances, initial_position, R=None, expected
         D = np.power(D, 2)
         D = np.sum(D, 1)
         D = np.sqrt(D)
-        D = np.matrix(D)
         D = distances - D.T
-        delta = np.linalg.inv(A.T * invR * A) * A.T * invR * D.T
+        delta = np.linalg.inv(A.T @ invR @ A) @ A.T @ invR @ D.T
         position = position + delta.T
 
-        if np.sum(np.abs(delta)) < expected_delta:
+        if np.allclose(np.abs(delta), (expected_delta, expected_delta)):
             break
 
-    return np.squeeze(np.asarray(position))
+    return np.squeeze(position)
