@@ -15,9 +15,12 @@
 
 import numpy as np
 import itertools
+from algorithms.common import sort_measurements
 
 
 def verify_position(mobile_position, anchors_coordinates, tdoa_distances):
+    anchors_coordinates, tdoa_distances = sort_measurements(anchors_coordinates, tdoa_distances)
+
     new_distances = []
     for anchor_coordinates in anchors_coordinates:
         new_distances.append(np.linalg.norm(anchor_coordinates - mobile_position))
