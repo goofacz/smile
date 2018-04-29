@@ -16,10 +16,15 @@
 import numpy as np
 
 
-def simple_least_squares(anchors_coordinates, distances):
-    n = anchors_coordinates.shape[0]
-    anchors_x = anchors_coordinates[:, 0]
-    anchors_y = anchors_coordinates[:, 1]
+def simple_ls(coordinates, distances):
+    if coordinates.shape != (3, 2):
+        raise ValueError('Invalid shape of anchors coordinates array')
+    if distances.shape[0] != 3:
+        raise ValueError('Invalid shape of distances array')
+
+    n = coordinates.shape[0]
+    anchors_x = coordinates[:, 0]
+    anchors_y = coordinates[:, 1]
 
     A = np.zeros((n - 1, 2))
     A[:, 0] = anchors_x[1:n]
@@ -35,7 +40,7 @@ def simple_least_squares(anchors_coordinates, distances):
     B /= 2
 
     position = np.linalg.solve(A, B)
-    return position + anchors_coordinates[0, :]
+    return position + coordinates[0, :]
 
 
 def foy_taylor_series(coordinates, distances, initial_position, R=None, expected_delta=0.02, loop_limit=100):
