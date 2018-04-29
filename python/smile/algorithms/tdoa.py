@@ -29,12 +29,14 @@ def verify_position(mobile_position, anchors_coordinates, tdoa_distances):
 
 
 def _fang_forward_transformation(coordinates):
-    translation = [coordinates[0, 0], coordinates[0, 1]]
+    # Translate to anchors coordinates to put first anchor at (0, 0)
+    translation = coordinates[0, :].copy()
     coordinates -= translation
 
-    B = [coordinates[1, 0], coordinates[1, 1]]
-    C = [coordinates[2, 0], coordinates[2, 1]]
+    B = coordinates[1, :].copy()
+    C = coordinates[2, :].copy()
 
+    # Rotate coordinates system to make sure two first anchors lie on X a axis
     angle = np.arctan2(*B) - np.pi / 2
     rotation = np.array(((np.cos(angle), -np.sin(angle)),
                          (np.sin(angle), np.cos(angle))))
@@ -42,10 +44,11 @@ def _fang_forward_transformation(coordinates):
     B = np.dot(rotation, B)
     C = np.dot(rotation, C)
 
-    return translation, angle, np.matrix([[0, 0], B, C])
+    return translation, angle, np.asarray(((0, 0), B, C))
 
 
 def _fang_backward_transformation(translation, angle, point):
+    # The same as _fang_forward_transformation() but backward
     rotation = np.array(((np.cos(-angle), -np.sin(-angle)),
                          (np.sin(-angle), np.cos(-angle))))
 
@@ -54,8 +57,9 @@ def _fang_backward_transformation(translation, angle, point):
 
 
 def _fang_order_input(coordinates, distances):
-    for indices in itertools.permutations((0, 1, 2), 3):
-        indices = np.asanyarray(indices)
+    input_range = range(0, coordinates.shape[0])
+    for indices in itertools.permutations(input_range, 3):
+        indices = np.asarray(indices)
         tmp_distances = distances[indices]
         if tmp_distances[1] != 0:
             return coordinates[indices, :], tmp_distances
@@ -109,24 +113,25 @@ def fang(coordinates, distances):
     B. T. Fang, "Simple solutions for hyperbolic and related position fixes," in IEEE Transactions on Aerospace
     and Electronic Systems, vol. 26, no. 5, pp. 748-753, Sep 1990.
     """
-    # TODO propose better way for arguments checking
-    assert (coordinates.shape == (3, 2))
-    assert (distances.shape == (3,))
 
+    if coordinates.shape != (3, 2):
+        raise ValueError('Invalid shape of anchors coordinates array')
+    if distances.shape != (3,):
+        raise ValueError('Invalid shape of distances array')
+
+    # Reorder anchors to have R_ab != 0 (see article)
     coordinates, distances = _fang_order_input(coordinates, distances)
 
-    coordinates = np.matrix(coordinates)
+    # Transform coordinates to meet paper requirements
     translation, rotation, coordinates = _fang_forward_transformation(coordinates)
     if not np.isclose(coordinates[1, 1], coordinates[0, 1]):
         raise ValueError('Second anchor has to lie along a first station baseline')
 
-    distances = np.matrix(distances)
-
-    R_ab = distances[0, 1]
+    R_ab = distances[1]
     if np.isclose(R_ab, 0):
         raise ValueError('Solver doesn\'t accept R_ab equal zero')
 
-    R_ac = distances[0, 2]
+    R_ac = distances[2]
     c_x = coordinates[2, 0]
     c_y = coordinates[2, 1]
 
@@ -142,6 +147,7 @@ def fang(coordinates, distances):
     positions = []
     for x in np.real(np.roots((d, e, f))):
         y = g * x + h
+        # Backward transformation of coordinates system
         positions.append(_fang_backward_transformation(translation, rotation, [x, y]))
 
     return positions

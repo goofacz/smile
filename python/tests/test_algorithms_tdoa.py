@@ -66,6 +66,7 @@ class TestFang(unittest.TestCase):
                 continue
 
             sorted_anchors_coordinates, sorted_tdoa_distances = sort_measurements(anchors_coordinates, tdoa_distances)
+            error_message = 'Reference position: ({0}, {1})'.format(*reference_position)
 
             positions = fang(sorted_anchors_coordinates, sorted_tdoa_distances)
 
@@ -74,8 +75,8 @@ class TestFang(unittest.TestCase):
             positions = [position for position in positions if does_area_contain_position(position, top_left,bottom_right)]
             positions = [position for position in positions if verify_position(position, sorted_anchors_coordinates, sorted_tdoa_distances)]
 
-            self.assertEquals(1, len(positions))
-            np.testing.assert_almost_equal(positions[0], reference_position, decimal=7)
+            self.assertEquals(1, len(positions), msg=error_message)
+            np.testing.assert_almost_equal(positions[0], reference_position, decimal=7, err_msg=error_message)
 
 
 class TestChanHo(unittest.TestCase):
