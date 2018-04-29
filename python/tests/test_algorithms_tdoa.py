@@ -69,9 +69,12 @@ class TestFang(unittest.TestCase):
 
             positions = fang(sorted_anchors_coordinates, sorted_tdoa_distances)
 
+            if np.array_equal(positions[0], positions[1]):
+                positions = [positions[0]]
             positions = [position for position in positions if does_area_contain_position(position, top_left,bottom_right)]
             positions = [position for position in positions if verify_position(position, sorted_anchors_coordinates, sorted_tdoa_distances)]
 
+            self.assertEquals(1, len(positions))
             np.testing.assert_almost_equal(positions[0], reference_position, decimal=7)
 
 
