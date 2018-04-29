@@ -73,7 +73,7 @@ def _fang_order_input(coordinates, distances):
     raise ValueError('Cannot find right order of anchors, it looks that R_ab == R_ac == 0')
 
 
-def doan_vesely(coordinates, distances):
+def doan_vesely(coordinates, distances, reorder_anchors=True):
     """
     S. Van Doan and J. Vesely, "The effectivity comparison of TDOA analytical solution methods,"
     2015 16th International Radar Symposium (IRS), Dresden, 2015, pp. 800-805.
@@ -110,7 +110,7 @@ def doan_vesely(coordinates, distances):
     return np.asarray(positions)
 
 
-def fang(coordinates, distances):
+def fang(coordinates, distances, reorder_anchors=True):
     """
     B. T. Fang, "Simple solutions for hyperbolic and related position fixes," in IEEE Transactions on Aerospace
     and Electronic Systems, vol. 26, no. 5, pp. 748-753, Sep 1990.
@@ -122,7 +122,8 @@ def fang(coordinates, distances):
         raise ValueError('Invalid shape of distances array')
 
     # Reorder anchors to have R_ab != 0 (see article)
-    coordinates, distances = _fang_order_input(coordinates, distances)
+    if reorder_anchors:
+        coordinates, distances = _fang_order_input(coordinates, distances)
 
     # Transform coordinates to meet paper requirements
     translation, rotation, coordinates = _fang_forward_transformation(coordinates)
@@ -155,7 +156,7 @@ def fang(coordinates, distances):
     return positions
 
 
-def chan_ho(coordinates, distances):
+def chan_ho(coordinates, distances, reorder_anchors=True):
     """
     K. C. Ho and Y. T. Chan, "Solution and performance analysis of geolocation by TDOA," in IEEE Transactions
     on Aerospace and Electronic Systems, vol. 29, no. 4, pp. 1311-1322, Oct 1993.
@@ -170,8 +171,13 @@ def chan_ho(coordinates, distances):
     input_distances = distances.copy()
 
     # Iterate over all possible anchors orders
-    input_range = range(0, input_coordinates.shape[0])
-    for indices in itertools.permutations(input_range, input_coordinates.shape[0]):
+    if reorder_anchors:
+        input_range = range(0, input_coordinates.shape[0])
+        all_indices = itertools.permutations(input_range, input_coordinates.shape[0])
+    else:
+        all_indices = [range(0, input_coordinates.shape[0])]
+
+    for indices in all_indices:
         indices = np.asarray(indices)
         coordinates = input_coordinates[indices, :]
         distances = input_distances[indices]
