@@ -98,7 +98,20 @@ class TestChanHo(unittest.TestCase):
             np.testing.assert_almost_equal(position, reference_position, decimal=7)
 
 
-# TODO class TestVerifyPosition(unittest.TestCase):
+class TestVerifyPosition(unittest.TestCase):
+    def test(self):
+        # reference_mobile_positions is ((1, 0))
+        reference_anchor_coordinates = np.asanyarray(((0, 0), (0, 2), (2, 0), (2, 1)))
+        reference_tdoa_values = np.asanyarray((0, 1.23606798, 0, 0.41421356))
+
+        self.assertTrue(verify_position((1, 0), reference_anchor_coordinates, reference_tdoa_values))
+        self.assertTrue(verify_position((1.000000001, 0), reference_anchor_coordinates, reference_tdoa_values))
+        self.assertTrue(verify_position((1, -0.0000001), reference_anchor_coordinates, reference_tdoa_values))
+
+        self.assertFalse(verify_position((1, 1), reference_anchor_coordinates, reference_tdoa_values))
+        self.assertFalse(verify_position((6, -1), reference_anchor_coordinates, reference_tdoa_values))
+
+
 
 if __name__ == '__main__':
     unittest.main()
