@@ -75,28 +75,36 @@ class TestFang(unittest.TestCase):
             positions = [position for position in positions if does_area_contain_position(position, top_left,bottom_right)]
             positions = [position for position in positions if verify_position(position, sorted_anchors_coordinates, sorted_tdoa_distances)]
 
-            self.assertEquals(1, len(positions), msg=error_message)
+            self.assertEqual(1, len(positions), msg=error_message)
             np.testing.assert_almost_equal(positions[0], reference_position, decimal=7, err_msg=error_message)
 
 
 class TestChanHo(unittest.TestCase):
-    def test_small_grid(self):
-        anchors_coordinates = np.asanyarray(((0, 0),
+    def test_positive_cases(self):
+        anchors_coordinates = np.asanyarray(((1, 0),
                                              (0, 6),
                                              (6, 0),
                                              (6, 6)))
         grid_size = 6
         grid_gap = 1
 
-        # For these positions algorithm fails to compute correct solution
-        skipped_positions = np.asanyarray(((0, 3), (1, 3), (2, 3), (4, 3), (5, 3), (6, 3)))
-
         for reference_position, tdoa_distances in generate_tdoa_measurements(anchors_coordinates, grid_size, grid_gap):
-            if np.all(np.isin(reference_position, skipped_positions)):
-                continue
-            sorted_anchors_coordinates, sorted_tdoa_distances = sort_measurements(anchors_coordinates, tdoa_distances)
-            position = chan_ho(sorted_anchors_coordinates, sorted_tdoa_distances)
-            np.testing.assert_almost_equal(position, reference_position, decimal=7)
+            error_message = 'Reference position: ({0}, {1})'.format(*reference_position)
+
+            position = chan_ho(anchors_coordinates, tdoa_distances)
+            np.testing.assert_almost_equal(position, reference_position, decimal=7, err_msg=error_message)
+
+    def test_invalid_anchors_coordinates(self):
+        # Reference position is (0, 3)
+        anchors_coordinates = np.asarray(((0, 0),
+                                          (0, 6),
+                                          (6, 0),
+                                          (6, 6)))
+
+        tdoa_distances = np.asarray((0., 0., 3.70820393, 3.70820393))
+
+        with self.assertRaises(ValueError):
+            chan_ho(anchors_coordinates, tdoa_distances)
 
 
 class TestVerifyPosition(unittest.TestCase):
