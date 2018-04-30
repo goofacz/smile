@@ -141,6 +141,5 @@ class TestVerifyPosition(unittest.TestCase):
         self.assertFalse(verify_position((6, -1), reference_anchor_coordinates, reference_tdoa_values))
 
 
-
 if __name__ == '__main__':
     unittest.main()

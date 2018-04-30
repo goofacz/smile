@@ -14,21 +14,17 @@
 #
 
 import numpy as np
+import numpy.linalg as npla
 import itertools
-from algorithms.common import sort_measurements
 
 
 def verify_position(mobile_position, anchors_coordinates, tdoa_distances):
-    anchors_coordinates, tdoa_distances = sort_measurements(anchors_coordinates, tdoa_distances)
-
     new_distances = []
     for anchor_coordinates in anchors_coordinates:
-        new_distances.append(np.linalg.norm(anchor_coordinates - mobile_position))
+        new_distances.append(npla.norm(anchor_coordinates - mobile_position))
 
-    new_distances = np.asanyarray(new_distances)
-    new_distances -= new_distances[0]
-
-    return np.allclose(tdoa_distances, new_distances)
+    new_distances = np.asanyarray(new_distances) - min(new_distances)
+    return np.allclose(tdoa_distances, new_distances, atol=1.e-4)
 
 
 def _fang_forward_transformation(coordinates):
@@ -96,7 +92,7 @@ def doan_vesely(coordinates, distances, reorder_anchors=True):
     B = np.asarray(((2 * L, L ** 2 - Xl ** 2 - Yl ** 2),
                     (2 * R, R ** 2 - Xr ** 2 - Yr ** 2)))
 
-    tmp, _, _, _ = np.linalg.lstsq(A, B, rcond=None)
+    tmp, _, _, _ = npla.lstsq(A, B, rcond=None)
     a = tmp[0, 0] ** 2 + tmp[1, 0] ** 2 - 1
     b = 2 * (tmp[0, 0] * tmp[0, 1] + tmp[1, 0] * tmp[1, 1])
     c = tmp[0, 1] ** 2 + tmp[1, 1] ** 2
@@ -138,7 +134,7 @@ def fang(coordinates, distances, reorder_anchors=True):
     c_x = coordinates[2, 0]
     c_y = coordinates[2, 1]
 
-    b = np.abs(np.linalg.norm(coordinates[1, :] - coordinates[0, :]))
+    b = np.abs(npla.norm(coordinates[1, :] - coordinates[0, :]))
     c = np.sqrt(np.sum(np.power(coordinates[2, 0:2], 2)))
 
     g = ((R_ac * (b / R_ab)) - c_x) / c_y
@@ -222,8 +218,8 @@ def chan_ho(coordinates, distances, reorder_anchors=True):
 
         try:
             # If A1 is singular matrix solve() will fail, and we just try to reorder anchors
-            position = np.linalg.solve(A1, B1.T)
-        except np.linalg.linalg.LinAlgError:
+            position = npla.solve(A1, B1.T)
+        except npla.LinAlgError:
             continue
 
         # Another matrix for computing position
@@ -238,7 +234,7 @@ def chan_ho(coordinates, distances, reorder_anchors=True):
         #                 (m_4, u_4)))
         # B2 = np.asarray(((np.float(r_42 * r_21 * r_41 - l_3)),
         #                 (np.float(r_43 * r_32 * r_42 - l_4))))
-        # position2 = np.linalg.solve(A2, B2.T)
+        # position2 = npla.solve(A2, B2.T)
 
         return position
 
