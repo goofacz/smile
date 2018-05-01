@@ -20,9 +20,14 @@ import numpy.linalg as npla
 
 def plot_absolute_position_error_histogram(results, return_intermediate_results=False):
     position_coordinates, begin_position_coordinates, end_position_coordinates = results.determine_dimensions()
+
     # Mobile node cloud move during localization procedure
     true_positions = (results[:, begin_position_coordinates] + results[:, end_position_coordinates]) / 2
     position_errors = npla.norm(true_positions - results[:, position_coordinates], axis=1)
+
+    # Process data (remove NaNs)
+    nans_number = np.count_nonzero(np.isnan(position_errors))
+    position_errors = position_errors[np.isfinite(position_errors)]
 
     plt.hist(position_errors)
     plt.title('Histogram of absolute error values')
@@ -32,7 +37,7 @@ def plot_absolute_position_error_histogram(results, return_intermediate_results=
     plt.show()
 
     if return_intermediate_results:
-        return true_positions, position_errors
+        return true_positions, position_errors, nans_number
 
 
 def plot_absolute_position_error_surface(results, return_intermediate_results=False):
