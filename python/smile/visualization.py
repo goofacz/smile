@@ -15,13 +15,14 @@
 
 import matplotlib.pyplot as plt
 import numpy as np
+import numpy.linalg as npla
 
 
 def plot_absolute_position_error_histogram(results, return_intermediate_results=False):
     position_coordinates, begin_position_coordinates, end_position_coordinates = results.determine_dimensions()
     # Mobile node cloud move during localization procedure
     true_positions = (results[:, begin_position_coordinates] + results[:, end_position_coordinates]) / 2
-    position_errors = np.abs(np.linalg.norm(true_positions - results[:, position_coordinates], axis=1))
+    position_errors = npla.norm(true_positions - results[:, position_coordinates], axis=1)
 
     plt.hist(position_errors)
     plt.title('Histogram of absolute error values')
@@ -39,7 +40,7 @@ def plot_absolute_position_error_surface(results, return_intermediate_results=Fa
 
     # Mobile node cloud move during localization procedure
     true_positions = (results[:, begin_position_coordinates] + results[:, end_position_coordinates]) / 2
-    position_errors = np.abs(np.linalg.norm(true_positions - results[:, position_coordinates], axis=1))
+    position_errors = npla.norm(true_positions - results[:, position_coordinates], axis=1)
 
     x, y = np.meshgrid(np.unique(true_positions[:, 0]), np.unique(true_positions[:, 1]), indexing='xy')
     z = np.zeros(x.shape)
@@ -73,7 +74,7 @@ def plot_absolute_position_error_cdf(results, return_intermediate_results=False)
     position_coordinates, begin_position_coordinates, end_position_coordinates = results.determine_dimensions()
 
     true_positions = (results[:, begin_position_coordinates] + results[:, end_position_coordinates]) / 2
-    position_errors = np.abs(np.linalg.norm(true_positions - results[:, position_coordinates], axis=1))
+    position_errors = npla.norm(true_positions - results[:, position_coordinates], axis=1)
     position_errors = np.sort(position_errors)
     n = np.array(range(position_errors.size)) / np.float(position_errors.size)
 
