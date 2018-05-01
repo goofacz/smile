@@ -24,7 +24,7 @@ def verify_position(mobile_position, anchors_coordinates, tdoa_distances):
         new_distances.append(npla.norm(anchor_coordinates - mobile_position))
 
     new_distances = np.asanyarray(new_distances) - min(new_distances)
-    return np.allclose(tdoa_distances, new_distances, atol=1.e-4)
+    return np.allclose(tdoa_distances, new_distances, atol=1.e-2)
 
 
 def _fang_forward_transformation(coordinates):
@@ -179,13 +179,14 @@ def chan_ho(coordinates, distances, reorder_anchors=True):
     input_coordinates = coordinates.copy()
     input_distances = distances.copy()
 
-    # Iterate over all possible anchors orders
     if reorder_anchors:
         input_range = range(0, input_coordinates.shape[0])
         all_indices = itertools.permutations(input_range, input_coordinates.shape[0])
     else:
         all_indices = [range(0, input_coordinates.shape[0])]
 
+    # Iterate over all possible anchors orders
+    positions = []
     for indices in all_indices:
         indices = np.asarray(indices)
         coordinates = input_coordinates[indices, :]
@@ -235,6 +236,17 @@ def chan_ho(coordinates, distances, reorder_anchors=True):
         except npla.LinAlgError:
             continue
 
+        # Avoid adding very close (duplicate?) positions
+        add_position = True
+        for other_position in positions:
+            positions_distance = npla.norm(positions - other_position)
+            if positions_distance < 0.01:  # TODO Replace magic number with method argument?
+                add_position = False
+                break
+
+        if add_position:
+            positions.append(position)
+
         # Another matrix for computing position
         # r_42 = distances[3] - distances[1]
         # l_3 = (r_42 * K_1) + (r_21 * K_4) - (r_41 * K_2)
@@ -244,11 +256,13 @@ def chan_ho(coordinates, distances, reorder_anchors=True):
         # u_3 = -2 * ((r_42 * y_1) + (r_21 * y_4) - (r_41 * y_2))
         # u_4 = -2 * ((r_43 * y_2) + (r_32 * y_4) - (r_42 * y_3))
         # A2 = np.asarray(((m_3, u_3),
-        #                 (m_4, u_4)))
+        #                  (m_4, u_4)))
         # B2 = np.asarray(((np.float(r_42 * r_21 * r_41 - l_3)),
-        #                 (np.float(r_43 * r_32 * r_42 - l_4))))
-        # position2 = npla.solve(A2, B2.T)
+        #                  (np.float(r_43 * r_32 * r_42 - l_4))))
 
-        return position
+        # position = npla.solve(A2, B2.T)
 
-    raise ValueError('Anchors coordinates always lead to singular A1 matrix')
+    if not positions:
+        raise ValueError('Anchors coordinates always lead to singular A1 matrix')
+
+    return positions

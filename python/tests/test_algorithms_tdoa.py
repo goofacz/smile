@@ -78,7 +78,7 @@ class TestFang(unittest.TestCase):
 
             positions = fang(sorted_anchors_coordinates, sorted_tdoa_distances)
 
-            if np.allclose(positions[0], positions[1]):
+            if len(positions) > 1 and np.allclose(positions[0], positions[1]):
                 positions = [positions[0]]
             positions = [position for position in positions if does_area_contain_position(position, top_left,bottom_right)]
             positions = [position for position in positions if verify_position(position, sorted_anchors_coordinates, sorted_tdoa_distances)]
@@ -93,14 +93,27 @@ class TestChanHo(unittest.TestCase):
                                              (0, 6),
                                              (6, 0),
                                              (6, 6)))
+
         grid_size = 6
         grid_gap = 1
 
+        # Area boundaries
+        top_left = (0, 5)
+        bottom_right = (5, 0)
+
         for reference_position, tdoa_distances in generate_tdoa_measurements(anchors_coordinates, grid_size, grid_gap):
+            sorted_anchors_coordinates, sorted_tdoa_distances = sort_measurements(anchors_coordinates, tdoa_distances)
             error_message = 'Reference position: ({0}, {1})'.format(*reference_position)
 
-            position = chan_ho(anchors_coordinates, tdoa_distances)
-            np.testing.assert_almost_equal(position, reference_position, decimal=7, err_msg=error_message)
+            positions = chan_ho(anchors_coordinates, tdoa_distances)
+
+            if len(positions) > 1 and np.allclose(positions[0], positions[1]):
+                positions = [positions[0]]
+            positions = [position for position in positions if does_area_contain_position(position, top_left,bottom_right)]
+            positions = [position for position in positions if verify_position(position, sorted_anchors_coordinates, sorted_tdoa_distances)]
+
+            self.assertEqual(1, len(positions), msg=error_message)
+            np.testing.assert_almost_equal(positions[0], reference_position, decimal=7, err_msg=error_message)
 
     def test_invalid_anchors_coordinates(self):
         # Reference position is (0, 3)
