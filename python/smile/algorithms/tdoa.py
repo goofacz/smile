@@ -86,8 +86,8 @@ def doan_vesely(coordinates, distances, reorder_anchors=True):
     Xr = coordinates[2, 0] - coordinates[0, 0]
     Yr = coordinates[2, 1] - coordinates[0, 1]
 
-    A = -2 * np.asarray(((Xl, Yl),
-                         (Xr, Yr)))
+    A = -2 * np.asarray(((Xl, Yl, 0),
+                         (Xr, Yr, 0)))
 
     B = np.asarray(((2 * L, L ** 2 - Xl ** 2 - Yl ** 2),
                     (2 * R, R ** 2 - Xr ** 2 - Yr ** 2)))
@@ -97,13 +97,26 @@ def doan_vesely(coordinates, distances, reorder_anchors=True):
     b = 2 * (tmp[0, 0] * tmp[0, 1] + tmp[1, 0] * tmp[1, 1])
     c = tmp[0, 1] ** 2 + tmp[1, 1] ** 2
 
-    positions = []
-    for K in np.real(np.roots((a, b, c))):
+    solutions = []
+    roots = np.real(np.roots((a, b, c)))
+    positive_roots = [root for root in roots if root >= 0]
+
+    for K in positive_roots:
         X = tmp[0, 0] * K + tmp[0, 1] + coordinates[0, 0]
         Y = tmp[1, 0] * K + tmp[1, 1] + coordinates[0, 1]
-        positions.append((X, Y))
 
-    return np.asarray(positions)
+        # Article eq. (10)
+        K_condition = np.asarray([npla.norm(X - coordinates[0, 0]), npla.norm(Y - coordinates[0, 1])])
+        K_condition = K_condition ** 2
+        K_condition = np.sum(K_condition)
+        K_condition = np.sqrt(K_condition)
+        if np.isclose(K, K_condition):
+            solutions.append(np.asarray((X, Y)))
+
+    if not len(solutions):
+        raise ValueError('Failed to compute solution')
+
+    return np.asarray(solutions)
 
 
 def fang(coordinates, distances, reorder_anchors=True):
