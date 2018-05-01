@@ -22,9 +22,9 @@ package smile;
 // 2011 International Conference on Electrical and Control Engineering, Yichang, 2011, 
 // pp. 4602-4605.
 //
-simple SimpleClock extends Clock
+simple LiuYangClock extends Clock
 {
     parameters:
-        @class(smile::SimpleClock);
-        double accuracy = default(uniform(-10,10)); // Clock accuracy in PPM
+        @class(smile::LiuYangClock);
+        double accuracy = default(uniform(0,1)); // Clock accuracy in PPM
 }

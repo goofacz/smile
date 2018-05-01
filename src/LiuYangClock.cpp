@@ -13,32 +13,38 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 //
 
-#pragma once
+#include <array>
+#include <cmath>
 
-#include <omnetpp.h>
-#include "Clock.h"
+#include <inet/common/INETDefs.h>
+#include "LiuYangClock.h"
 
 namespace smile {
 
-class SimpleClock final : public Clock
+Define_Module(LiuYangClock);
+
+omnetpp::SimTime LiuYangClock::getClockTimestamp()
 {
- public:
-  SimpleClock() = default;
-  SimpleClock(const SimpleClock& source) = delete;
-  SimpleClock(SimpleClock&& source) = delete;
-  ~SimpleClock() override = default;
+  const auto timestamp = simTime();
+  return timestamp + computeError(timestamp);
+}
 
-  SimpleClock& operator=(const SimpleClock& source) = delete;
-  SimpleClock& operator=(SimpleClock&& source) = delete;
+LiuYangClock::OptionalSimTime LiuYangClock::convertToSimulationTimestamp(const SimTime& timestamp)
+{
+  return timestamp + computeError(timestamp);
+}
 
-  omnetpp::SimTime getClockTimestamp() override;
-  OptionalSimTime convertToSimulationTimestamp(const omnetpp::SimTime& timestamp) override;
+void LiuYangClock::initialize(int stage)
+{
+  Clock::initialize(stage);
+  if (stage == inet::INITSTAGE_LOCAL) {
+    d = par("accuracy").longValue() / 1'000'000.;
+  }
+}
 
- private:
-  void initialize(int stage) override;
-  omnetpp::SimTime computeError(const omnetpp::SimTime& timestamp);
-
-  double d{0.0};
-};
+SimTime LiuYangClock::computeError(const SimTime& timestamp)
+{
+  return 0.5 * d * std::pow(timestamp.dbl(), 2);
+}
 
 }  // namespace smile
