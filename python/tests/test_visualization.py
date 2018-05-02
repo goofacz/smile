@@ -53,7 +53,7 @@ class TestAnalysis(unittest.TestCase):
         self.assertAlmostEqual(sqrt(2 * 10 ** 2) - sqrt(2 * 6 ** 2), position_errors[2], places=10)
 
     def test_absolute_position_error_histogram(self):
-        results = Results.create_array(3, 2)
+        results = Results.create_array(4, 2)
         results[0, "begin_true_position_2d"] = (0, 0)
         results[0, "position_2d"] = (15, 0)
         results[0, "end_true_position_2d"] = (20, 0)
@@ -66,9 +66,13 @@ class TestAnalysis(unittest.TestCase):
         results[2, "position_2d"] = (6, 6)
         results[2, "end_true_position_2d"] = (20, 20)
 
-        true_position, position_errors = plot_absolute_position_error_histogram(results,
+        results[3, "begin_true_position_2d"] = (0, 0)
+        results[3, "position_2d"] = (np.nan, np.nan)
+        results[3, "end_true_position_2d"] = (30, 30)
+
+        true_position, position_errors, nans_number = plot_absolute_position_error_histogram(results,
                                                                                 return_intermediate_results=True)
-        self.assertTupleEqual((3, 2), true_position.shape)
+        self.assertTupleEqual((4, 2), true_position.shape)
         np.testing.assert_equal((10, 0), true_position[0, :])
         np.testing.assert_equal((0, 20), true_position[1, :])
         np.testing.assert_equal((10, 10), true_position[2, :])
@@ -76,6 +80,7 @@ class TestAnalysis(unittest.TestCase):
         self.assertTupleEqual((3,), position_errors.shape)
         self.assertEqual(5, position_errors[0])
         self.assertEqual(15, position_errors[1])
+        self.assertEqual(1, nans_number)
         self.assertAlmostEqual(sqrt(2 * 10 ** 2) - sqrt(2 * 6 ** 2), position_errors[2], places=10)
 
 
