@@ -97,7 +97,7 @@ def doan_vesely(coordinates, distances, reorder_anchors=True):
     b = 2 * (tmp[0, 0] * tmp[0, 1] + tmp[1, 0] * tmp[1, 1])
     c = tmp[0, 1] ** 2 + tmp[1, 1] ** 2
 
-    solutions = []
+    positions = []
     roots = np.real(np.roots((a, b, c)))
     positive_roots = [root for root in roots if root >= 0]
 
@@ -110,13 +110,16 @@ def doan_vesely(coordinates, distances, reorder_anchors=True):
         K_condition = K_condition ** 2
         K_condition = np.sum(K_condition)
         K_condition = np.sqrt(K_condition)
-        if np.isclose(K, K_condition):
-            solutions.append(np.asarray((X, Y)))
+        if not np.isclose(K, K_condition):
+            continue
 
-    if not len(solutions):
+        solution = np.asarray((X, Y))
+        positions.append(solution)
+
+    if not len(positions):
         raise ValueError('Failed to compute solution')
 
-    return np.asarray(solutions)
+    return np.asarray(positions)
 
 
 def fang(coordinates, distances, reorder_anchors=True):
@@ -147,7 +150,7 @@ def fang(coordinates, distances, reorder_anchors=True):
     c_x = coordinates[2, 0]
     c_y = coordinates[2, 1]
 
-    b = np.abs(npla.norm(coordinates[1, :] - coordinates[0, :]))
+    b = npla.norm(coordinates[1, :] - coordinates[0, :])
     c = np.sqrt(np.sum(np.power(coordinates[2, 0:2], 2)))
 
     g = ((R_ac * (b / R_ab)) - c_x) / c_y
@@ -157,10 +160,17 @@ def fang(coordinates, distances, reorder_anchors=True):
     f = (np.power(R_ab, 2) / 4) * np.power(1 - np.power(b / R_ab, 2), 2) - np.power(h, 2)
 
     positions = []
-    for x in np.real(np.roots((d, e, f))):
-        y = g * x + h
-        # Backward transformation of coordinates system
-        positions.append(_fang_backward_transformation(translation, rotation, [x, y]))
+    for X in np.real(np.roots((d, e, f))):
+        Y = g * X + h
+
+        # FIXME
+        tmp_R_ab = np.sqrt(X ** 2 + Y ** 2) - np.sqrt((X - b) ** 2 + Y ** 2)
+        tmp_R_ac = np.sqrt(X ** 2 + Y ** 2) - np.sqrt((X - c_x) ** 2 + (Y - c_y) ** 2)
+
+        if np.isclose(R_ab, -tmp_R_ab) and np.isclose(R_ac, -tmp_R_ac):
+            # Backward transformation of coordinates system
+            solution = _fang_backward_transformation(translation, rotation, [X, Y])
+            positions.append(solution)
 
     return positions
 
@@ -232,7 +242,7 @@ def chan_ho(coordinates, distances, reorder_anchors=True):
 
         try:
             # If A1 is singular matrix solve() will fail, and we just try to reorder anchors
-            position = npla.solve(A1, B1.T)
+            position = npla.solve(A1, B1)
         except npla.LinAlgError:
             continue
 
@@ -260,7 +270,7 @@ def chan_ho(coordinates, distances, reorder_anchors=True):
         # B2 = np.asarray(((np.float(r_42 * r_21 * r_41 - l_3)),
         #                  (np.float(r_43 * r_32 * r_42 - l_4))))
 
-        # position = npla.solve(A2, B2.T)
+        # position = npla.solve(A2, B2)
 
     if not positions:
         raise ValueError('Anchors coordinates always lead to singular A1 matrix')
