@@ -87,11 +87,10 @@ class TestFang(unittest.TestCase):
 
 
 class TestChanHo(unittest.TestCase):
-    def test_positive_cases(self):
-        anchors_coordinates = np.asanyarray(((1, 0),
-                                             (0, 6),
-                                             (6, 0),
-                                             (6, 6)))
+    def test_three_anchors_cases(self):
+        anchors_coordinates = np.asanyarray(((0, 1),
+                                             (6, 6),
+                                             (6, 0)))
 
         grid_size = 6
         grid_gap = 1
@@ -104,11 +103,11 @@ class TestChanHo(unittest.TestCase):
             sorted_anchors_coordinates, sorted_tdoa_distances = sort_measurements(anchors_coordinates, tdoa_distances)
             error_message = 'Reference position: ({0}, {1})'.format(*reference_position)
 
-            positions = chan_ho(anchors_coordinates, tdoa_distances)
+            positions = chan_ho(sorted_anchors_coordinates, sorted_tdoa_distances)
 
             if len(positions) > 1 and np.allclose(positions[0], positions[1]):
                 positions = [positions[0]]
-            positions = [position for position in positions if verify_position(position, sorted_anchors_coordinates, sorted_tdoa_distances)]
+            positions = [position for position in positions if does_area_contain_position(position, top_left,bottom_right)]
 
             self.assertEqual(1, len(positions), msg=error_message)
             np.testing.assert_almost_equal(positions[0], reference_position, decimal=7, err_msg=error_message)
@@ -117,8 +116,7 @@ class TestChanHo(unittest.TestCase):
         # Reference position is (0, 3)
         anchors_coordinates = np.asarray(((0, 0),
                                           (0, 6),
-                                          (6, 0),
-                                          (6, 6)))
+                                          (6, 0)))
 
         tdoa_distances = np.asarray((0., 0., 3.70820393, 3.70820393))
 

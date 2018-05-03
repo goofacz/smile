@@ -69,6 +69,123 @@ def _fang_order_input(coordinates, distances):
     raise ValueError('Cannot find right order of anchors, it looks that R_ab == R_ac == 0')
 
 
+def _chan_ho_for_3_anchors(coordinates, distances):
+    r_21 = distances[1] - distances[0]
+    r_31 = distances[2] - distances[0]
+
+    x_2 = coordinates[1, 0] - coordinates[0, 0]
+    x_3 = coordinates[2, 0] - coordinates[0, 0]
+
+    y_2 = coordinates[1, 1] - coordinates[0, 1]
+    y_3 = coordinates[2, 1] - coordinates[0, 1]
+
+    K_2 = x_2 ** 2 + y_2 ** 2
+    K_3 = x_3 ** 2 + y_3 ** 2
+
+    A = np.asarray(((x_2, y_2),
+                    (x_3, y_3 )))
+
+    B = np.asarray((-r_21,
+                    -r_31))
+
+    C = 0.5 * np.asarray(((-(r_21 ** 2) + K_2),
+                          (-(r_31 ** 2) + K_3)))
+
+    try:
+        D = npla.solve(A, B)
+        E = npla.solve(A, C)
+    except npla.LinAlgError:
+        raise ValueError('Anchors coordinates always lead to singular A matrix')
+
+    a = np.sum(D * D) - 1
+    b = 2 * np.sum(E * D)
+    c = np.sum(E * E)
+
+    results = np.real(np.roots((a, b, c)))
+    results = [result for result in results if result > 0]
+
+    positions = []
+    for result in results:
+        position = D * result + E
+        position += coordinates[0]
+
+        # Avoid adding very close (duplicate?) positions
+        add_position = True
+        for other_position in positions:
+            positions_distance = npla.norm(position - other_position)
+            if positions_distance < 0.01:  # TODO Replace magic number with method argument?
+                add_position = False
+                break
+
+        if add_position:
+            positions.append(position)
+
+    return positions
+
+
+def _chan_ho_for_4_anchors(coordinates, distances):
+    K = np.power(coordinates, 2)
+    K = np.sum(K, 1)
+    K_1 = K[0]
+    K_2 = K[1]
+    K_3 = K[2]
+    K_4 = K[3]
+
+    r_32 = distances[2] - distances[1]
+    r_21 = distances[1] - distances[0]
+    r_31 = distances[2] - distances[0]
+    r_41 = distances[3] - distances[0]
+    r_43 = distances[3] - distances[2]
+
+    x_1 = coordinates[0, 0]
+    x_2 = coordinates[1, 0]
+    x_3 = coordinates[2, 0]
+    x_4 = coordinates[3, 0]
+
+    y_1 = coordinates[0, 1]
+    y_2 = coordinates[1, 1]
+    y_3 = coordinates[2, 1]
+    y_4 = coordinates[3, 1]
+
+    l_1 = (r_32 * K_1) + (r_21 * K_3) - (r_31 * K_2)
+    l_2 = (r_43 * K_1) + (r_31 * K_4) - (r_41 * K_3)
+
+    m_1 = -2 * ((r_32 * x_1) + (r_21 * x_3) - (r_31 * x_2))
+    m_2 = -2 * ((r_43 * x_1) + (r_31 * x_4) - (r_41 * x_3))
+
+    u_1 = -2 * ((r_32 * y_1) + (r_21 * y_3) - (r_31 * y_2))
+    u_2 = -2 * ((r_43 * y_1) + (r_31 * y_4) - (r_41 * y_3))
+
+    A1 = np.asarray(((m_1, u_1),
+                     (m_2, u_2)))
+
+    B1 = np.asarray(((np.float(r_32 * r_21 * r_31 - l_1)),
+                     (np.float(r_43 * r_31 * r_41 - l_2))))
+
+    try:
+        # If A1 is singular matrix solve() will fail, and we just try to reorder anchors
+        position = npla.solve(A1, B1)
+    except npla.LinAlgError:
+        raise ValueError('Anchors coordinates always lead to singular A1 matrix')
+
+    # Another matrix for computing position
+    # r_42 = distances[3] - distances[1]
+    # l_3 = (r_42 * K_1) + (r_21 * K_4) - (r_41 * K_2)
+    # l_4 = (r_43 * K_2) + (r_32 * K_4) - (r_42 * K_3)
+    # m_3 = -2 * ((r_42 * x_1) + (r_21 * x_4) - (r_41 * x_2))
+    # m_4 = -2 * ((r_43 * x_2) + (r_32 * x_4) - (r_42 * x_3))
+    # u_3 = -2 * ((r_42 * y_1) + (r_21 * y_4) - (r_41 * y_2))
+    # u_4 = -2 * ((r_43 * y_2) + (r_32 * y_4) - (r_42 * y_3))
+    # A2 = np.asarray(((m_3, u_3),
+    #                  (m_4, u_4)))
+    # B2 = np.asarray(((np.float(r_42 * r_21 * r_41 - l_3)),
+    #                  (np.float(r_43 * r_32 * r_42 - l_4))))
+
+    # position = npla.solve(A2, B2)
+
+    return [position]
+
+
 def doan_vesely(coordinates, distances, reorder_anchors=True):
     """
     S. Van Doan and J. Vesely, "The effectivity comparison of TDOA analytical solution methods,"
@@ -122,7 +239,7 @@ def doan_vesely(coordinates, distances, reorder_anchors=True):
     return np.asarray(positions)
 
 
-def fang(coordinates, distances, reorder_anchors=True):
+def fang(coordinates, distances,):
     """
     B. T. Fang, "Simple solutions for hyperbolic and related position fixes," in IEEE Transactions on Aerospace
     and Electronic Systems, vol. 26, no. 5, pp. 748-753, Sep 1990.
@@ -134,8 +251,7 @@ def fang(coordinates, distances, reorder_anchors=True):
         raise ValueError('Invalid shape of distances array')
 
     # Reorder anchors to have R_ab != 0 (see article)
-    if reorder_anchors:
-        coordinates, distances = _fang_order_input(coordinates, distances)
+    coordinates, distances = _fang_order_input(coordinates, distances)
 
     # Transform coordinates to meet paper requirements
     translation, rotation, coordinates = _fang_forward_transformation(coordinates)
@@ -175,104 +291,21 @@ def fang(coordinates, distances, reorder_anchors=True):
     return positions
 
 
-def chan_ho(coordinates, distances, reorder_anchors=True):
+def chan_ho(coordinates, distances):
     """
+    Y. T. Chan and K. C. Ho, "A simple and efficient estimator for hyperbolic location," in IEEE Transactions on Signal
+    Processing, vol. 42, no. 8, pp. 1905-1915, Aug 1994.
+
     K. C. Ho and Y. T. Chan, "Solution and performance analysis of geolocation by TDOA," in IEEE Transactions
     on Aerospace and Electronic Systems, vol. 29, no. 4, pp. 1311-1322, Oct 1993.
     """
 
-    if coordinates.shape != (4, 2):
-        raise ValueError('Invalid shape of anchors coordinates array')
-    if distances.shape != (4,):
-        raise ValueError('Invalid shape of distances array')
+    if coordinates.shape[0] != distances.shape[0]:
+        raise ValueError('Number of distances has to match number of anchors')
 
-    input_coordinates = coordinates.copy()
-    input_distances = distances.copy()
-
-    if reorder_anchors:
-        input_range = range(0, input_coordinates.shape[0])
-        all_indices = itertools.permutations(input_range, input_coordinates.shape[0])
+    if coordinates.shape == (3, 2):
+        return _chan_ho_for_3_anchors(coordinates, distances)
+    elif coordinates.shape == (4, 2):
+        return _chan_ho_for_4_anchors(coordinates, distances)
     else:
-        all_indices = [range(0, input_coordinates.shape[0])]
-
-    # Iterate over all possible anchors orders
-    positions = []
-    for indices in all_indices:
-        indices = np.asarray(indices)
-        coordinates = input_coordinates[indices, :]
-        distances = input_distances[indices]
-
-        K = np.power(coordinates, 2)
-        K = np.sum(K, 1)
-        K_1 = K[0]
-        K_2 = K[1]
-        K_3 = K[2]
-        K_4 = K[3]
-
-        r_32 = distances[2] - distances[1]
-        r_21 = distances[1] - distances[0]
-        r_31 = distances[2] - distances[0]
-        r_41 = distances[3] - distances[0]
-        r_43 = distances[3] - distances[2]
-
-        x_1 = coordinates[0, 0]
-        x_2 = coordinates[1, 0]
-        x_3 = coordinates[2, 0]
-        x_4 = coordinates[3, 0]
-
-        y_1 = coordinates[0, 1]
-        y_2 = coordinates[1, 1]
-        y_3 = coordinates[2, 1]
-        y_4 = coordinates[3, 1]
-
-        l_1 = (r_32 * K_1) + (r_21 * K_3) - (r_31 * K_2)
-        l_2 = (r_43 * K_1) + (r_31 * K_4) - (r_41 * K_3)
-
-        m_1 = -2 * ((r_32 * x_1) + (r_21 * x_3) - (r_31 * x_2))
-        m_2 = -2 * ((r_43 * x_1) + (r_31 * x_4) - (r_41 * x_3))
-
-        u_1 = -2 * ((r_32 * y_1) + (r_21 * y_3) - (r_31 * y_2))
-        u_2 = -2 * ((r_43 * y_1) + (r_31 * y_4) - (r_41 * y_3))
-
-        A1 = np.asarray(((m_1, u_1),
-                         (m_2, u_2)))
-
-        B1 = np.asarray(((np.float(r_32 * r_21 * r_31 - l_1)),
-                         (np.float(r_43 * r_31 * r_41 - l_2))))
-
-        try:
-            # If A1 is singular matrix solve() will fail, and we just try to reorder anchors
-            position = npla.solve(A1, B1)
-        except npla.LinAlgError:
-            continue
-
-        # Avoid adding very close (duplicate?) positions
-        add_position = True
-        for other_position in positions:
-            positions_distance = npla.norm(positions - other_position)
-            if positions_distance < 0.01:  # TODO Replace magic number with method argument?
-                add_position = False
-                break
-
-        if add_position:
-            positions.append(position)
-
-        # Another matrix for computing position
-        # r_42 = distances[3] - distances[1]
-        # l_3 = (r_42 * K_1) + (r_21 * K_4) - (r_41 * K_2)
-        # l_4 = (r_43 * K_2) + (r_32 * K_4) - (r_42 * K_3)
-        # m_3 = -2 * ((r_42 * x_1) + (r_21 * x_4) - (r_41 * x_2))
-        # m_4 = -2 * ((r_43 * x_2) + (r_32 * x_4) - (r_42 * x_3))
-        # u_3 = -2 * ((r_42 * y_1) + (r_21 * y_4) - (r_41 * y_2))
-        # u_4 = -2 * ((r_43 * y_2) + (r_32 * y_4) - (r_42 * y_3))
-        # A2 = np.asarray(((m_3, u_3),
-        #                  (m_4, u_4)))
-        # B2 = np.asarray(((np.float(r_42 * r_21 * r_41 - l_3)),
-        #                  (np.float(r_43 * r_32 * r_42 - l_4))))
-
-        # position = npla.solve(A2, B2)
-
-    if not positions:
-        raise ValueError('Anchors coordinates always lead to singular A1 matrix')
-
-    return positions
+        raise ValueError('Invalid shape of anchors coordinates array')
