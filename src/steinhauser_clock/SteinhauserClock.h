@@ -33,7 +33,7 @@ class StorageWindow;
 /// This class implements a hardware clock according to the
 /// paper "Accurate Clock Models for Simulating Wireless Sensor
 /// Networks" by Federico Ferrari, Andreas Meier and Lothar Thiele.
-class HardwareClock : public omnetpp::cSimpleModule
+class SteinhauserClock : public omnetpp::cSimpleModule
 {
  public:
   /// Class to hold all properties of a simulated hardware clock.
@@ -156,10 +156,10 @@ class HardwareClock : public omnetpp::cSimpleModule
 
  public:
   /// Initializes the hardware clock.
-  HardwareClock();
+  SteinhauserClock();
 
   /// Cleans up the used resources of the hardware clock.
-  ~HardwareClock();
+  ~SteinhauserClock();
 
   /// Converts a hardware timestamp to a simulation timestamp.
   ///
@@ -175,11 +175,11 @@ class HardwareClock : public omnetpp::cSimpleModule
   omnetpp::simtime_t getHWtime() const;
 
   /// \returns Pointers to all hardware clocks in the compound module 'parent'.
-  static std::vector<HardwareClock*> findClocks(const omnetpp::cModule* parent);
+  static std::vector<SteinhauserClock*> findClocks(const omnetpp::cModule* parent);
 
   /// \returns	A pointer to the first found hardware clock in the compound module 'parent',
   //		throws a std::logic_error if there is no hardware clock.
-  static HardwareClock* findFirstClock(const omnetpp::cModule* parent);
+  static SteinhauserClock* findFirstClock(const omnetpp::cModule* parent);
 
   // needs access to 'scheduleAtHWtime'
   friend class HardwareClockClient;

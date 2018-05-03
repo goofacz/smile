@@ -17,12 +17,12 @@
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
-#include "../steinhauser_clock/HardwareClockClient.h"
+#include "HardwareClockClient.h"
 
 #include <cassert>
 #include <exception>
 
-#include "../steinhauser_clock/HardwareClock.h"
+#include "SteinhauserClock.h"
 
 using namespace omnetpp;
 
@@ -51,7 +51,7 @@ void HardwareClockClient::scheduleAtInObject(const simtime_t realtime, cMessage*
   scheduleAt(realtime, msg);
 }
 
-void HardwareClockClient::setHardwareClock(HardwareClock* clock)
+void HardwareClockClient::setHardwareClock(SteinhauserClock* clock)
 {
   assert(NULL == _clock);
   _clock = clock;
