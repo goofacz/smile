@@ -276,7 +276,13 @@ def fang(coordinates, distances,):
     f = (np.power(R_ab, 2) / 4) * np.power(1 - np.power(b / R_ab, 2), 2) - np.power(h, 2)
 
     positions = []
-    for X in np.real(np.roots((d, e, f))):
+
+    try:
+        roots = np.real(np.roots((d, e, f)))
+    except npla.LinAlgError:
+        raise ValueError('Cannot find roots of polynomial')
+
+    for X in roots:
         Y = g * X + h
 
         # FIXME
