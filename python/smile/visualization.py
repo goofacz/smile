@@ -40,7 +40,7 @@ def plot_absolute_position_error_histogram(results, return_intermediate_results=
         return true_positions, position_errors, nans_number
 
 
-def plot_absolute_position_error_surface(results, return_intermediate_results=False):
+def plot_absolute_position_error_surface(results, anchors=None, return_intermediate_results=False):
     position_coordinates, begin_position_coordinates, end_position_coordinates = results.determine_dimensions()
 
     # Mobile node cloud move during localization procedure
@@ -58,13 +58,36 @@ def plot_absolute_position_error_surface(results, return_intermediate_results=Fa
         tmp_z_indices = np.where(np.logical_and(x == tmp_true_position[0], y == tmp_true_position[1]))
         z[tmp_z_indices] = tmp_position_error
 
+    # Plot errors
     plt.pcolormesh(x, y, z)
-    y_min, y_max = plt.ylim()
+
+    x = x.flatten().tolist()
+    y = y.flatten().tolist()
+
+    # Plot anchors' positions
+    if anchors is not None:
+        for i in range(anchors.shape[0]):
+            anchor_x = anchors[i, "position_x"]
+            anchor_y = anchors[i, "position_y"]
+            plt.plot(anchor_x, anchor_y, "ro", markersize=10)
+
+            x.append(anchor_x)
+            y.append(anchor_y)
+
+    # Set canvas limits
+    x_min = min(x) - 2.5
+    x_max = max(x) + 2.5
+    y_min = min(y) - 2.5
+    y_max = max(y) + 2.5
+    plt.xlim(x_min, x_max)
     plt.ylim(y_max, y_min)
+
     axis = plt.gca()
     axis.xaxis.set_ticks_position('top')
     axis.xaxis.set_label_position('top')
+    axis.minorticks_on()
     plt.colorbar().set_label('Error value [m]')
+    plt.axis('equal')
     plt.grid()
     plt.title('Map of absolute position errors', y=-0.1)
     plt.xlabel('X [m]')
