@@ -285,7 +285,7 @@ def fang(coordinates, distances,):
     for X in roots:
         Y = g * X + h
 
-        # FIXME
+        # Verify result
         tmp_R_ab = np.sqrt(X ** 2 + Y ** 2) - np.sqrt((X - b) ** 2 + Y ** 2)
         tmp_R_ac = np.sqrt(X ** 2 + Y ** 2) - np.sqrt((X - c_x) ** 2 + (Y - c_y) ** 2)
 
