@@ -20,7 +20,7 @@
 #pragma once
 
 #include <omnetpp.h>
-#include <queue>
+#include "Clock.h"
 
 namespace smile {
 namespace steinhauser_clock {
@@ -34,7 +34,7 @@ class StorageWindow;
 /// paper "Accurate Clock Models for Simulating Wireless Sensor
 /// Networks" by Federico Ferrari, Andreas Meier and Lothar Thiele.
 
-class SteinhauserClock : public omnetpp::cSimpleModule
+class SteinhauserClock : public Clock
 {
  public:
   /// Class to hold all properties of a simulated hardware clock.
@@ -43,13 +43,13 @@ class SteinhauserClock : public omnetpp::cSimpleModule
     omnetpp::simtime_t _tint;
 
     /// length of update interval (in # of tints)
-    size_t _u;
+    size_t _u{0};
 
     /// storage window size (in # of tints)
-    size_t _s;
+    size_t _s{0};
 
    public:
-    Properties();
+    Properties() = default;
 
     /// \returns	The time between two hold points of the
     ///		appproximated time function.
@@ -88,31 +88,6 @@ class SteinhauserClock : public omnetpp::cSimpleModule
   };
 
  private:
-  struct QueuedMessage
-  {
-    omnetpp::simtime_t time;
-    omnetpp::cMessage* msg {nullptr};
-    SteinhauserClock* self {nullptr};
-
-   public:
-    QueuedMessage(const omnetpp::simtime_t& time, omnetpp::cMessage* msg, SteinhauserClock* self) :
-        time(time),
-        msg(msg),
-        self(self)
-    {}
-
-    bool operator<(const QueuedMessage& rhs) const
-    {
-      /// because we want to have the element with the *smallest*
-      /// timestamp to be the one with the highest priority, we
-      /// swap > and <
-      return time > rhs.time;
-    }
-  };
-
-  /// Queued messages that can't be scheduled yet.
-  std::priority_queue<QueuedMessage> queue;
-
   /// The properties of this clock.
   Properties properties;
 
@@ -133,24 +108,11 @@ class SteinhauserClock : public omnetpp::cSimpleModule
   /// Updates the text shown to the user in the GUI.
   void updateDisplay();
 
-  /// Schedules a message at hardware time.
-  ///
-  /// Note that the message doesn't have to be scheduled immediately, if the
-  /// timestamp lies outside of the current precalculated time range of the clock,
-  /// it's stored and scheduled at a later time (Take this in account if you
-  /// want to cancel the message).
-  ///
-  /// \param time	The hardware time when the message should be scheduled.
-  /// \param msg	The message to schedule.
-  /// \param self	The object that is scheduling the message.
-  void scheduleAtHWtime(const omnetpp::simtime_t& time, omnetpp::cMessage* msg, SteinhauserClock* self);
-
- protected:
   /// Initializes the module.
-  virtual void initialize();
+  void initialize() override;
 
   /// Handles the given message.
-  virtual void handleMessage(omnetpp::cMessage* msg);
+  void handleMessage(omnetpp::cMessage* msg) override;
 
   /// Writes out statistics.
   void finish();
@@ -162,21 +124,9 @@ class SteinhauserClock : public omnetpp::cSimpleModule
   /// Cleans up the used resources of the hardware clock.
   ~SteinhauserClock();
 
-  /// Converts a hardware timestamp to a simulation timestamp.
-  ///
-  /// \param hwtime	A hardware timestamp that is in the storage window
-  ///			of the clock.
-  /// \param [out] realtime	The timestamp where the output is placed.
-  /// \returns	true if the hardware timestamp could be converted, false
-  ///		otherwise (realtime is then undefined).
-  bool HWtoSimTime(const omnetpp::simtime_t& hwtime, omnetpp::simtime_t& realtime) const;
+  omnetpp::SimTime getClockTimestamp() override;
 
-  /// \returns	The hardware time of the clock that corresponds to the
-  ///		current simulation time.
-  omnetpp::simtime_t getHWtime() const;
-
-  // needs access to 'scheduleAtHWtime'
-  friend class steinhauser_clock::SteinhauserClock;
+  OptionalSimTime convertToSimulationTimestamp(const omnetpp::SimTime& timestamp) override;
 };
 
 }  // namespace steinhauser_clock

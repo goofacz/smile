@@ -22,7 +22,6 @@
 #include <exception>
 #include "DriftSource.h"
 #include "SteinhauserClock.h"
-#include "SteinhauserClock.h"
 
 using namespace omnetpp;
 
@@ -30,8 +29,6 @@ namespace smile {
 namespace steinhauser_clock {
 
 Define_Module(SteinhauserClock);
-
-SteinhauserClock::Properties::Properties() : _u(0), _s(0) {}
 
 void SteinhauserClock::Properties::set(const simtime_t& tint, size_t u)
 {
@@ -75,16 +72,6 @@ void SteinhauserClock::cleanup()
     storageWindow = NULL;
   }
 
-  // delete all remaining messages,
-  // clear queue
-  while (queue.size() > 0) {
-    const QueuedMessage& q = queue.top();
-
-    delete q.msg;
-
-    queue.pop();
-  }
-
   // NOTE: selfMsg isn't deleted
 }
 
@@ -124,22 +111,7 @@ void SteinhauserClock::handleMessage(cMessage* msg)
     storageWindow->update();
     updateDisplay();
 
-    // check if queued messages can be scheduled now
-    while (queue.size() > 0) {
-      const QueuedMessage& q = queue.top();
-      simtime_t real;
-
-      if (!HWtoSimTime(q.time, real)) {
-        // requested timestamp is still not in
-        // the storage window (and the timestamps
-        // of the following messages also not)
-        break;
-      }
-
-      // XTJ q.self->scheduleAtInObject(real, q.msg);
-
-      queue.pop();
-    }
+    emit(windowUpdateSignal, getClockTimestamp());
 
     nextUpdate(msg);
   }
@@ -199,24 +171,20 @@ void SteinhauserClock::updateDisplay()
   getDisplayString().setTagArg("t", 0, buf);
 }
 
-simtime_t SteinhauserClock::getHWtime() const
+omnetpp::SimTime SteinhauserClock::getClockTimestamp()
 {
-  simtime_t now = simTime();
-
-  int k = storageWindow->indexOf(now);
-
+  const simtime_t now = simTime();
+  const int k = storageWindow->indexOf(now);
   const StorageWindow::HoldPoint& hp = storageWindow->at(k);
-
-  simtime_t t = now - hp.realTime;
-
+  const simtime_t t = now - hp.realTime;
   return hp.hardwareTime + t * (1 + hp.drift);
 }
 
-bool SteinhauserClock::HWtoSimTime(const simtime_t& hwtime, simtime_t& realtime) const
+Clock::OptionalSimTime SteinhauserClock::convertToSimulationTimestamp(const omnetpp::SimTime& timestamp)
 {
-  if (hwtime < storageWindow->at(0).hardwareTime || hwtime > storageWindow->hardwareTimeEnd()) {
+  if (timestamp < storageWindow->at(0).hardwareTime || timestamp > storageWindow->hardwareTimeEnd()) {
     // outside of storage window, can't translate timestamp
-    return false;
+    return {};
   }
 
   // the current interval is the lower limit for the
@@ -224,39 +192,12 @@ bool SteinhauserClock::HWtoSimTime(const simtime_t& hwtime, simtime_t& realtime)
   size_t k = storageWindow->indexOf(simTime());
 
   // find the correct interval
-  while (k != properties.s() - 1 && storageWindow->at(k + 1).hardwareTime < hwtime)
+  while (k != properties.s() - 1 && storageWindow->at(k + 1).hardwareTime < timestamp) {
     k++;
+  }
 
   const StorageWindow::HoldPoint& hp = storageWindow->at(k);
-
-  realtime = hp.realTime + (hwtime - hp.hardwareTime) / (1 + hp.drift);
-
-  return true;
-}
-
-void SteinhauserClock::scheduleAtHWtime(const simtime_t& time, cMessage* msg, SteinhauserClock* self)
-{
-  Enter_Method_Silent();
-  take(msg);
-
-  simtime_t nowHW = getHWtime();
-
-  if (time <= nowHW) {
-    // message is in the past
-    return;
-  }
-
-  simtime_t real;
-
-  if (HWtoSimTime(time, real)) {
-    // hardware timestamp in storage window
-    // STJself->scheduleAtInObject(real, msg);
-  }
-  else {
-    // hardware timestamp not yet in storage
-    // window, keep message for later
-    queue.push(QueuedMessage(time, msg, self));
-  }
+  return hp.realTime + (timestamp - hp.hardwareTime) / (1 + hp.drift);
 }
 
 }  // namespace steinhauser_clock
