@@ -24,7 +24,7 @@ package smile.steinhauser_clock;
 // https://github.com/JenSte/omnet-ptp
 //
 
-simple SteinhauserClock {
+simple SteinhauserClock extends smile.Clock {
     parameters:
         @class(smile::steinhauser_clock::SteinhauserClock);
         double interval @unit(s) = default(1s);
