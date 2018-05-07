@@ -23,38 +23,8 @@ package smile.steinhauser_clock;
 // Hardware clock component. For more details please refer to 
 // https://github.com/JenSte/omnet-ptp
 //
-moduleinterface IHardwareClock
-{
-}
 
-simple HardwareClock {
-    parameters:
-        @class(smile::steinhauser_clock::HardwareClock);
-        double interval @unit(s) = default(1s);
-        int update = default(100);
-        @display("i=device/clock");
-}
-
-simple NoneDrift extends HardwareClock like IHardwareClock {
-    parameters:
-        interval = 1s;
-        double constant_drift = 0;
-}
-
-simple ConstantDrift extends HardwareClock like IHardwareClock {
-    parameters:
-        interval = 1s;
-        double constant_drift = default(10e-6);
-}
-
-simple BoundedDrift extends HardwareClock like IHardwareClock {
+simple SteinhauserBoundedDriftClock extends SteinhauserClock {
     parameters:
         volatile double drift_distribution = default(uniform(-10e-6, 10e-6));
-}
-
-simple BoundedDriftVariation extends HardwareClock like IHardwareClock {
-    parameters:
-        volatile double drift_distribution = default(uniform(-10e-6, 10e-6));
-        double start_value = default(0.0);
-        double max_drift_variation = default(10e-8);
 }
