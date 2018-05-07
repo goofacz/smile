@@ -20,8 +20,7 @@
 #pragma once
 
 #include <omnetpp.h>
-
-#include "SteinhauserClock.h"
+#include "HardwareClock.h"
 
 namespace smile {
 namespace steinhauser_clock {
@@ -50,7 +49,7 @@ class StorageWindow
   std::vector<HoldPoint> data;
 
   /// The properties of the clock this object belongs to.
-  const SteinhauserClock::Properties& properties;
+  const HardwareClock::Properties& properties;
 
   /// The object that supplies the drift values to fill
   /// the data vector.
@@ -91,7 +90,7 @@ class StorageWindow
   ///			to determine things like the length of the storage window, etc.
   /// \param source	Pointer to a source of drift values, the StorageWindow object
   ///			takes ownership of the object being passed.
-  StorageWindow(const SteinhauserClock::Properties& properties, Driftsource* source);
+  StorageWindow(const HardwareClock::Properties& properties, Driftsource* source);
 
   ~StorageWindow();
 

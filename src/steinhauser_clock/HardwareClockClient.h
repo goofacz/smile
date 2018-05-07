@@ -25,13 +25,13 @@
 namespace smile {
 namespace steinhauser_clock {
 
-class SteinhauserClock;
+class HardwareClock;
 
 /// \brief Base class for classes that want to schedule events at hardware time.
 class HardwareClockClient : public omnetpp::cSimpleModule
 {
   /// Hardware clock to use in 'scheduleAtHWtime()'.
-  SteinhauserClock* _clock;
+  HardwareClock* _clock;
 
   /// Calls 'scheduleAt' in the context of the HardwareClockClient object
   /// (calls Enter_Method_Silent()).
@@ -43,7 +43,7 @@ class HardwareClockClient : public omnetpp::cSimpleModule
 
  protected:
   /// Sets the hardware clock to use in 'scheduleAtHWtime()'.
-  void setHardwareClock(SteinhauserClock* clock);
+  void setHardwareClock(HardwareClock* clock);
 
  public:
   /// Schedules a message at hardware time.
@@ -63,7 +63,7 @@ class HardwareClockClient : public omnetpp::cSimpleModule
   HardwareClockClient();
 
   // needs access to 'scheduleAtInObject'
-  friend class SteinhauserClock;
+  friend class HardwareClock;
 };
 
 }  // namespace steinhauser_clock

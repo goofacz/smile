@@ -26,7 +26,7 @@ using namespace omnetpp;
 namespace smile {
 namespace steinhauser_clock {
 
-StorageWindow::StorageWindow(const SteinhauserClock::Properties& properties, Driftsource* source) :
+StorageWindow::StorageWindow(const HardwareClock::Properties& properties, Driftsource* source) :
     properties(properties),
     source(source)
 {

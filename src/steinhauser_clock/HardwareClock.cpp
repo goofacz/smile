@@ -17,23 +17,24 @@
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
+#include "HardwareClock.h"
+
 #include "StorageWindow.h"
 
 #include <exception>
 #include "DriftSource.h"
 #include "HardwareClockClient.h"
-#include "SteinhauserClock.h"
 
 using namespace omnetpp;
 
 namespace smile {
 namespace steinhauser_clock {
 
-Define_Module(SteinhauserClock);
+Define_Module(HardwareClock);
 
-SteinhauserClock::Properties::Properties() : _u(0), _s(0) {}
+HardwareClock::Properties::Properties() : _u(0), _s(0) {}
 
-void SteinhauserClock::Properties::set(const simtime_t& tint, size_t u)
+void HardwareClock::Properties::set(const simtime_t& tint, size_t u)
 {
   // minimum values
   simtime_t tint_min = SimTime::parse("1ms");
@@ -56,21 +57,21 @@ void SteinhauserClock::Properties::set(const simtime_t& tint, size_t u)
   _s = 2 * _u;
 }
 
-SteinhauserClock::SteinhauserClock() : storageWindow(NULL), selfMsg(NULL) {}
+HardwareClock::HardwareClock() : storageWindow(NULL), selfMsg(NULL) {}
 
-SteinhauserClock::~SteinhauserClock()
+HardwareClock::~HardwareClock()
 {
   cancelAndDelete(selfMsg);
 
   cleanup();
 }
 
-void SteinhauserClock::nextUpdate(cMessage* msg)
+void HardwareClock::nextUpdate(cMessage* msg)
 {
   scheduleAt(simTime() + properties.updateInterval(), msg);
 }
 
-void SteinhauserClock::cleanup()
+void HardwareClock::cleanup()
 {
   if (storageWindow) {
     delete storageWindow;
@@ -90,7 +91,7 @@ void SteinhauserClock::cleanup()
   // NOTE: selfMsg isn't deleted
 }
 
-void SteinhauserClock::initialize()
+void HardwareClock::initialize()
 {
   // if needed, clean up stuff from the last run
   cleanup();
@@ -118,7 +119,7 @@ void SteinhauserClock::initialize()
   nextUpdate(msg);
 }
 
-void SteinhauserClock::handleMessage(cMessage* msg)
+void HardwareClock::handleMessage(cMessage* msg)
 {
   if (msg->isSelfMessage()) {
     // the only self message is to update the storage window
@@ -147,13 +148,13 @@ void SteinhauserClock::handleMessage(cMessage* msg)
   }
 }
 
-void SteinhauserClock::finish()
+void HardwareClock::finish()
 {
   if (storageWindow)
     storageWindow->finish();
 }
 
-void SteinhauserClock::updateDisplay()
+void HardwareClock::updateDisplay()
 {
   if (!getEnvir()->isGUI() || getEnvir()->isLoggingEnabled()) {
     // skip this if GUI is not running or in express mode
@@ -201,7 +202,7 @@ void SteinhauserClock::updateDisplay()
   getDisplayString().setTagArg("t", 0, buf);
 }
 
-simtime_t SteinhauserClock::getHWtime() const
+simtime_t HardwareClock::getHWtime() const
 {
   simtime_t now = simTime();
 
@@ -214,7 +215,7 @@ simtime_t SteinhauserClock::getHWtime() const
   return hp.hardwareTime + t * (1 + hp.drift);
 }
 
-bool SteinhauserClock::HWtoSimTime(const simtime_t& hwtime, simtime_t& realtime) const
+bool HardwareClock::HWtoSimTime(const simtime_t& hwtime, simtime_t& realtime) const
 {
   if (hwtime < storageWindow->at(0).hardwareTime || hwtime > storageWindow->hardwareTimeEnd()) {
     // outside of storage window, can't translate timestamp
@@ -236,7 +237,7 @@ bool SteinhauserClock::HWtoSimTime(const simtime_t& hwtime, simtime_t& realtime)
   return true;
 }
 
-void SteinhauserClock::scheduleAtHWtime(const simtime_t& time, cMessage* msg, HardwareClockClient* self)
+void HardwareClock::scheduleAtHWtime(const simtime_t& time, cMessage* msg, HardwareClockClient* self)
 {
   Enter_Method_Silent();
   take(msg);
@@ -261,23 +262,23 @@ void SteinhauserClock::scheduleAtHWtime(const simtime_t& time, cMessage* msg, Ha
   }
 }
 
-std::vector<SteinhauserClock*> SteinhauserClock::findClocks(const cModule* parent)
+std::vector<HardwareClock*> HardwareClock::findClocks(const cModule* parent)
 {
-  std::vector<SteinhauserClock*> result;
+  std::vector<HardwareClock*> result;
 
   for (cModule::SubmoduleIterator i(parent); !i.end(); i++) {
     cModule* child = *i;
 
     if (0 == strcmp("ipin2017::HardwareClock", child->getClassName()))
-      result.push_back(check_and_cast<SteinhauserClock*>(child));
+      result.push_back(check_and_cast<HardwareClock*>(child));
   }
 
   return result;
 }
 
-SteinhauserClock* SteinhauserClock::findFirstClock(const cModule* parent)
+HardwareClock* HardwareClock::findFirstClock(const cModule* parent)
 {
-  std::vector<SteinhauserClock*> clocks = findClocks(parent);
+  std::vector<HardwareClock*> clocks = findClocks(parent);
 
   if (0 == clocks.size())
     throw std::logic_error("no HardwareClock found");
