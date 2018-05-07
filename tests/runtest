@@ -34,5 +34,5 @@ opp_test gen -v *.test || exit 1
     $MAKE
 ) || exit 1
 
-export NEDPATH=.:`pwd`/../src:`pwd`/../../inet/src:`pwd`/mocks:`pwd`/fakes
+export NEDPATH=.:`pwd`/../src:`pwd`/../src/steinhauser_clock:`pwd`/../../inet/src:`pwd`/mocks:`pwd`/fakes
 opp_test run -v -p smile $TESTFILES
