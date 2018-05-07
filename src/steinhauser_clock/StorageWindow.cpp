@@ -99,8 +99,9 @@ void StorageWindow::recordVectors(const simtime_t& realTime, const simtime_t& ha
 
 const StorageWindow::HoldPoint& StorageWindow::at(size_t idx) const
 {
-  if (idx > data.size() - 1)
+  if (idx > data.size() - 1) {
     throw std::logic_error("StorageWindow::HoldPoint: index out of bounds");
+  }
 
   return data[idx];
 }

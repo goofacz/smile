@@ -91,10 +91,10 @@ class SteinhauserClock : public Clock
   /// The properties of this clock.
   Properties properties;
 
-  StorageWindow* storageWindow;
+  StorageWindow* storageWindow{nullptr};
 
   /// Message to schedule storage window updates.
-  omnetpp::cMessage* selfMsg;
+  omnetpp::cMessage* selfMsg{nullptr};
 
   /// Schedules the next update of the storage window.
   ///
@@ -109,13 +109,13 @@ class SteinhauserClock : public Clock
   void updateDisplay();
 
   /// Initializes the module.
-  void initialize() override;
+  void initialize(int stage) override;
 
   /// Handles the given message.
   void handleMessage(omnetpp::cMessage* msg) override;
 
   /// Writes out statistics.
-  void finish();
+  void finish() override;
 
  public:
   /// Initializes the hardware clock.

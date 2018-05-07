@@ -53,7 +53,7 @@ class StorageWindow
 
   /// The object that supplies the drift values to fill
   /// the data vector.
-  Driftsource* source;
+  Driftsource* source{nullptr};
 
   /// Vector to record the drift values.
   omnetpp::cOutVector driftVector;

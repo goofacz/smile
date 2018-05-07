@@ -17,11 +17,11 @@
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
-#include "StorageWindow.h"
-
+#include "SteinhauserClock.h"
+#include <inet/common/INETDefs.h>
 #include <exception>
 #include "DriftSource.h"
-#include "SteinhauserClock.h"
+#include "StorageWindow.h"
 
 using namespace omnetpp;
 
@@ -40,16 +40,17 @@ void SteinhauserClock::Properties::set(const simtime_t& tint, size_t u)
     // EV << "warning: 'interval' value too small\n";
     _tint = tint_min;
   }
-  else
+  else {
     _tint = tint;
+  }
 
   if (u < u_min) {
     // EV << "warning: 'update' value too small\n";
     _u = u_min;
   }
-  else
+  else {
     _u = u;
-
+  }
   _s = 2 * _u;
 }
 
@@ -75,32 +76,39 @@ void SteinhauserClock::cleanup()
   // NOTE: selfMsg isn't deleted
 }
 
-void SteinhauserClock::initialize()
+void SteinhauserClock::initialize(int stage)
 {
-  // if needed, clean up stuff from the last run
-  cleanup();
+  Clock::initialize(stage);
 
-  properties.set(par("interval"), par("update"));
+  if (stage == inet::INITSTAGE_LOCAL) {
+    // if needed, clean up stuff from the last run
+    cleanup();
 
-  EV << "update interval: " << properties.updateInterval() << "s\n";
+    properties.set(par("interval"), par("update"));
 
-  Driftsource* d = NULL;
+    EV << "update interval: " << properties.updateInterval() << "s\n";
 
-  if (hasPar("drift_distribution")) {
-    if (hasPar("max_drift_variation"))
-      d = new BoundedDriftVariation(par("drift_distribution"), par("max_drift_variation"), par("start_value"),
-                                    properties.tint());
-    else
-      d = new BoundedDrift(par("drift_distribution"));
+    Driftsource* d = NULL;
+
+    if (hasPar("drift_distribution")) {
+      if (hasPar("max_drift_variation")) {
+        d = new BoundedDriftVariation(par("drift_distribution"), par("max_drift_variation"), par("start_value"),
+                                      properties.tint());
+      }
+      else {
+        d = new BoundedDrift(par("drift_distribution"));
+      }
+    }
+    else {
+      d = new ConstantDrift(par("constant_drift"));
+    }
+
+    storageWindow = new StorageWindow(properties, d);
+    updateDisplay();
+
+    cMessage* msg = new cMessage("storage window update");
+    nextUpdate(msg);
   }
-  else
-    d = new ConstantDrift(par("constant_drift"));
-
-  storageWindow = new StorageWindow(properties, d);
-  updateDisplay();
-
-  cMessage* msg = new cMessage("storage window update");
-  nextUpdate(msg);
 }
 
 void SteinhauserClock::handleMessage(cMessage* msg)
@@ -119,8 +127,9 @@ void SteinhauserClock::handleMessage(cMessage* msg)
 
 void SteinhauserClock::finish()
 {
-  if (storageWindow)
+  if (storageWindow) {
     storageWindow->finish();
+  }
 }
 
 void SteinhauserClock::updateDisplay()

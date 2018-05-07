@@ -31,7 +31,7 @@ class Driftsource
   virtual double next() = 0;
 
  public:
-  virtual ~Driftsource();
+  virtual ~Driftsource() = default;
 
   /// \returns	The next drift value.
   double nextValue();

@@ -24,8 +24,6 @@ using namespace omnetpp;
 namespace smile {
 namespace steinhauser_clock {
 
-Driftsource::~Driftsource() {}
-
 double Driftsource::nextValue()
 {
   const double driftLimit = -0.999999;
