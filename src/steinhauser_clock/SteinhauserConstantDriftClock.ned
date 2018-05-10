@@ -48,5 +48,8 @@ package smile.steinhauser_clock;
 simple SteinhauserConstantDriftClock extends SteinhauserClock {
     parameters:
         interval = 1s;
-        double constant_drift = default(uniform(-5e-6, 5e-6));
+        double constant_drift_range = default(uniform(10e-6, 20e-6));
+
+        // Do not modify formulas below
+        double __constant_drift = select(intuniform(0, 1), -constant_drift_range, constant_drift_range);
 }

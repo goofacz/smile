@@ -117,7 +117,7 @@ void SteinhauserClock::initialize(int stage)
       }
     }
     else {
-      d = new ConstantDrift(par("constant_drift"));
+      d = new ConstantDrift(par("__constant_drift"));
     }
 
     storageWindow = new StorageWindow(properties, d);
