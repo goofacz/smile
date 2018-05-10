@@ -105,7 +105,7 @@ void SteinhauserClock::initialize(int stage)
 
     EV << "update interval: " << properties.updateInterval() << "s\n";
 
-    Driftsource* d = NULL;
+    DriftSource* d = NULL;
 
     if (hasPar("drift_distribution")) {
       if (hasPar("max_drift_variation")) {

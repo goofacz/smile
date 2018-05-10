@@ -42,7 +42,7 @@
 namespace smile {
 namespace steinhauser_clock {
 
-class Driftsource;
+class DriftSource;
 
 /// Saves the data points for the continuous linear approximation of the drift function.
 class StorageWindow
@@ -70,7 +70,7 @@ class StorageWindow
 
   /// The object that supplies the drift values to fill
   /// the data vector.
-  Driftsource* source{nullptr};
+  DriftSource* source{nullptr};
 
   /// Vector to record the drift values.
   omnetpp::cOutVector driftVector;
@@ -107,7 +107,7 @@ class StorageWindow
   ///			to determine things like the length of the storage window, etc.
   /// \param source	Pointer to a source of drift values, the StorageWindow object
   ///			takes ownership of the object being passed.
-  StorageWindow(const SteinhauserClock::Properties& properties, Driftsource* source);
+  StorageWindow(const SteinhauserClock::Properties& properties, DriftSource* source);
 
   ~StorageWindow();
 

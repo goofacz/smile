@@ -43,7 +43,7 @@ using namespace omnetpp;
 namespace smile {
 namespace steinhauser_clock {
 
-StorageWindow::StorageWindow(const SteinhauserClock::Properties& properties, Driftsource* source) :
+StorageWindow::StorageWindow(const SteinhauserClock::Properties& properties, DriftSource* source) :
     properties(properties),
     source(source)
 {
@@ -96,7 +96,6 @@ void StorageWindow::fillRange(std::vector<HoldPoint>::iterator first, std::vecto
     first->realTime = pre->realTime + properties.tint();
     first->hardwareTime = pre->hardwareTime + properties.tint() * (1 + pre->drift);
     first->drift = source->nextValue();
-
     recordVectors(first->realTime, first->hardwareTime, first->drift);
 
     first++;

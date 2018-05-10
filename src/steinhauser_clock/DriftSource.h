@@ -42,13 +42,13 @@ namespace smile {
 namespace steinhauser_clock {
 
 /// Abstract base class for drift value sources.
-class Driftsource
+class DriftSource
 {
  protected:
   virtual double next() = 0;
 
  public:
-  virtual ~Driftsource() = default;
+  virtual ~DriftSource() = default;
 
   /// \returns	The next drift value.
   double nextValue();
@@ -57,7 +57,7 @@ class Driftsource
 /// \brief A constant drift source.
 ///
 /// This source always returns the same constant drift.
-class ConstantDrift : public Driftsource
+class ConstantDrift : public DriftSource
 {
   double drift;
 
@@ -72,7 +72,7 @@ class ConstantDrift : public Driftsource
 };
 
 /// \brief Source for drift values within certain bounds.
-class BoundedDrift : public Driftsource
+class BoundedDrift : public DriftSource
 {
   const omnetpp::cPar& distribution;
 
