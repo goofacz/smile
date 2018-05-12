@@ -27,12 +27,20 @@ opp_test gen -v *.test || exit 1
 ) || exit 1
 
 (
+	cd testers;
+	opp_makemake --make-so -o smile_testers -f --deep -KINET_PROJ=../../../inet -DINET_IMPORT -I. \
+	             -I$\(INET_PROJ\)/src -L$\(INET_PROJ\)/out/$\(CONFIGNAME\)/src -L../../out//$\(CONFIGNAME\)/src \
+	             -I../../src -lINET -lsmile -lstdc++fs;
+	$MAKE
+) || exit 1
+
+(
 	cd work;
 	opp_makemake -f --deep -KINET_PROJ=../../../inet -DINET_IMPORT -I. -I$\(INET_PROJ\)/src \
 	             -L$\(INET_PROJ\)/out/$\(CONFIGNAME\)/src -L../../out//$\(CONFIGNAME\)/src -lINET \
-	             -L../mocks -L../fakes -lsmile -lsmile_mocks -lsmile_fakes -lstdc++fs;
+	             -L../mocks -L../fakes -L../testers -lsmile -lsmile_mocks -lsmile_fakes -lsmile_testers -lstdc++fs;
     $MAKE
 ) || exit 1
 
-export NEDPATH=.:`pwd`/../src:`pwd`/../src/steinhauser_clock:`pwd`/../../inet/src:`pwd`/mocks:`pwd`/fakes
+export NEDPATH=.:`pwd`/../src:`pwd`/../src/steinhauser_clock:`pwd`/../../inet/src:`pwd`/mocks:`pwd`/fakes:`pwd`/testers
 opp_test run -v -p smile $TESTFILES

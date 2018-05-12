@@ -2,6 +2,9 @@
 
 %inifile: clock_tester.ini
 sim-time-limit = 2s
-**.clockType = "smile.steinhauser_clock.SteinhauserNoneDriftClock"
+**.clockType = "smile.LiuYangClock"
+
 **.clockTester.min_drift = 0
 **.clockTester.max_drift = 0
+
+**.clock.constant_drift_range = 0
