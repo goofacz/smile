@@ -106,13 +106,6 @@ def plot_absolute_position_error_cdf(results, return_intermediate_results=False)
     position_errors = np.sort(position_errors)
     n = np.array(range(position_errors.size)) / np.float(position_errors.size)
 
-    max_position_errors = np.max(position_errors[np.where(np.isfinite(position_errors))[0]])
-    min_position_errors = np.min(position_errors[np.where(np.isfinite(position_errors))[0]])
-    avg_position_errors = np.mean(position_errors[np.where(np.isfinite(position_errors))[0]])
-    print('Max. absolute localization error {0}'.format(max_position_errors))
-    print('Min. absolute localization error {0}'.format(min_position_errors))
-    print('Avg. absolute localization error {0}'.format(avg_position_errors))
-
     plt.plot(position_errors, n)
     plt.grid()
     plt.title('CDF of absolute position error')
