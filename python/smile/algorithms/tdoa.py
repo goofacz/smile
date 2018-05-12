@@ -236,7 +236,7 @@ def doan_vesely(coordinates, distances, reorder_anchors=True):
     if not len(positions):
         raise ValueError('Failed to compute solution')
 
-    return np.asarray(positions)
+    return positions
 
 
 def fang(coordinates, distances,):

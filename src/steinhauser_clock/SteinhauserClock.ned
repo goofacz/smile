@@ -49,6 +49,6 @@ simple SteinhauserClock extends smile.Clock {
     parameters:
         @class(smile::steinhauser_clock::SteinhauserClock);
         double interval @unit(s) = default(1s);
-        int update = default(100);
+        int update = default(5);
         @display("i=device/clock");
 }

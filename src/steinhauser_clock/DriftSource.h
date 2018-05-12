@@ -59,6 +59,7 @@ class DriftSource
 /// This source always returns the same constant drift.
 class ConstantDrift : public DriftSource
 {
+ private:
   double drift;
 
  protected:
@@ -74,6 +75,7 @@ class ConstantDrift : public DriftSource
 /// \brief Source for drift values within certain bounds.
 class BoundedDrift : public DriftSource
 {
+ private:
   const omnetpp::cPar& distribution;
 
  protected:
@@ -89,6 +91,7 @@ class BoundedDrift : public DriftSource
 /// \brief Source for drift values within bounds that are limited in their variation.
 class BoundedDriftVariation : public BoundedDrift
 {
+ private:
   /// Maximum value that the drift can change between
   /// two values (between tint).
   double max_drift_change;

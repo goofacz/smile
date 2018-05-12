@@ -44,8 +44,9 @@ package smile.steinhauser_clock;
 //
 // Original implementation available at https://github.com/JenSte/omnet-ptp
 //
+
 simple SteinhauserNoneDriftClock extends SteinhauserClock {
     parameters:
-        interval = 1s;
-        double constant_drift = 0;
+        // Do not modify this is internal formulas below
+        double __constant_drift = 0;
 }

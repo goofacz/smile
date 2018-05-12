@@ -47,9 +47,10 @@ package smile.steinhauser_clock;
 
 simple SteinhauserConstantDriftClock extends SteinhauserClock {
     parameters:
-        interval = 1s;
+        // Specify absolute range of drift for clock. SMILe will randomly select drift's sign and value.
+        // Default range is +/- <10, 20> PPM
         double constant_drift_range = default(uniform(10e-6, 20e-6));
 
-        // Do not modify formulas below
+        // Do not modify this is internal formulas below
         double __constant_drift = select(intuniform(0, 1), -constant_drift_range, constant_drift_range);
 }

@@ -34,7 +34,7 @@
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
-#include "../steinhauser_clock/DriftSource.h"
+#include "DriftSource.h"
 
 using namespace omnetpp;
 
@@ -44,12 +44,12 @@ namespace steinhauser_clock {
 double DriftSource::nextValue()
 {
   const double driftLimit = -0.999999;
-
-  double n = next();
+  const double n = next();
 
   // limit drift to values > -1, so the time can't go back
-  if (n < driftLimit)
+  if (n < driftLimit) {
     return driftLimit;
+  }
 
   return n;
 }
@@ -82,10 +82,12 @@ double BoundedDriftVariation::next()
   double diff = drift - last_drift;
 
   // limit the drift
-  if (diff > max_drift_change)
+  if (diff > max_drift_change) {
     drift = last_drift + max_drift_change;
-  else if (diff < -max_drift_change)
+  }
+  else if (diff < -max_drift_change) {
     drift = last_drift - max_drift_change;
+  }
 
   last_drift = drift;
   return drift;

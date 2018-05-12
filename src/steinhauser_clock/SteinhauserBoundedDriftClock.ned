@@ -47,5 +47,8 @@ package smile.steinhauser_clock;
 
 simple SteinhauserBoundedDriftClock extends SteinhauserClock {
     parameters:
-        volatile double drift_distribution = default(uniform(-10e-6, 10e-6));
+        double drift_distribution_range = default(uniform(10e-6, 20e-6));
+
+        // Do not modify this is internal formulas below
+        volatile double __drift_distribution = select(intuniform(0, 1), -drift_distribution_range, drift_distribution_range);
 }

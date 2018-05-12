@@ -107,13 +107,13 @@ void SteinhauserClock::initialize(int stage)
 
     DriftSource* d = NULL;
 
-    if (hasPar("drift_distribution")) {
+    if (hasPar("__drift_distribution")) {
       if (hasPar("max_drift_variation")) {
-        d = new BoundedDriftVariation(par("drift_distribution"), par("max_drift_variation"), par("start_value"),
+        d = new BoundedDriftVariation(par("__drift_distribution"), par("max_drift_variation"), par("start_value"),
                                       properties.tint());
       }
       else {
-        d = new BoundedDrift(par("drift_distribution"));
+        d = new BoundedDrift(par("__drift_distribution"));
       }
     }
     else {
