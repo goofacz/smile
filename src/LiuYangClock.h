@@ -38,7 +38,8 @@ class LiuYangClock final : public Clock
 
  private:
   void initialize(int stage) override;
-  omnetpp::SimTime computeError(const omnetpp::SimTime& timestamp);
+
+  double computeErrorCoefficient(const omnetpp::SimTime& timestamp) const;
 
   double d{0.0};
 };

@@ -28,25 +28,25 @@ Define_Module(LiuYangClock);
 omnetpp::SimTime LiuYangClock::getClockTimestamp()
 {
   const auto timestamp = simTime();
-  return timestamp + computeError(timestamp);
+  return timestamp + (timestamp * computeErrorCoefficient(timestamp));
 }
 
 LiuYangClock::OptionalSimTime LiuYangClock::convertToSimulationTimestamp(const SimTime& timestamp)
 {
-  return timestamp + computeError(timestamp);
+  return timestamp + (timestamp * computeErrorCoefficient(timestamp));
 }
 
 void LiuYangClock::initialize(int stage)
 {
   Clock::initialize(stage);
   if (stage == inet::INITSTAGE_LOCAL) {
-    d = par("accuracy").longValue() / 1'000'000.;
+    d = par("__constant_drift").doubleValue();
   }
 }
 
-SimTime LiuYangClock::computeError(const SimTime& timestamp)
+double LiuYangClock::computeErrorCoefficient(const SimTime& timestamp) const
 {
-  return 0.5 * d * std::pow(timestamp.dbl(), 2);
+  return 0.5 * d * std::pow(timestamp.dbl(), 2.);
 }
 
 }  // namespace smile
