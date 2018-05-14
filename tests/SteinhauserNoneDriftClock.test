@@ -5,3 +5,5 @@ sim-time-limit = 2s
 **.clockType = "smile.steinhauser_clock.SteinhauserNoneDriftClock"
 **.clockTester.min_drift = 0
 **.clockTester.max_drift = 0
+
+%exitcode: 0
