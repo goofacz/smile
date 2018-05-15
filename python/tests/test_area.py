@@ -47,8 +47,8 @@ class TestArea(unittest.TestCase):
           ] \
         }')
 
-        area = Area(correct_json)
-        self.assertIsInstance(area, Area)
+        area = sa.Area(correct_json)
+        self.assertIsInstance(area, sa.Area)
 
 
 class TestAreaContains(unittest.TestCase):
