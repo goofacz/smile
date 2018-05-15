@@ -20,11 +20,7 @@ import shapely.geometry as sg
 
 
 class Area(object):
-    def __init__(self, area):
-        self.area = area
-
-    @staticmethod
-    def load_json(file):
+    def __init__(self, file):
         if isinstance(file, str):
             with open(file, 'r') as handle:
                 content = json.load(handle)
@@ -34,9 +30,7 @@ class Area(object):
         if 'vertices' not in content:
             raise ValueError('JSON does not contain \'vertices\'')
 
-        area = sg.Polygon(content['vertices'])
-
-        return Area(area)
+        self.area = sg.Polygon(content['vertices'])
 
     def contains(self, point, rtol=1e-5, atol=1e-5):
         if self.area.contains(point):
