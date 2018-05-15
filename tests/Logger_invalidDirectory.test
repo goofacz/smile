@@ -1,21 +1,10 @@
-%file: test.ned
-import smile.Logger;
-
-network Test
-{
-    submodules:
-        logger: Logger    {
-            directoryPath = "omnet.ini";
-            fileName = "log_foo.csv";
-        }
-}
+%network: smile.testers.logger_tester_network
 
 %inifile: omnet.ini
-[General]
-cmdenv-express-mode = false
-**.cmdenv-log-level = detail
-network = Test
+**.logger.directoryPath = "omnet.ini" # This is a file!
+**.logger.fileName = "log_foo.csv"
 
 %exitcode: 1
+
 %contains: stderr
 <!> Error: Cannot open log file, "omnet.ini" is not a directory

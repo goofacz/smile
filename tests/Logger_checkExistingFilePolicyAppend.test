@@ -1,56 +1,20 @@
-%includes:
-#include "../../src/Logger.h"
-#include "../../src/CsvLogger.h"
+%network: smile.testers.logger_tester_network
 
-%module: LogGenerator
-using namespace inet;
-using namespace smile;
-
-class LogGenerator : public cSimpleModule
-{
-  public:
-    LogGenerator() = default;
-    void initialize(int stage) override;
-};
-
-Define_Module(LogGenerator);
-
-void LogGenerator::initialize(int stage)
-{
-   cModule::initialize(stage);
-   if(stage != INITSTAGE_LOCAL)    {
-     return;
-   }
-
-   auto logger = check_and_cast<Logger*>(getModuleByPath("^.logger"));
-   logger->append(csv_logger::compose(std::string{"one"}, std::string{"two"}, std::string{"three"}));
-}
-
-
-%file: test.ned
-import smile.Logger;
-
-simple LogGenerator {}
-
-network Test
-{
-  submodules:
-    logger: Logger    {
-       directoryPath = ".";
-       fileName = "log_foo.csv";
-       existingFilePolicy = "append";
-    }
-
-    logGenerator1: LogGenerator;
-    logGenerator2: LogGenerator;
-}
-
+%file: log_foo.csv
+1,2,3
 %inifile: omnet.ini
-[General]
-cmdenv-express-mode = false
-**.cmdenv-log-level = detail
-network = Test
+**.logger.directoryPath = "."
+**.logger.fileName = "log_foo.csv"
+**.logger.existingFilePolicy = "append"
 
-%contains: log_foo.csv
+%exitcode: 0
+
+# FIXME Workaround, because %file and %contains cannot be used on the
+# same file in single test. At least not in the way I want to use them.
+#
+%postrun-command: cp log_foo.csv log_foo_copy.csv
+
+%contains: log_foo_copy.csv
+1,2,3
 one,two,three
-one,two,three
+-1,0.230000,abcd

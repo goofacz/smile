@@ -1,24 +1,10 @@
-%file: test.ned
-import smile.Logger;
-
-simple LogGenerator {}
-
-network Test
-{
-  submodules:
-    logger: Logger    {
-        directoryPath = ".";
-        fileName = "omnet.ini";
-        existingFilePolicy = "invalid_policy";
-    }
-}
+%network: smile.testers.logger_tester_network
 
 %inifile: omnet.ini
-[General]
-cmdenv-express-mode = false
-**.cmdenv-log-level = detail
-network = Test
+**.logger.directoryPath = "level1/level2"
+**.logger.fileName = "log_foo.csv"
+**.logger.existingFilePolicy = "qwerty" # Invalid policy name
 
 %exitcode: 1
 %contains: stderr
-<!> Error: Invalid Logger's "existingFilePolicy" parameter value: "invalid_policy"
+<!> Error: Invalid Logger's "existingFilePolicy" parameter value: "qwerty"

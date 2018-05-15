@@ -15,7 +15,7 @@
 
 #include "LoggerTester.h"
 #include <inet/common/ModuleAccess.h>
-#include "IClock.h"
+#include "CsvLogger.h"
 
 namespace smile {
 namespace testers {
@@ -27,7 +27,9 @@ void LoggerTester::initialize(int stage)
   cSimpleModule::initialize(stage);
 
   if (stage == inet::INITSTAGE_APPLICATION_LAYER) {
-    // TODO
+    logger = check_and_cast<Logger*>(getModuleByPath("^.logger"));
+    logger->append(csv_logger::compose(std::string{"one"}, std::string{"two"}, std::string{"three"}));
+    logger->append(csv_logger::compose(-1, 0.23f, "abcd"));
   }
 }
 

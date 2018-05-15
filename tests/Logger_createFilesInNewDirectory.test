@@ -1,18 +1,11 @@
-%file: test.ned
-import smile.Logger;
-
-network Test
-{
-    submodules:
-        logger: Logger    {
-            directoryPath = "level1/level2";
-            fileName = "log_foo.csv";
-        }
-}
+%network: smile.testers.logger_tester_network
 
 %inifile: omnet.ini
-[General]
-cmdenv-express-mode = false
-network = Test
+**.logger.directoryPath = "level1/level2"
+**.logger.fileName = "log_foo.csv"
 
-%file-exists: level1/level2/log_foo.csv
+%exitcode: 0
+
+%contains: level1/level2/log_foo.csv
+one,two,three
+-1,0.230000,abcd
