@@ -5,7 +5,7 @@ import os
 import subprocess
 
 
-def parse_cmd_arguments():
+def __parse_cmd_arguments():
     arguments_parser = argparse.ArgumentParser(description='Run SMILe simulation')
     arguments_parser.add_argument('method_path', type=str, nargs=1,
                                   help='path to method')
@@ -14,26 +14,37 @@ def parse_cmd_arguments():
     arguments_parser.add_argument('config', type=str, nargs=1,
                                   help='configuration name (specified in INI file)')
     arguments_parser.add_argument('-u', type=str, nargs=1, metavar='UI', default='Cmdenv', dest='ui',
-                                  help='user interface mode (default: Cmdenv; other: Qtenv)')
+                                  help='user interface mode (default: Cmdenv)', choices=('Cmdenv', 'Qtenv'))
 
     arguments = arguments_parser.parse_args()
 
-    return arguments.method_path[0], arguments.ini_path[0], arguments.config[0], arguments.ui
+    method_path = arguments.method_path[0]
+    if not os.path.isdir(method_path):
+        raise RuntimeError(f'{method_path} is not valid path to directory')
+
+    ini_path = arguments.ini_path[0]
+    if not os.path.isfile(ini_path):
+        raise RuntimeError(f'{ini_path} does not exist or is not a regular file')
+
+    method_path = os.path.normpath(method_path)
+    ini_path = os.path.normpath(ini_path)
+
+    return method_path, ini_path, arguments.config[0], arguments.ui
 
 
-def get_smile_workspace_path():
+def __get_smile_workspace_path():
     try:
         return os.environ['SMILE_WORKSPACE_PATH']
     except KeyError:
         raise EnvironmentError('Environment variable SMILE_WORKSPACE_PATH is not available, please set it first')
 
 
-def prepare_image_path():
-    return os.path.join(get_smile_workspace_path(), 'inet/images')
+def __prepare_image_path():
+    return os.path.join(__get_smile_workspace_path(), 'inet/images')
 
 
-def prepare_ned_paths(method_path):
-    workspace_path = get_smile_workspace_path()
+def __prepare_ned_paths(method_path):
+    workspace_path = __get_smile_workspace_path()
     ned_paths = (
         'smile/src',
         'smile/simulations',
@@ -49,8 +60,8 @@ def prepare_ned_paths(method_path):
     return ned_paths
 
 
-def prepare_library_paths(method_path):
-    workspace_path = get_smile_workspace_path()
+def __prepare_library_paths(method_path):
+    workspace_path = __get_smile_workspace_path()
     library_paths = (
         'inet/src/INET',
         'smile/src/smile'
@@ -64,7 +75,7 @@ def prepare_library_paths(method_path):
     return library_paths
 
 
-def run_simulation(ini_path, config_name, ui, ned_paths, library_paths, image_path):
+def __run_simulation(ini_path, config_name, ui, ned_paths, library_paths, image_path):
     arguments = ['opp_run', '-m', ini_path]
 
     arguments += ('-c', config_name)
@@ -74,18 +85,15 @@ def run_simulation(ini_path, config_name, ui, ned_paths, library_paths, image_pa
     for library_path in library_paths:
         arguments += ('-l', library_path)
 
-    print(*arguments)
     return subprocess.call(arguments)
 
 
 if __name__ == '__main__':
-    method_path, ini_path, config_name, ui = parse_cmd_arguments()
+    method_path, ini_path, config_name, ui = __parse_cmd_arguments()
 
-    method_path = os.path.normpath(method_path)
+    ned_paths = __prepare_ned_paths(method_path)
+    library_paths = __prepare_library_paths(method_path)
+    image_path = __prepare_image_path()
 
-    ned_paths = prepare_ned_paths(method_path)
-    library_paths = prepare_library_paths(method_path)
-    image_path = prepare_image_path()
-
-    return_code = run_simulation(ini_path, config_name, ui, ned_paths, library_paths, image_path)
+    return_code = __run_simulation(ini_path, config_name, ui, ned_paths, library_paths, image_path)
     exit(return_code)
