@@ -27,7 +27,7 @@ class JsonParser(object):
         self._smile_workspace_path = os.environ['SMILE_WORKSPACE_PATH']
 
         absolute_file_path = self._compose_absolute_file_path(self._smile_workspace_path, file_path)
-        self.content = self._load_file(absolute_file_path)
+        self.content = JsonParser._load_file(absolute_file_path)
         self._imported_files = [absolute_file_path]
 
         self._import_files(absolute_file_path, self.content)
@@ -51,7 +51,7 @@ class JsonParser(object):
                 raise JsonParser.CyclicalImportError(
                     f'Cyclical import occurred, file {imported_file} was already imported')
 
-            imported_content = self._load_file(absolute_imported_file_path)
+            imported_content = JsonParser._load_file(absolute_imported_file_path)
             self._imported_files.append(absolute_imported_file_path)
             self._import_files(absolute_imported_file_path, imported_content)
 
@@ -59,7 +59,8 @@ class JsonParser(object):
 
         self.content = jsonmerge.merge(merged_imported_content, self.content)
 
-    def _load_file(self, file_path):
+    @staticmethod
+    def _load_file( file_path):
         with open(file_path, 'r') as handle:
             return json.load(handle)
 
