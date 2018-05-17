@@ -14,11 +14,15 @@
 #
 
 import unittest
+import os
 
 from smile.platform.json_parser import *
 
 
 class TestJsonParser(unittest.TestCase):
+    def setUp(self):
+        os.environ['SMILE_WORKSPACE_PATH'] = '.'
+
     def test_empty_json(self):
         json = JsonParser('platform_json_parser/empty.json')
         self.assertIsInstance(json, JsonParser)
