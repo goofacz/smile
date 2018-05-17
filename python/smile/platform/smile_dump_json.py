@@ -14,30 +14,19 @@
 #
 
 import argparse
-import importlib.util
 
 from smile.platform.json_parser import *
 
 
-def __import_method_module(method_module_json):
-    module_path = os.path.join(os.environ['SMILE_WORKSPACE_PATH'], method_module_json['file'])
-    module_spec = importlib.util.spec_from_file_location('method_module', module_path)
-    module = importlib.util.module_from_spec(module_spec)
-    module_spec.loader.exec_module(module)
-    return module
-
-
 def __parse_cmd_arguments():
-    arguments_parser = argparse.ArgumentParser(description='Run SMILe analysis')
+    arguments_parser = argparse.ArgumentParser(description='Merges and dumps SMILe JSON configuration files')
     arguments_parser.add_argument('json_file', type=str, nargs=1, help='Path to JSON configuration file')
-    arguments_parser.add_argument('results_path', type=str, nargs=1, help='Path to simulation results')
     arguments = arguments_parser.parse_args()
-    return arguments.json_file[0], arguments.results_path[0]
+    return arguments.json_file[0]
 
 
 if __name__ == '__main__':
-    json_file_path, results_path = __parse_cmd_arguments()
-
+    json_file_path = __parse_cmd_arguments()
     json_file = JsonParser(json_file_path)
-    method_module = __import_method_module(json_file.content['method_module'])
-    # TODO
+    json_text = json.dumps(json_file.content, indent=2)
+    print(json_text)
