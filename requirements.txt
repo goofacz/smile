@@ -7,6 +7,6 @@ pytz==2017.3
 scipy==1.0.0
 six==1.11.0
 Shapely==1.6.4.post1
+setuptools==39.0.1
 jsonmerge==1.5.1
 jsonschema==2.6.0
-setuptools==39.0.1
