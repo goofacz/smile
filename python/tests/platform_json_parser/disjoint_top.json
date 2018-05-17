@@ -1,0 +1,7 @@
+{
+  "import" : [
+    "platform_json_parser/disjoint_bottom.json"
+  ],
+
+  "foo" : 123
+}
