@@ -1,5 +1,5 @@
 {
   "import" : [
-    "platform_json_parser/cyclical_import_middle.json"
+    "smile/python/tests/platform_json_parser/cyclical_import_middle.json"
   ]
 }

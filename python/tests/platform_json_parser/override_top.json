@@ -1,6 +1,6 @@
 {
   "import" : [
-    "platform_json_parser/override_middle.json"
+    "smile/python/tests/platform_json_parser/override_middle.json"
   ],
 
   "number" : 789,

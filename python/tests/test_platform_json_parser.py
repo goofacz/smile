@@ -20,19 +20,16 @@ from smile.platform.json_parser import *
 
 
 class TestJsonParser(unittest.TestCase):
-    def setUp(self):
-        os.environ['SMILE_WORKSPACE_PATH'] = '.'
-
     def test_empty_json(self):
-        json = JsonParser('platform_json_parser/empty.json')
+        json = JsonParser('smile/python/tests/platform_json_parser/empty.json')
         self.assertIsInstance(json, JsonParser)
 
     def test_invalid_json(self):
         with self.assertRaises(json.decoder.JSONDecodeError):
-            JsonParser('platform_json_parser/invalid.json')
+            JsonParser('smile/python/tests/platform_json_parser/invalid.json')
 
     def test_disjoint_jsons(self):
-        json = JsonParser('platform_json_parser/disjoint_top.json')
+        json = JsonParser('smile/python/tests/platform_json_parser/disjoint_top.json')
 
         self.assertFalse('import' in json.content)
 
@@ -44,10 +41,10 @@ class TestJsonParser(unittest.TestCase):
 
     def test_cyclical_jsons(self):
         with self.assertRaises(JsonParser.CyclicalImportError):
-            JsonParser('platform_json_parser/cyclical_import_top.json')
+            JsonParser('smile/python/tests/platform_json_parser/cyclical_import_top.json')
 
     def test_override_jsons(self):
-        json = JsonParser('platform_json_parser/override_top.json')
+        json = JsonParser('smile/python/tests/platform_json_parser/override_top.json')
 
         self.assertFalse('import' in json.content)
 
@@ -64,6 +61,14 @@ class TestJsonParser(unittest.TestCase):
         self.assertTrue('collection' in json.content['object'])
         self.assertSequenceEqual(json.content['object']['collection'], [4, 5, 6])
 
+    def test_relative_jsons(self):
+        json = JsonParser('smile/python/tests/platform_json_parser/relative_top.json')
+
+        self.assertFalse('import' in json.content)
+
+        self.assertTrue('key' in json.content)
+        self.assertEqual(json.content['key'], 'value')
+        
 
 if __name__ == '__main__':
     unittest.main()

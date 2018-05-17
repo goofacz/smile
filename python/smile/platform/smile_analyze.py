@@ -16,6 +16,7 @@
 import argparse
 import os
 import importlib.util
+from smile.platform.json_parser import *
 
 
 def __import_method_module(method_path, module_name):
@@ -28,21 +29,16 @@ def __import_method_module(method_path, module_name):
 
 def __parse_cmd_arguments():
     arguments_parser = argparse.ArgumentParser(description='Run SMILe analysis')
-    arguments_parser.add_argument('method_path', type=str, nargs=1,
-                                  help='path to method')
-    arguments_parser.add_argument('module_name', type=str, nargs=1,
-                                  help='module name')
-    arguments_parser.add_argument('results_path', type=str, nargs=1,
-                                  help='path to simulation results')
+    arguments_parser.add_argument('json_file', type=str, nargs=1, help='Path to JSON configuration file')
+    arguments_parser.add_argument('results_path', type=str, nargs=1, help='path to simulation results')
     arguments = arguments_parser.parse_args()
 
-    method_path = arguments.method_path[0]
-    if not os.path.isdir(method_path):
-        raise RuntimeError(f'{method_path} is not valid path to directory')
-
-    return method_path, arguments.module_name[0]
+    return arguments.json_file[0], arguments.results_path[0]
 
 
 if __name__ == '__main__':
-    method_path, module_name = __parse_cmd_arguments()
-    __import_method_module(method_path, module_name)
+    json_file_path, results_path = __parse_cmd_arguments()
+
+    json_file = JsonParser(json_file_path)
+    print(*json_file.content['area'])
+    #__import_method_module(method_path, module_name)
