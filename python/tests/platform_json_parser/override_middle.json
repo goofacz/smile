@@ -1,0 +1,12 @@
+{
+  "import" : [
+    "platform_json_parser/override_bottom.json"
+  ],
+
+  "number" : 456,
+  "text" : "def",
+
+  "object" : {
+    "collection" : [1, 2, 3]
+  }
+}
