@@ -23,6 +23,10 @@ class TestJsonParser(unittest.TestCase):
         json = JsonParser('platform_json_parser/empty.json')
         self.assertIsInstance(json, JsonParser)
 
+    def test_invalid_json(self):
+        with self.assertRaises(json.decoder.JSONDecodeError):
+            JsonParser('platform_json_parser/invalid.json')
+
     def test_disjoint_jsons(self):
         json = JsonParser('platform_json_parser/disjoint_top.json')
 
@@ -35,7 +39,7 @@ class TestJsonParser(unittest.TestCase):
         self.assertEqual(json.content['bar'], 456)
 
     def test_cyclical_jsons(self):
-        with self.assertRaises(ValueError):
+        with self.assertRaises(JsonParser.CyclicalImportError):
             JsonParser('platform_json_parser/cyclical_import_top.json')
 
     def test_override_jsons(self):

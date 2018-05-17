@@ -14,11 +14,15 @@
 #
 
 import json
-import jsonmerge
 import os
+
+import jsonmerge
 
 
 class JsonParser(object):
+    class CyclicalImportError(ValueError):
+        pass
+
     def __init__(self, file_path):
         self._base_directory = os.environ['SMILE_WORKSPACE_PATH']
         self._imported_files = [self._compose_absolute_file_path(file_path)]
@@ -31,15 +35,17 @@ class JsonParser(object):
         if 'import' not in content:
             return
 
+        # "import" shouldn't be visible to end user
         imported_files = content['import']
         del content['import']
 
+        # JSONs merging order is from bottom to top
         merged_imported_content = {}
         for imported_file in imported_files:
             absolute_imported_file_path = self._compose_absolute_file_path(imported_file)
             if absolute_imported_file_path in self._imported_files:
-                raise ValueError(f'Cyclical import occurred, file {imported_file} was already imported')
-                pass
+                raise JsonParser.CyclicalImportError(
+                    f'Cyclical import occurred, file {imported_file} was already imported')
 
             imported_content = self._load_file(imported_file)
             self._imported_files.append(absolute_imported_file_path)
