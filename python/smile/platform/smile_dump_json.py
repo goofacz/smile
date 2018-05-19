@@ -19,8 +19,8 @@ from smile.platform.json_configuration import *
 
 
 def __parse_cmd_arguments():
-    arguments_parser = argparse.ArgumentParser(description='Imports all JSON configuration files and prints them as \
-                                                           single JSON file')
+    arguments_parser = argparse.ArgumentParser(
+        description='Imports all JSON configuration files and prints them as single JSON file')
     arguments_parser.add_argument('json_file', type=str, nargs=1, help='Path to main JSON configuration file')
     arguments = arguments_parser.parse_args()
     return arguments.json_file[0]
