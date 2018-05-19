@@ -14,21 +14,24 @@
 #
 
 import json
-
+import os
 import numpy as np
 import shapely.geometry as sg
 
 
 class Area(object):
-    def __init__(self, file):
-        if isinstance(file, str):
-            with open(file, 'r') as handle:
-                content = json.load(handle)
-        else:
-            content = json.load(file)
+    class InvalidContentError(ValueError):
+        pass
+
+    def __init__(self, file_path):
+        if not os.path.isfile(file_path):
+            file_path = os.path.abspath(os.path.join(os.environ['SMILE_WORKSPACE_PATH'], file_path))
+
+        with open(file_path, 'r') as handle:
+            content = json.load(handle)
 
         if 'vertices' not in content:
-            raise ValueError('JSON does not contain \'vertices\'')
+            raise Area.InvalidContentError('JSON does not contain \'vertices\'')
 
         self.area = sg.Polygon(content['vertices'])
 
