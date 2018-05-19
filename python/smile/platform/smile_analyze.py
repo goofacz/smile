@@ -16,7 +16,7 @@
 import argparse
 import importlib.util
 
-from smile.platform.json_parser import *
+from smile.platform.json_configuration import *
 
 
 def __import_method_module(method_module_json):
@@ -38,6 +38,6 @@ def __parse_cmd_arguments():
 if __name__ == '__main__':
     json_file_path, results_path = __parse_cmd_arguments()
 
-    json_file = JsonParser(json_file_path)
-    method_module = __import_method_module(json_file.content['method_module'])
+    configuration = JsonConfiguration(json_file_path)
+    method_module = __import_method_module(configuration['method_module'])
     # TODO

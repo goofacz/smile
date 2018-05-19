@@ -15,18 +15,19 @@
 
 import argparse
 
-from smile.platform.json_parser import *
+from smile.platform.json_configuration import *
 
 
 def __parse_cmd_arguments():
-    arguments_parser = argparse.ArgumentParser(description='Merges and dumps SMILe JSON configuration files')
-    arguments_parser.add_argument('json_file', type=str, nargs=1, help='Path to JSON configuration file')
+    arguments_parser = argparse.ArgumentParser(description='Imports all JSON configuration files and prints them as \
+                                                           single JSON file')
+    arguments_parser.add_argument('json_file', type=str, nargs=1, help='Path to main JSON configuration file')
     arguments = arguments_parser.parse_args()
     return arguments.json_file[0]
 
 
 if __name__ == '__main__':
     json_file_path = __parse_cmd_arguments()
-    json_file = JsonParser(json_file_path)
-    json_text = json.dumps(json_file.content, indent=2)
+    configuration = JsonConfiguration(json_file_path)
+    json_text = json.dumps(configuration, indent=2)
     print(json_text)

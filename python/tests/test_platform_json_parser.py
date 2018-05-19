@@ -16,58 +16,58 @@
 import unittest
 import os
 
-from smile.platform.json_parser import *
+from smile.platform.json_configuration import *
 
 
 class TestJsonParser(unittest.TestCase):
     def test_empty_json(self):
-        json = JsonParser('smile/python/tests/platform_json_parser/empty.json')
-        self.assertIsInstance(json, JsonParser)
+        json = JsonConfiguration('smile/python/tests/platform_json_parser/empty.json')
+        self.assertIsInstance(json, JsonConfiguration)
 
     def test_invalid_json(self):
         with self.assertRaises(json.decoder.JSONDecodeError):
-            JsonParser('smile/python/tests/platform_json_parser/invalid.json')
+            JsonConfiguration('smile/python/tests/platform_json_parser/invalid.json')
 
     def test_disjoint_jsons(self):
-        json = JsonParser('smile/python/tests/platform_json_parser/disjoint_top.json')
+        json = JsonConfiguration('smile/python/tests/platform_json_parser/disjoint_top.json')
 
-        self.assertFalse('import' in json.content)
+        self.assertFalse('import' in json)
 
-        self.assertTrue('foo' in json.content)
-        self.assertEqual(json.content['foo'], 123)
+        self.assertTrue('foo' in json)
+        self.assertEqual(json['foo'], 123)
 
-        self.assertTrue('bar' in json.content)
-        self.assertEqual(json.content['bar'], 456)
+        self.assertTrue('bar' in json)
+        self.assertEqual(json['bar'], 456)
 
     def test_cyclical_jsons(self):
-        with self.assertRaises(JsonParser.CyclicalImportError):
-            JsonParser('smile/python/tests/platform_json_parser/cyclical_import_top.json')
+        with self.assertRaises(JsonConfiguration.CyclicalImportError):
+            JsonConfiguration('smile/python/tests/platform_json_parser/cyclical_import_top.json')
 
     def test_override_jsons(self):
-        json = JsonParser('smile/python/tests/platform_json_parser/override_top.json')
+        json = JsonConfiguration('smile/python/tests/platform_json_parser/override_top.json')
 
-        self.assertFalse('import' in json.content)
+        self.assertFalse('import' in json)
 
-        self.assertTrue('bottom_only_number' in json.content)
-        self.assertEqual(json.content['bottom_only_number'], 112)
+        self.assertTrue('bottom_only_number' in json)
+        self.assertEqual(json._content['bottom_only_number'], 112)
 
-        self.assertTrue('number' in json.content)
-        self.assertEqual(json.content['number'], 789)
+        self.assertTrue('number' in json)
+        self.assertEqual(json._content['number'], 789)
 
-        self.assertTrue('text' in json.content)
-        self.assertEqual(json.content['text'], 'def')
+        self.assertTrue('text' in json)
+        self.assertEqual(json._content['text'], 'def')
 
-        self.assertTrue('object' in json.content)
-        self.assertTrue('collection' in json.content['object'])
-        self.assertSequenceEqual(json.content['object']['collection'], [4, 5, 6])
+        self.assertTrue('object' in json)
+        self.assertTrue('collection' in json['object'])
+        self.assertSequenceEqual(json['object']['collection'], [4, 5, 6])
 
     def test_relative_jsons(self):
-        json = JsonParser('smile/python/tests/platform_json_parser/relative_top.json')
+        json = JsonConfiguration('smile/python/tests/platform_json_parser/relative_top.json')
 
-        self.assertFalse('import' in json.content)
+        self.assertFalse('import' in json)
 
-        self.assertTrue('key' in json.content)
-        self.assertEqual(json.content['key'], 'value')
+        self.assertTrue('key' in json)
+        self.assertEqual(json['key'], 'value')
         
 
 if __name__ == '__main__':

@@ -19,7 +19,7 @@ import os
 import jsonmerge
 
 
-class JsonParser(object):
+class JsonConfiguration(object):
     class CyclicalImportError(ValueError):
         pass
 
@@ -27,10 +27,28 @@ class JsonParser(object):
         self._smile_workspace_path = os.environ['SMILE_WORKSPACE_PATH']
 
         absolute_file_path = self._compose_absolute_file_path(self._smile_workspace_path, file_path)
-        self.content = JsonParser._load_file(absolute_file_path)
+        self._content = JsonConfiguration._load_file(absolute_file_path)
         self._imported_files = [absolute_file_path]
 
-        self._import_files(absolute_file_path, self.content)
+        self._import_files(absolute_file_path, self._content)
+
+    def __getitem__(self, key):
+        return self._content[self.__keytransform__(key)]
+
+    def __setitem__(self, key, value):
+        self._content[self.__keytransform__(key)] = value
+
+    def __delitem__(self, key):
+        del self._content[self.__keytransform__(key)]
+
+    def __iter__(self):
+        return iter(self._content)
+
+    def __len__(self):
+        return len(self._content)
+
+    def __keytransform__(self, key):
+        return key
 
     def _import_files(self, absolute_file_path, content):
         if 'import' not in content:
@@ -48,16 +66,16 @@ class JsonParser(object):
         for imported_file in imported_files:
             absolute_imported_file_path = self._compose_absolute_file_path(base_directory_path, imported_file)
             if absolute_imported_file_path in self._imported_files:
-                raise JsonParser.CyclicalImportError(
+                raise JsonConfiguration.CyclicalImportError(
                     f'Cyclical import occurred, file {imported_file} was already imported')
 
-            imported_content = JsonParser._load_file(absolute_imported_file_path)
+            imported_content = JsonConfiguration._load_file(absolute_imported_file_path)
             self._imported_files.append(absolute_imported_file_path)
             self._import_files(absolute_imported_file_path, imported_content)
 
             merged_imported_content = jsonmerge.merge(merged_imported_content, imported_content)
 
-        self.content = jsonmerge.merge(merged_imported_content, self.content)
+        self._content = jsonmerge.merge(merged_imported_content, self._content)
 
     @staticmethod
     def _load_file( file_path):
