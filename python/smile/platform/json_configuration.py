@@ -26,11 +26,14 @@ class JsonConfiguration(object):
     def __init__(self, file_path):
         self._smile_workspace_path = os.environ['SMILE_WORKSPACE_PATH']
 
-        absolute_file_path = self._compose_absolute_file_path(self._smile_workspace_path, file_path)
-        self._content = JsonConfiguration._load_file(absolute_file_path)
-        self._imported_files = [absolute_file_path]
+        file_path = os.path.expanduser(file_path)
+        if not os.path.isfile(file_path):
+            file_path = self._compose_absolute_file_path(self._smile_workspace_path, file_path)
 
-        self._import_files(absolute_file_path, self._content)
+        self._content = JsonConfiguration._load_file(file_path)
+        self._imported_files = [file_path]
+
+        self._import_files(file_path, self._content)
 
     def __getitem__(self, key):
         return self._content[self.__keytransform__(key)]

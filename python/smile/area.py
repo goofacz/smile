@@ -24,6 +24,7 @@ class Area(object):
         pass
 
     def __init__(self, file_path):
+        file_path = os.path.expanduser(file_path)
         if not os.path.isfile(file_path):
             file_path = os.path.abspath(os.path.join(os.environ['SMILE_WORKSPACE_PATH'], file_path))
 
