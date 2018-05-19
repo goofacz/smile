@@ -18,5 +18,5 @@ from abc import ABC, abstractmethod
 
 class Simulation(ABC):
     @abstractmethod
-    def run_offline(self, directory_path):
+    def run_offline(self, configuration, directory_path):
         pass
