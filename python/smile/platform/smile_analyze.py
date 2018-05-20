@@ -43,8 +43,8 @@ if __name__ == '__main__':
     configuration = JsonConfiguration(json_file_path)
     method_module = __import_method_module(configuration['method_module'])
 
-    simulation = method_module.Simulation()
-    results, anchors = simulation.run_offline(configuration, results_path)
+    simulation = method_module.Simulation(configuration)
+    results, anchors = simulation.run_offline(results_path)
 
     unique_results = sa.squeeze_results(results)
     sv.plot_absolute_position_error_cdf(unique_results)
