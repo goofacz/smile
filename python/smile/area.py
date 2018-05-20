@@ -37,6 +37,9 @@ class Area(object):
         self.area = sg.Polygon(content['vertices'])
 
     def contains(self, point, rtol=1e-5, atol=1e-5):
+        if not isinstance(point, sg.Point):
+            point = sg.Point(point)
+
         if self.area.contains(point):
             return True
 

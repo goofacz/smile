@@ -14,8 +14,8 @@
 #
 
 import unittest
-from io import StringIO
 
+import numpy as np
 import shapely.geometry as sg
 
 import smile.area as sa
@@ -32,24 +32,29 @@ class TestArea(unittest.TestCase):
 
 
 class TestAreaContains(unittest.TestCase):
-    def test_point_inside_area(self):
-        area = sa.Area('smile/python/tests/area/square.json')
+    def setUp(self):
+        self.area = sa.Area('smile/python/tests/area/square.json')
 
+    def test_point_inside_area(self):
         inside_point = sg.Point(10, 10)
-        self.assertTrue(area.contains(inside_point))
+        self.assertTrue(self.area.contains(inside_point))
+
+    def test_point_as_ndarray_inside_area(self):
+        inside_point = np.asarray((10, 10))
+        self.assertTrue(self.area.contains(inside_point))
+
+    def test_point_as_tuple_inside_area(self):
+        inside_point = (10, 10)
+        self.assertTrue(self.area.contains(inside_point))
 
     def test_point_close_to_area(self):
-        area = sa.Area('smile/python/tests/area/square.json')
-
         close_to_edge_point = sg.Point(-1e-6, 5)
-        self.assertTrue(area.contains(close_to_edge_point))
-        self.assertFalse(area.contains(close_to_edge_point, atol=1e-7))
+        self.assertTrue(self.area.contains(close_to_edge_point))
+        self.assertFalse(self.area.contains(close_to_edge_point, atol=1e-7))
 
     def test_point_outside_area(self):
-        area = sa.Area('smile/python/tests/area/square.json')
-
         outside_point = sg.Point(100, 100)
-        self.assertFalse(area.contains(outside_point))
+        self.assertFalse(self.area.contains(outside_point))
 
 
 if __name__ == '__main__':
