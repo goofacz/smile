@@ -29,5 +29,5 @@ def __parse_cmd_arguments():
 if __name__ == '__main__':
     json_file_path = __parse_cmd_arguments()
     configuration = JsonConfiguration(json_file_path)
-    json_text = json.dumps(configuration, indent=2)
+    json_text = json.dumps(configuration.as_dict(), indent=2)
     print(json_text)

@@ -80,6 +80,9 @@ class JsonConfiguration(object):
 
         self._content = jsonmerge.merge(merged_imported_content, self._content)
 
+    def as_dict(self):
+        return self._content
+
     @staticmethod
     def _load_file( file_path):
         with open(file_path, 'r') as handle:
