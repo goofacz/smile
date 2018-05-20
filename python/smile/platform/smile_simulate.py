@@ -39,8 +39,8 @@ def __parse_cmd_arguments():
     if not os.path.isfile(ini_path):
         raise RuntimeError(f'{ini_path} does not exist or is not a regular file')
 
-    method_path = os.path.normpath(method_path)
-    ini_path = os.path.normpath(ini_path)
+    method_path = os.path.normpath(os.path.expanduser(method_path))
+    ini_path = os.path.normpath(os.path.expanduser(ini_path))
 
     return method_path, ini_path, arguments.config[0], arguments.ui
 
