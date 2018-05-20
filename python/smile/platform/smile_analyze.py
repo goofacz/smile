@@ -14,17 +14,19 @@
 #
 
 import argparse
-import importlib.util
+import importlib
+import sys
 
+import smile.analysis as sa
+import smile.visualization as sv
 from smile.platform.json_configuration import *
 
 
 def __import_method_module(method_module_json):
-    module_path = os.path.join(os.environ['SMILE_WORKSPACE_PATH'], method_module_json['file'])
-    module_spec = importlib.util.spec_from_file_location('method_module', module_path)
-    module = importlib.util.module_from_spec(module_spec)
-    module_spec.loader.exec_module(module)
-    return module
+    module_path = os.path.join(os.environ['SMILE_WORKSPACE_PATH'], method_module_json['path'])
+    sys.path.append(module_path)
+
+    return importlib.import_module(method_module_json['name'])
 
 
 def __parse_cmd_arguments():
@@ -40,4 +42,11 @@ if __name__ == '__main__':
 
     configuration = JsonConfiguration(json_file_path)
     method_module = __import_method_module(configuration['method_module'])
-    # TODO
+
+    simulation = method_module.Simulation()
+    results, anchors = simulation.run_offline(configuration, results_path)
+
+    unique_results = sa.squeeze_results(results)
+    sv.plot_absolute_position_error_cdf(unique_results)
+    sv.plot_absolute_position_error_surface(unique_results, anchors)
+    sv.plot_absolute_position_error_histogram(unique_results)
