@@ -76,4 +76,4 @@ class DoanVesely(Solver):
         if not len(positions):
             raise ValueError('Failed to compute solution')
 
-        return np.asarray(positions)
+        return positions
