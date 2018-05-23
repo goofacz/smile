@@ -1,0 +1,10 @@
+{
+  "algorithms": {
+    "tof": {
+      "solver": {
+        "module": "smile.algorithms.tof.simple_ls",
+        "class": "SimpleLs"
+      }
+    }
+  }
+}

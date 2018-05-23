@@ -1,0 +1,14 @@
+{
+  "algorithms": {
+    "tof": {
+      "solver": {
+        "module": "smile.algorithms.tof.foy",
+        "class": "Foy",
+        "initial_position": [0, 0],
+        "R": null,
+        "expected_delta": 0.02,
+        "loop_limit": 100
+      }
+    }
+  }
+}
