@@ -44,7 +44,7 @@ class TestChanHo(unittest.TestCase):
             sorted_anchors_coordinates, sorted_tdoa_distances = sort_measurements(anchors_coordinates, tdoa_distances)
             error_message = 'Reference position: ({0}, {1})'.format(*reference_position)
 
-            solver = ChanHo(sorted_anchors_coordinates, sorted_tdoa_distances)
+            solver = ChanHo(sorted_anchors_coordinates, sorted_tdoa_distances, {})
             positions = solver.localize()
 
             if len(positions) > 1 and np.allclose(positions[0], positions[1]):
@@ -63,7 +63,7 @@ class TestChanHo(unittest.TestCase):
         tdoa_distances = np.asarray((0., 0., 3.70820393, 3.70820393))
 
         with self.assertRaises(ValueError):
-            solver = ChanHo(anchors_coordinates, tdoa_distances)
+            solver = ChanHo(anchors_coordinates, tdoa_distances, {})
             solver.localize()
 
 

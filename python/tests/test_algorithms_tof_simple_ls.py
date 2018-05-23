@@ -36,7 +36,7 @@ def _is_skipped_position(reference_position, skipped_positions):
 class TestSimpleLeastSquares(unittest.TestCase):
     def test_small_grid(self):
         for reference_position, tof_distances in generate_tof_measurements(anchors_coordinates, grid_size, grid_gap):
-            solver = SimpleLs(anchors_coordinates, tof_distances)
+            solver = SimpleLs(anchors_coordinates, tof_distances, {})
             positions = solver.localize()
             np.testing.assert_almost_equal(positions[0], reference_position, decimal=7)
 

@@ -23,9 +23,9 @@ class SimpleLs(Solver):
     Least Squares Method
     """
 
-    def __init__(self, anchors_coordinates, tof_distances):
-        self.anchors_coordinates = anchors_coordinates
-        self.tof_distances = tof_distances
+    def __init__(self, anchors_coordinates, distances, configuration):
+        super().__init__(anchors_coordinates, distances, configuration)
+        self.tof_distances = distances
 
     def localize(self):
         if self.anchors_coordinates.shape != (3, 2):

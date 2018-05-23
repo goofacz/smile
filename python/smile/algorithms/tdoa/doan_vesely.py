@@ -25,9 +25,9 @@ class DoanVesely(Solver):
     2015 16th International Radar Symposium (IRS), Dresden, 2015, pp. 800-805.
     """
 
-    def __init__(self, anchors_coordinates, tdoa_distances):
-        self.anchors_coordinates = anchors_coordinates
-        self.tdoa_distances = tdoa_distances
+    def __init__(self, anchors_coordinates, distances, configuration):
+        super().__init__(anchors_coordinates, distances, configuration)
+        self.tdoa_distances = distances
 
     def localize(self):
         if self.anchors_coordinates.shape != (3, 2):

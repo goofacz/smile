@@ -28,9 +28,9 @@ class ChanHo(Solver):
     on Aerospace and Electronic Systems, vol. 29, no. 4, pp. 1311-1322, Oct 1993.
     """
 
-    def __init__(self, anchors_coordinates, tdoa_distances):
-        self.anchors_coordinates = anchors_coordinates
-        self.tdoa_distances = tdoa_distances
+    def __init__(self, anchors_coordinates, distances, configuration):
+        super().__init__(anchors_coordinates, distances, configuration)
+        self.tdoa_distances = self.distances
 
     def __three_anchors_case(self):
         r_21 = self.tdoa_distances[1] - self.tdoa_distances[0]

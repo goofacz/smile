@@ -43,7 +43,7 @@ class TestDoanVesely(unittest.TestCase):
             error_message = 'Reference position: ({0}, {1})'.format(*reference_position)
             sorted_anchors_coordinates, sorted_tdoa_distances = sort_measurements(anchors_coordinates, tdoa_distances)
 
-            solver = DoanVesely(sorted_anchors_coordinates, sorted_tdoa_distances)
+            solver = DoanVesely(sorted_anchors_coordinates, sorted_tdoa_distances, {})
             positions = solver.localize()
 
             if len(positions) > 1 and np.allclose(positions[0], positions[1]):

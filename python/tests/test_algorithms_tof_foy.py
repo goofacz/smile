@@ -24,6 +24,8 @@ anchors_coordinates = np.asanyarray(((0, 0),
 grid_size = 6
 grid_gap = 1
 
+configuration = {'initial_position': (0, 0), 'R': None, 'expected_delta': 0.000000001, 'loop_limit': 100}
+
 
 def _is_skipped_position(reference_position, skipped_positions):
     for skipped_position in skipped_positions:
@@ -43,8 +45,7 @@ class TestFoy(unittest.TestCase):
                 continue
 
             error_message = 'Reference position: ({0}, {1})'.format(*reference_position)
-            solver = Foy(anchors_coordinates, tof_distances, reference_position, expected_delta=0.000000001,
-                         loop_limit=100)
+            solver = Foy(anchors_coordinates, tof_distances, configuration, initial_position=reference_position)
             positions = solver.localize()
             np.testing.assert_almost_equal(positions[0], reference_position, decimal=7, err_msg=error_message)
 
@@ -59,7 +60,8 @@ class TestFoy(unittest.TestCase):
                 continue
 
             error_message = 'Reference position: ({0}, {1})'.format(*reference_position)
-            solver = Foy(anchors_coordinates, tof_distances, initial_solution, expected_delta=0.0001, loop_limit=200)
+            solver = Foy(anchors_coordinates, tof_distances, configuration, initial_position=initial_solution,
+                         expected_delta=0.0001, loop_limit=200)
             positions = solver.localize()
             np.testing.assert_almost_equal(positions[0], reference_position, decimal=2, err_msg=error_message)
 
@@ -68,7 +70,7 @@ class TestFoy(unittest.TestCase):
         tof_distances = np.asarray((0, 6, 8.48528137))
 
         with self.assertRaises(ValueError):
-            solver = Foy(anchors_coordinates, tof_distances, (0, 0), expected_delta=0.000000001, loop_limit=100)
+            solver = Foy(anchors_coordinates, tof_distances, configuration)
             solver.localize()
 
 

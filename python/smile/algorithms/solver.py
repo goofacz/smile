@@ -17,6 +17,12 @@ from abc import ABC, abstractmethod
 
 
 class Solver(ABC):
+    def __init__(self, anchors_coordinates, distances, configuration):
+        super().__init__()
+        self.anchors_coordinates = anchors_coordinates
+        self.distances = distances
+        self.configuration = configuration
+
     @abstractmethod
     def localize(self):
         pass

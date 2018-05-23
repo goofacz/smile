@@ -24,14 +24,30 @@ class Foy(Solver):
     and Electronic Systems, vol. AES-12, no. 2, pp. 187-194, March 1976.
     """
 
-    def __init__(self, anchors_coordinates, tof_distances, initial_position=(0, 0), R=None, expected_delta=0.02,
-                 loop_limit=100):
-        self.anchors_coordinates = anchors_coordinates
-        self.tof_distances = tof_distances
-        self.initial_position = initial_position
-        self.R = R
-        self.expected_delta = expected_delta
-        self.loop_limit = loop_limit
+    def __init__(self, anchors_coordinates, distances, configuration, initial_position=None, R=None,
+                 expected_delta=None, loop_limit=None):
+        super().__init__(anchors_coordinates, distances, configuration)
+        self.tof_distances = distances
+
+        if initial_position is None:
+            self.initial_position = self.configuration['initial_position']
+        else:
+            self.initial_position = initial_position
+
+        if R is None:
+            self.R = self.configuration['R']
+        else:
+            self.R = R
+
+        if expected_delta is None:
+            self.expected_delta = self.configuration['expected_delta']
+        else:
+            self.expected_delta = expected_delta
+
+        if loop_limit is None:
+            self.loop_limit = self.configuration['loop_limit']
+        else:
+            self.loop_limit = loop_limit
 
     def localize(self):
         if self.anchors_coordinates.shape != (3, 2):

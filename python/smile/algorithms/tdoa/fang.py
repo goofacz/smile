@@ -27,9 +27,9 @@ class Fang(Solver):
     and Electronic Systems, vol. 26, no. 5, pp. 748-753, Sep 1990.
     """
 
-    def __init__(self, anchors_coordinates, tdoa_distances):
-        self.anchors_coordinates = anchors_coordinates
-        self.tdoa_distances = tdoa_distances
+    def __init__(self, anchors_coordinates, distances, configuration):
+        super().__init__(anchors_coordinates, distances, configuration)
+        self.tdoa_distances = distances
 
     def __forward_transformation(self, coordinates):
         # Translate to anchors coordinates to put first anchor at (0, 0)
