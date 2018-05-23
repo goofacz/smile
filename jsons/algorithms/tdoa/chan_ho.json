@@ -1,0 +1,10 @@
+{
+  "algorithms": {
+    "tdoa": {
+      "solver": {
+        "module": "smile.algorithms.tdoa.chan_ho",
+        "class": "ChanHo"
+      }
+    }
+  }
+}

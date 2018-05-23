@@ -1,0 +1,10 @@
+{
+  "algorithms": {
+    "tdoa": {
+      "solver": {
+        "module": "smile.algorithms.tdoa.doan_vesely",
+        "class": "DoanVesely"
+      }
+    }
+  }
+}
