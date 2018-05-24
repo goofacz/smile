@@ -10,9 +10,9 @@
 
 %exitcode: 0
 
-# FIXME Workaround, because %file and %contains cannot be used on the
-# same file in single test. At least not in the way I want to use them.
-#
+%# FIXME Workaround, because %file and %contains cannot be used on the
+%# same file in single test. At least not in the way I want to use them.
+%#
 %postrun-command: cp log_foo.csv log_foo_copy.csv
 
 %contains: log_foo_copy.csv
