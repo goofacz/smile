@@ -14,26 +14,18 @@
 #
 
 import numpy as np
+import pandas as pd
 
-from smile.array import Array
 
+class Nodes:
+    @classmethod
+    def load_csv(cls, file_path):
+        columns = cls.__get_columns()
+        return pd.read_csv(file_path, names=columns.keys(), dtype=columns)
 
-class Nodes(Array):
-    def __init__(self, *args):
-        super(Nodes, self).__init__()
-        self.column_names["mac_address"] = 0
-        self.column_names["position_x"] = 1
-        self.column_names["position_y"] = 2
-        self.column_names["position_z"] = 3
-
-        self.column_names["position_2d"] = (self.column_names["position_x"],
-                                            self.column_names["position_y"])
-
-        self.column_names["position_3d"] = (self.column_names["position_x"],
-                                            self.column_names["position_y"],
-                                            self.column_names["position_z"])
-
-    @staticmethod
-    def load_csv(file_path):
-        array = Nodes(np.loadtxt(file_path, delimiter=',', ndmin=2))
-        return array
+    @classmethod
+    def __get_columns(cls):
+        return {'mac_address': np.int64,
+                'position_x': np.float64,
+                'position_y': np.float64,
+                'position_z': np.float64}

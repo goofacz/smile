@@ -13,62 +13,16 @@
 # along with this program.  If not, see http:#www.gnu.org/licenses/.
 #
 
-import numpy as np
+from collections import namedtuple
 
-from smile.array import Array
-
-
-class Results(Array):
-    def __init__(self, *args):
-        super(Results, self).__init__()
-        self.column_names["position_dimensions"] = 0
-        self.column_names["position_x"] = 1
-        self.column_names["position_y"] = 2
-        self.column_names["position_z"] = 3
-        self.column_names["begin_true_position_x"] = 4
-        self.column_names["begin_true_position_y"] = 5
-        self.column_names["begin_true_position_z"] = 6
-        self.column_names["end_true_position_x"] = 7
-        self.column_names["end_true_position_y"] = 8
-        self.column_names["end_true_position_z"] = 9
-        self.column_names["mac_address"] = 10
-
-        self.column_names["position_2d"] = (self.column_names["position_x"],
-                                            self.column_names["position_y"])
-
-        self.column_names["position_3d"] = (self.column_names["position_x"],
-                                            self.column_names["position_y"],
-                                            self.column_names["position_z"])
-
-        self.column_names["begin_true_position_2d"] = (self.column_names["begin_true_position_x"],
-                                                       self.column_names["begin_true_position_y"])
-
-        self.column_names["begin_true_position_3d"] = (self.column_names["begin_true_position_x"],
-                                                       self.column_names["begin_true_position_y"],
-                                                       self.column_names["begin_true_position_z"])
-
-        self.column_names["end_true_position_2d"] = (self.column_names["end_true_position_x"],
-                                                     self.column_names["end_true_position_y"])
-
-        self.column_names["end_true_position_3d"] = (self.column_names["end_true_position_x"],
-                                                     self.column_names["end_true_position_y"],
-                                                     self.column_names["end_true_position_z"])
-
-    def determine_dimensions(self):
-        unique_dimensions = np.unique(self[:, "position_dimensions"])
-        if len(unique_dimensions) is not 1:
-            raise ValueError('Cannot process results with different position dimensions (2D and 3D)')
-
-        if self[0, "position_dimensions"] == 2:
-            return "position_2d", "begin_true_position_2d", "end_true_position_2d"
-        else:
-            return "position_3d", "begin_true_position_3d", "end_true_position_3d"
-
-    @staticmethod
-    def create_array(rows, position_dimensions=2, mac_address=None):
-        assert (position_dimensions in (2, 3))
-        results = Results(np.zeros((rows, 11)))
-        results["position_dimensions"] = position_dimensions
-        if mac_address is not None:
-            results["mac_address"] = mac_address
-        return results
+Results = namedtuple('Result', ('position_dimensions',
+                                'position_x',
+                                'position_y',
+                                'position_z',
+                                'begin_true_position_x',
+                                'begin_true_position_y',
+                                'begin_true_position_z',
+                                'end_true_position_x',
+                                'end_true_position_y',
+                                'end_true_position_z',
+                                'mac_address'))

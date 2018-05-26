@@ -13,91 +13,106 @@
 # along with this program.  If not, see http:#www.gnu.org/licenses/.
 #
 
+from collections import namedtuple
+
 import numpy as np
+import pandas as pd
 
 
-class Array(np.ndarray):
-    def __new__(cls, input_array):
-        instance = np.asarray(input_array).view(cls)
-        instance.column_names = {}
-        return instance
+class Array:
+    Type = namedtuple('Type', ('columns', 'dtypes'))
 
-    def __array_finalize__(self, instance):
-        if instance is None:
-            return
-        self.column_names = getattr(instance, "column_names", None)
+    @staticmethod
+    def prepare_frames_type(additional_columns=None):
+        columns = ['node_mac_address',
+                   'direction',
+                   'begin_clock_timestamp',
+                   'begin_simulation_timestamp',
+                   'begin_true_position_x',
+                   'begin_true_position_y',
+                   'begin_true_position_z',
+                   'end_clock_timestamp',
+                   'end_simulation_timestamp',
+                   'end_true_position_x',
+                   'end_true_position_y',
+                   'end_true_position_z',
+                   'source_mac_address',
+                   'destination_mac_address',
+                   'sequence_number']
 
-    def __array_wrap__(self, out_arr, context=None):
-        return np.ndarray.__array_wrap__(self.view(np.ndarray), out_arr, context)
+        dtypes = {'node_mac_address': np.int64,
+                  'direction': np.unicode_,
+                  'begin_clock_timestamp': np.int64,
+                  'begin_simulation_timestamp': np.int64,
+                  'begin_true_position_x': np.float64,
+                  'begin_true_position_y': np.float64,
+                  'begin_true_position_z': np.float64,
+                  'end_clock_timestamp': np.int64,
+                  'end_simulation_timestamp': np.int64,
+                  'end_true_position_x': np.float64,
+                  'end_true_position_y': np.float64,
+                  'end_true_position_z': np.float64,
+                  'source_mac_address': np.int64,
+                  'destination_mac_address': np.int64,
+                  'sequence_number': np.int64}
 
-    def __getitem__(self, index):
-        index, return_as_ndarray = self._process_index(index)
-        result = super(Array, self).__getitem__(index)
-        if return_as_ndarray:
-            return result.view(np.ndarray)
-        else:
-            return result
+        return Array.__build_type(columns, dtypes, additional_columns)
 
-    def __setitem__(self, index, value):
-        index, _ = self._process_index(index)
-        return super(Array, self).__setitem__(index, value)
+    @staticmethod
+    def prepare_nodes_type(additional_columns=None):
+        columns = ['mac_address',
+                   'position_x',
+                   'position_y',
+                   'position_z']
 
-    def _process_vector_index(self, index):
-        if isinstance(index, str):
-            if index not in self.column_names:
-                raise IndexError("Unknown column name: '{0}'".format(index))
-            index = self.column_names[index]
-            return index, True
+        dtypes = {'mac_address': np.int64,
+                  'position_x': np.float64,
+                  'position_y': np.float64,
+                  'position_z': np.float64}
 
-        if index == slice(None, None, None):
-            return index, False
+        return Array.__build_type(columns, dtypes, additional_columns)
 
-        return index, True
+    @staticmethod
+    def prepare_results_type(additional_columns=None):
+        columns = ['position_dimensions',
+                   'position_x',
+                   'position_y',
+                   'position_z',
+                   'begin_true_position_x',
+                   'begin_true_position_y',
+                   'begin_true_position_z',
+                   'end_true_position_x',
+                   'end_true_position_y',
+                   'end_true_position_z',
+                   'mac_address']
 
-    def _process_array_index(self, index):
-        if isinstance(index, str):
-            if index not in self.column_names:
-                raise IndexError("Unknown column name: '{0}'".format(index))
-            index = (slice(None, None, None), self.column_names[index])
-            return index, True
+        dtypes = {'position_dimensions': np.int8,
+                   'position_x': np.float64,
+                   'position_y': np.float64,
+                   'position_z': np.float64,
+                   'begin_true_position_x': np.float64,
+                   'begin_true_position_y': np.float64,
+                   'begin_true_position_z': np.float64,
+                   'end_true_position_x': np.float64,
+                   'end_true_position_y': np.float64,
+                   'end_true_position_z': np.float64,
+                   'mac_address': np.int64}
 
-        if type(index) in (list, tuple):
-            return_as_ndarray = False
-            if len(index) == 1:
-                index = index[0]
-            elif len(index) == 2:
-                if isinstance(index[0], str):
-                    raise IndexError("Rows cannot be indexed with string names")
-                elif type(index[0]) in (list, tuple) and type(index[0][0]) is np.ndarray:
-                    index = (index[0][0], index[1])
+        return Array.__build_type(columns, dtypes, additional_columns)
 
-                if isinstance(index[1], str):
-                    if index[1] not in self.column_names:
-                        raise IndexError("Unknown column name: '{0}'".format(index[1]))
-                    index = (index[0], self.column_names[index[1]])
+    @staticmethod
+    def load_csv(array_type, file_path):
+        return pd.read_csv(file_path, names=array_type.columns, dtype=array_type.dtypes)
 
-                if index[1] != slice(None, None, None):
-                    return_as_ndarray = True
-            else:
-                raise IndexError("Sequence of {0} cannot be used for indexing")
+    @staticmethod
+    def create(array_type):
+        return pd.DataFrame(columns=array_type.columns)
 
-            return index, return_as_ndarray
+    @staticmethod
+    def __build_type(columns, dtypes, additional_columns):
+        if additional_columns is not None:
+            for additional_column, additional_dtype in additional_columns:
+                columns.append(additional_column)
+                dtypes[additional_column] = additional_dtype
 
-        if isinstance(index, np.ndarray):
-            return index, False
-
-        if isinstance(index, int):
-            index = (index, slice(None, None, None))
-            return index, False
-
-        raise IndexError('Invalid index')
-
-    def _process_index(self, index):
-        if len(self.shape) == 1:
-            return self._process_vector_index(index)
-        else:
-            return self._process_array_index(index)
-
-
-def sort(array, column):
-    return array[np.argsort(array[:, column]), :]
+        return Array.Type(columns, dtypes)
