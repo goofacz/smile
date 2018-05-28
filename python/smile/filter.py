@@ -13,81 +13,44 @@
 # along with this program.  If not, see http:#www.gnu.org/licenses/.
 #
 
-from enum import Enum
-
 import numpy as np
 
 
 class Filter(object):
-    class Check(object):
-        class Condition(Enum):
-            LESS_EQUAL = 1
-            LESS = 2
-            GREATER_EQUAL = 3
-            GREATER = 4
-            EQUAL = 5
-            IS_IN = 6
-            NOT_EQUAL = 7
-            IS_NOT_IN = 8
-
-        operations = {
-            Condition.EQUAL: (lambda array, column, value: array[:, column] == value),
-            Condition.GREATER: (lambda array, column, value: array[:, column] > value),
-            Condition.GREATER_EQUAL: (lambda array, column, value: array[:, column] >= value),
-            Condition.IS_IN: (lambda array, column, value: np.isin(array[:, column], value)),
-            Condition.IS_NOT_IN: (lambda array, column, value: np.isin(array[:, column], value, invert=True)),
-            Condition.LESS: (lambda array, column, value: array[:, column] < value),
-            Condition.LESS_EQUAL: (lambda array, column, value: array[:, column] <= value),
-            Condition.NOT_EQUAL: (lambda array, column, value: array[:, column] != value),
-        }
-
-        def __init__(self, condition, column, value):
-            self.condition = condition
-            self.column = column
-            self.value = value
-
-        def execute(self, array):
-            indices = Filter.Check.operations[self.condition](array, self.column, self.value)
-            return array[indices, :]
-
-    def __init__(self):
-        self._checks = []
+    def __init__(self, array):
+        self.array = array
 
     def less_equal(self, column, value):
-        self._checks.append(Filter.Check(Filter.Check.Condition.LESS_EQUAL, column, value))
+        self.array = self.array[np.less_equal(self.array[:, column], value)]
         return self
 
     def less(self, column, value):
-        self._checks.append(Filter.Check(Filter.Check.Condition.LESS, column, value))
+        self.array = self.array[np.less(self.array[:, column], value)]
         return self
 
     def greater_equal(self, column, value):
-        self._checks.append(Filter.Check(Filter.Check.Condition.GREATER_EQUAL, column, value))
+        self.array = self.array[np.greater_equal(self.array[:, column], value)]
         return self
 
     def greater(self, column, value):
-        self._checks.append(Filter.Check(Filter.Check.Condition.GREATER, column, value))
+        self.array = self.array[np.greater(self.array[:, column], value)]
         return self
 
     def equal(self, column, value):
-        self._checks.append(Filter.Check(Filter.Check.Condition.EQUAL, column, value))
+        self.array = self.array[np.equal(self.array[:, column], value)]
         return self
 
     def not_equal(self, column, value):
-        self._checks.append(Filter.Check(Filter.Check.Condition.NOT_EQUAL, column, value))
+        self.array = self.array[np.not_equal(self.array[:, column], value)]
         return self
 
     def is_in(self, column, value):
-        self._checks.append(Filter.Check(Filter.Check.Condition.IS_IN, column, value))
+        self.array = self.array[np.isin(self.array[:, column], value)]
         return self
 
     def is_not_in(self, column, value):
-        self._checks.append(Filter.Check(Filter.Check.Condition.IS_NOT_IN, column, value))
+        self.array = self.array[np.isin(self.array[:, column], value, invert=True)]
         return self
 
-    def execute(self, array):
-        result = array
-        for check in self._checks:
-            result = check.execute(result)
-
-        return result
+    def finish(self):
+        return self.array
