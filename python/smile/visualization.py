@@ -19,7 +19,10 @@ import numpy.linalg as npla
 
 
 def plot_absolute_position_error_histogram(results, return_intermediate_results=False):
-    position_coordinates, begin_position_coordinates, end_position_coordinates = results.determine_dimensions()
+    # FIXME
+    position_coordinates = 'position_2d' #['position_x', 'position_y', 'position_z']
+    begin_position_coordinates = 'begin_true_position_2d' #['begin_true_position_x', 'begin_true_position_y', 'begin_true_position_z']
+    end_position_coordinates = 'end_true_position_2d' #['end_true_position_x', 'end_true_position_y', 'end_true_position_z']
 
     # Mobile node cloud move during localization procedure
     true_positions = (results[:, begin_position_coordinates] + results[:, end_position_coordinates]) / 2
@@ -41,7 +44,10 @@ def plot_absolute_position_error_histogram(results, return_intermediate_results=
 
 
 def plot_absolute_position_error_surface(results, anchors=None, return_intermediate_results=False):
-    position_coordinates, begin_position_coordinates, end_position_coordinates = results.determine_dimensions()
+    # FIXME
+    position_coordinates = 'position_2d' #['position_x', 'position_y', 'position_z']
+    begin_position_coordinates = 'begin_true_position_2d' #['begin_true_position_x', 'begin_true_position_y', 'begin_true_position_z']
+    end_position_coordinates = 'end_true_position_2d' #['end_true_position_x', 'end_true_position_y', 'end_true_position_z']
 
     # Mobile node cloud move during localization procedure
     true_positions = (results[:, begin_position_coordinates] + results[:, end_position_coordinates]) / 2
@@ -99,7 +105,10 @@ def plot_absolute_position_error_surface(results, anchors=None, return_intermedi
 
 
 def plot_absolute_position_error_cdf(results, return_intermediate_results=False):
-    position_coordinates, begin_position_coordinates, end_position_coordinates = results.determine_dimensions()
+    # FIXME
+    position_coordinates = 'position_2d' #['position_x', 'position_y', 'position_z']
+    begin_position_coordinates = 'begin_true_position_2d' #['begin_true_position_x', 'begin_true_position_y', 'begin_true_position_z']
+    end_position_coordinates = 'end_true_position_2d' #['end_true_position_x', 'end_true_position_y', 'end_true_position_z']
 
     true_positions = (results[:, begin_position_coordinates] + results[:, end_position_coordinates]) / 2
     position_errors = npla.norm(true_positions - results[:, position_coordinates], axis=1)
