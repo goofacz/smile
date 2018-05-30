@@ -21,11 +21,25 @@ matplotlib.use('AGG')
 import unittest
 from smile.visualization import *
 import numpy as np
-from smile.results import Results
+from smile.results import Results, Result
 from math import sqrt
 
 
 class TestAnalysis(unittest.TestCase):
+    def setUp(self):
+        self.dummy_result = Result()
+        self.dummy_result.mac_address = 0
+        self.dummy_result.position_dimensions = 0
+        self.dummy_result.position_x = 0.
+        self.dummy_result.position_y = 0.
+        self.dummy_result.position_z = 0.
+        self.dummy_result.begin_true_position_x = 0.
+        self.dummy_result.begin_true_position_y = 0.
+        self.dummy_result.begin_true_position_z = 0.
+        self.dummy_result.end_true_position_x = 0.
+        self.dummy_result.end_true_position_y = 0.
+        self.dummy_result.end_true_position_z = 0.
+
     def test_absolute_position_error_histogram(self):
         results = Results.create_array(3, 2)
         results[0, "begin_true_position_2d"] = (0, 0)
@@ -53,7 +67,8 @@ class TestAnalysis(unittest.TestCase):
         self.assertAlmostEqual(sqrt(2 * 10 ** 2) - sqrt(2 * 6 ** 2), position_errors[2], places=10)
 
     def test_absolute_position_error_histogram(self):
-        results = Results.create_array(4, 2)
+        results = [self.dummy_result, self.dummy_result, self.dummy_result, self.dummy_result]
+        results = Results.create_array(results)
         results[0, "begin_true_position_2d"] = (0, 0)
         results[0, "position_2d"] = (15, 0)
         results[0, "end_true_position_2d"] = (20, 0)

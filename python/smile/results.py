@@ -18,6 +18,39 @@ import numpy as np
 from smile.array import Array
 
 
+class Result(object):
+    def __init__(self):
+        self.position_dimensions = None
+        self.position_x = None
+        self.position_y = None
+        self.position_z = None
+        self.begin_true_position_x = None
+        self.begin_true_position_y = None
+        self.begin_true_position_z = None
+        self.end_true_position_x = None
+        self.end_true_position_y = None
+        self.end_true_position_z = None
+        self.mac_address = None
+
+    def to_tuple(self):
+        result = (self.position_dimensions,
+                  self.position_x,
+                  self.position_y,
+                  self.position_z,
+                  self.begin_true_position_x,
+                  self.begin_true_position_y,
+                  self.begin_true_position_z,
+                  self.end_true_position_x,
+                  self.end_true_position_y,
+                  self.end_true_position_z,
+                  self.mac_address)
+
+        if not all(element is not None for element in result):
+            raise ValueError('Result tuple cannot contain None values')
+
+        return result
+
+
 class Results(Array):
     def __init__(self, *args):
         super(Results, self).__init__()
@@ -54,21 +87,13 @@ class Results(Array):
                                                      self.column_names["end_true_position_y"],
                                                      self.column_names["end_true_position_z"])
 
-    def determine_dimensions(self):
-        unique_dimensions = np.unique(self[:, "position_dimensions"])
-        if len(unique_dimensions) is not 1:
-            raise ValueError('Cannot process results with different position dimensions (2D and 3D)')
-
-        if self[0, "position_dimensions"] == 2:
-            return "position_2d", "begin_true_position_2d", "end_true_position_2d"
-        else:
-            return "position_3d", "begin_true_position_3d", "end_true_position_3d"
-
     @staticmethod
-    def create_array(rows, position_dimensions=2, mac_address=None):
-        assert (position_dimensions in (2, 3))
-        results = Results(np.zeros((rows, 11)))
-        results["position_dimensions"] = position_dimensions
-        if mac_address is not None:
-            results["mac_address"] = mac_address
+    def create_array(rows):
+        results = [row.to_tuple() for row in rows]
+        results = Results(results)
+
+        unique = np.unique(results['position_dimensions'])
+        if unique.shape != (1,):
+            raise ValueError('Array cannot store 2d and 3D positions at the same time')
+
         return results
