@@ -17,80 +17,63 @@ import numpy as np
 
 
 class Array(np.ndarray):
-    def __new__(cls, input_array):
-        instance = np.asarray(input_array).view(cls)
+    def __new__(cls, *args, **kargs):
+        instance = np.asarray(*args, **kargs).view(cls)
         instance.column_names = {}
         return instance
 
     def __array_finalize__(self, instance):
-        if instance is None:
-            return
-        self.column_names = getattr(instance, "column_names", None)
+        if instance is not None:
+            self.column_names = getattr(instance, 'column_names', None)
 
     def __array_wrap__(self, out_arr, context=None):
-        return np.ndarray.__array_wrap__(self.view(np.ndarray), out_arr, context)
+        return np.ndarray.__array_wrap__(self.view(type(self)), out_arr, context)
 
     def __getitem__(self, index):
-        index, return_as_ndarray = self._process_index(index)
-        result = super(Array, self).__getitem__(index)
-        if return_as_ndarray:
-            return result.view(np.ndarray)
-        else:
-            return result
+        index = self._process_index(index)
+        return super(Array, self).__getitem__(index)
 
     def __setitem__(self, index, value):
-        index, _ = self._process_index(index)
+        index = self._process_index(index)
         return super(Array, self).__setitem__(index, value)
 
     def _process_vector_index(self, index):
         if isinstance(index, str):
             if index not in self.column_names:
-                raise IndexError("Unknown column name: '{0}'".format(index))
-            index = self.column_names[index]
-            return index, True
+                raise IndexError(f'Unknown column name: {index}')
 
-        if index == slice(None, None, None):
-            return index, False
+            return self.column_names[index]
 
-        return index, True
+        return index
 
     def _process_array_index(self, index):
         if isinstance(index, str):
             if index not in self.column_names:
-                raise IndexError("Unknown column name: '{0}'".format(index))
-            index = (slice(None, None, None), self.column_names[index])
-            return index, True
+                raise IndexError(f'Unknown column name: {index}')
 
-        if type(index) in (list, tuple):
-            return_as_ndarray = False
+            return slice(None, None, None), self.column_names[index]
+
+        elif type(index) in (list, tuple):
             if len(index) == 1:
                 index = index[0]
+
             elif len(index) == 2:
                 if isinstance(index[0], str):
-                    raise IndexError("Rows cannot be indexed with string names")
+                    raise IndexError('Rows cannot be indexed with string names')
+
                 elif type(index[0]) in (list, tuple) and type(index[0][0]) is np.ndarray:
                     index = (index[0][0], index[1])
 
                 if isinstance(index[1], str):
                     if index[1] not in self.column_names:
-                        raise IndexError("Unknown column name: '{0}'".format(index[1]))
+                        raise IndexError(f'Unknown column name: {index[1]}')
+
                     index = (index[0], self.column_names[index[1]])
 
-                if index[1] != slice(None, None, None):
-                    return_as_ndarray = True
             else:
-                raise IndexError("Sequence of {0} cannot be used for indexing")
+                raise IndexError(f'Sequence of {index} cannot be used for indexing')
 
-            return index, return_as_ndarray
-
-        if isinstance(index, np.ndarray):
-            return index, False
-
-        if isinstance(index, int):
-            index = (index, slice(None, None, None))
-            return index, False
-
-        raise IndexError('Invalid index')
+        return index
 
     def _process_index(self, index):
         if len(self.shape) == 1:
