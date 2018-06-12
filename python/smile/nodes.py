@@ -16,6 +16,7 @@
 import numpy as np
 
 from smile.array import Array
+from os.path import expanduser, abspath
 
 
 class Nodes(Array):
@@ -35,5 +36,6 @@ class Nodes(Array):
 
     @staticmethod
     def load_csv(file_path):
-        array = Nodes(np.loadtxt(file_path, delimiter=',', ndmin=2))
-        return array
+        if isinstance(file_path, str):
+            file_path = abspath(expanduser(file_path))
+        return Nodes(np.loadtxt(file_path, delimiter=',', ndmin=2))

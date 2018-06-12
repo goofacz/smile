@@ -14,6 +14,7 @@
 #
 
 import numpy as np
+from os.path import expanduser, abspath
 
 from smile.array import Array
 
@@ -59,6 +60,8 @@ class Frames(Array):
         :param file_path: Path to CSV file
         """
         converters = Frames._get_default_converters()
+        if isinstance(file_path, str):
+            file_path = abspath(expanduser(file_path))
         return Frames(np.loadtxt(file_path, delimiter=',', converters=converters, ndmin=2))
 
     @staticmethod
