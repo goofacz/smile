@@ -43,7 +43,10 @@ class Arguments:
         self.method_path = self.__get_method_path()
         self.scenario = self.arguments.scenario[0]
         self.config = self.arguments.config[0]
-        self.mode = self.arguments.mode[0]
+        if isinstance(self.arguments.mode, list):
+            self.mode = self.arguments.mode[0]
+        else:
+            self.mode = self.arguments.mode
         self.inet_path = Arguments.__get_framework_path('SMILE_INET_PATH', '--inet', self.arguments.inet_path,
                                                         'INET framework')
         self.smile_path = Arguments.__get_framework_path('SMILE_PATH', '--smile', self.arguments.smile_path,

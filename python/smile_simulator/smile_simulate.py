@@ -20,5 +20,6 @@ from smile_simulator.arguments import Arguments
 def main():
     arguments = Arguments()
     cmd_arguments = arguments.get_opp_runall_args()
-    print(cmd_arguments)
+
+    print('\n============================== opp_runall output ===============================\n')
     exit(subprocess.call(cmd_arguments))
