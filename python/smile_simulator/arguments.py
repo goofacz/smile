@@ -26,17 +26,23 @@ class Arguments:
         parser.add_argument('scenario', type=str, nargs=1, help='scenario name')
         parser.add_argument('config', type=str, nargs=1, help='configuration name')
         parser.add_argument('--ui', type=str, nargs=1, metavar='UI', default='Cmdenv', dest='ui',
-                            help='user interface mode (default: Cmdenv)', choices=('Cmdenv', 'Qtenv'),
+                            help='User interface mode (default: Cmdenv).', choices=('Cmdenv', 'Qtenv'),
                             action='store')
-        parser.add_argument('--mode', type=str, nargs=1, metavar='mode', default='release', dest='mode',
-                            help='executable mode (default: release)', choices=('release', 'debug'),
+        parser.add_argument('--mode', type=str, nargs=1, metavar='mode.', default='release', dest='mode',
+                            help='Executable mode (default: release)', choices=('release', 'debug'),
                             action='store')
         parser.add_argument('--inet', type=str, nargs=1, metavar='path', default='', dest='inet_path',
-                            help='path to INET framework', action='store')
+                            help='Path to INET framework.', action='store')
         parser.add_argument('--smile', type=str, nargs=1, metavar='path', default='', dest='smile_path',
-                            help='path to SMILe simulation framework', action='store')
+                            help='Path to SMILe simulation framework.', action='store')
         parser.add_argument('--exec', type=str, nargs=1, metavar='path', default='', dest='exec_path',
-                            help='path to method executable file', action='store')
+                            help='Path to method executable file', action='store')
+        parser.add_argument('--batchsize', type=int, nargs=1, metavar='N', dest='batch_size',
+                            help='Number of simulation runs per Cmdenv instance. Defaults to approximately '
+                                 '#runs/#jobs but maximum 5.', action='store')
+        parser.add_argument('--jobs', type=int, nargs=1, metavar='N', dest='jobs',
+                            help='Allow N processes to run at once. Defaults to the number of CPU cores.',
+                            action='store')
 
         self.arguments = parser.parse_args()
 
@@ -56,6 +62,16 @@ class Arguments:
         self.ned_paths += Arguments.__get_ned_paths(self.method_path, 'method', ['src', 'simulations'])
         self.ini_path = self.__get_init_path()
         self.executable_path = self.__get_executable_path()
+
+        if self.arguments.batch_size:
+            self.batch_size = self.arguments.batch_size[0]
+        else:
+            self.batch_size = None
+
+        if self.arguments.jobs:
+            self.jobs = self.arguments.jobs[0]
+        else:
+            self.jobs = None
 
     @staticmethod
     def __get_framework_path(env_name, arg_name, arg_value, location_name):
@@ -124,8 +140,14 @@ class Arguments:
         return files[0]
 
     def get_opp_runall_args(self):
-        cmd_arguments = ['opp_runall', self.executable_path]
+        cmd_arguments = ['opp_runall']
+        if self.batch_size:
+            cmd_arguments += ('-b', str(self.batch_size))
+        if self.jobs:
+            cmd_arguments += ('-j', str(self.jobs))
+        cmd_arguments.append(self.executable_path)
         cmd_arguments += ('-f', self.ini_path)
         cmd_arguments += ('-c', self.config)
         cmd_arguments += ('-n', ':'.join(self.ned_paths))
+
         return cmd_arguments
