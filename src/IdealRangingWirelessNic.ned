@@ -17,11 +17,11 @@
 
 package smile;
 
-import inet.linklayer.contract.IWirelessNic;
+import inet.linklayer.contract.IWirelessInterface;
 import inet.common.queue.IOutputQueue;
 import inet.physicallayer.contract.packetlevel.IRadio;
 
-module IdealRangingWirelessNic like IWirelessNic
+module IdealRangingWirelessNic like IWirelessInterface
 {
     parameters:
         @display("i=block/ifcard;bgb=214,335;bgl=53");
@@ -30,8 +30,8 @@ module IdealRangingWirelessNic like IWirelessNic
         string queueType = default("DropTailQueue");
         string radioType = default("IdealRadio");
         double bitrate @unit("bps");
-        *.interfaceTableModule = default(absPath(interfaceTableModule));
-        *.energySourceModule = default(absPath(energySourceModule));
+        // FIXME *.interfaceTableModule = default(absPath(interfaceTableModule));
+        // FIXME *.energySourceModule = default(absPath(energySourceModule));
         **.bitrate = bitrate;
 
     gates:

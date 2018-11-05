@@ -17,22 +17,24 @@
 
 #include "IdealRangingMac.h"
 
+using namespace inet;
+
 namespace smile {
 
 Define_Module(IdealRangingMac);
 
-void IdealRangingMac::initializeMACAddress()
+void IdealRangingMac::initializeMacAddress()
 {
   const auto address = par("address").stdstringValue();
   const auto isInteger = [&address] { return address.find_first_not_of("0123456789") == std::string::npos; };
 
   if (isInteger()) {
     const uint64_t numericAddress = 0xCCAA00000000 + std::stol(address);
-    const auto macAddress = inet::MACAddress{numericAddress};
+    const auto macAddress = MacAddress{numericAddress};
     par("address").setStringValue(macAddress.str());
   }
 
-  IdealMac::initializeMACAddress();
+  AckingMac::initializeMacAddress();
 }
 
 }  // namespace smile

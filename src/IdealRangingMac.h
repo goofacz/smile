@@ -17,12 +17,12 @@
 
 #pragma once
 
-#include <inet/linklayer/ideal/IdealMac.h>
+#include <inet/linklayer/acking/AckingMac.h>
 #include <omnetpp.h>
 
 namespace smile {
 
-class IdealRangingMac : public inet::IdealMac
+class IdealRangingMac : public inet::AckingMac
 {
  public:
   IdealRangingMac() = default;
@@ -34,7 +34,7 @@ class IdealRangingMac : public inet::IdealMac
   IdealRangingMac& operator=(IdealRangingMac&& source) = delete;
 
  private:
-  void initializeMACAddress() override;
+  void initializeMacAddress() override;
 };
 
 }  // namespace smile

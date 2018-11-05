@@ -18,13 +18,15 @@
 #include "Clock.h"
 #include <inet/common/INETDefs.h>
 
+using namespace inet;
+
 namespace smile {
 
 Define_Module(Clock);
 
 int Clock::numInitStages() const
 {
-  return inet::INITSTAGE_LOCAL + 1;
+  return INITSTAGE_LOCAL + 1;
 }
 
 omnetpp::SimTime Clock::getClockTimestamp()

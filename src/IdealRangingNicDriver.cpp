@@ -18,20 +18,23 @@
 #include "IdealRangingNicDriver.h"
 #include "utilities.h"
 
+using namespace inet;
+using namespace omnetpp;
+
 namespace smile {
 
 Define_Module(IdealRangingNicDriver);
 
-inet::MACAddress IdealRangingNicDriver::getMacAddress() const
+MacAddress IdealRangingNicDriver::getMacAddress() const
 {
-  return inet::MACAddress{mac->par("address").stringValue()};
+  return MacAddress{mac->par("address").stringValue()};
 }
 
 void IdealRangingNicDriver::initialize(int stage)
 {
   ClockDecorator<cSimpleModule>::initialize(stage);
 
-  if (stage == inet::INITSTAGE_LOCAL) {
+  if (stage == INITSTAGE_LOCAL) {
     const auto nicModulePath = par("nicModuleRelativePath").stringValue();
     nic = getModuleByPath(nicModulePath);
     if (!nic) {
@@ -44,9 +47,9 @@ void IdealRangingNicDriver::initialize(int stage)
       throw cRuntimeError{"Failed to find \"%s\" module relative to \"nic\" module", radioModulePath};
     }
 
-    radio = check_and_cast<inet::physicallayer::IRadio*>(radioModule);
-    radioModule->subscribe(inet::physicallayer::IRadio::transmissionStateChangedSignal, this);
-    radioModule->subscribe(inet::physicallayer::IRadio::receptionStateChangedSignal, this);
+    radio = check_and_cast<physicallayer::IRadio*>(radioModule);
+    radioModule->subscribe(physicallayer::IRadio::transmissionStateChangedSignal, this);
+    radioModule->subscribe(physicallayer::IRadio::receptionStateChangedSignal, this);
 
     const auto macModulePath = ".mac";
     mac = nic->getModuleByPath(macModulePath);
@@ -55,18 +58,18 @@ void IdealRangingNicDriver::initialize(int stage)
     }
 
     const auto mobilityPath = par("mobilityModule").stringValue();
-    mobility = check_and_cast<inet::IMobility*>(getModuleByPath(mobilityPath));
+    mobility = check_and_cast<IMobility*>(getModuleByPath(mobilityPath));
   }
 }
 
-void IdealRangingNicDriver::handleIncommingMessage(omnetpp::cMessage* newMessage)
+void IdealRangingNicDriver::handleIncommingMessage(cMessage* newMessage)
 {
   std::unique_ptr<cMessage> message{newMessage};
   if (message->arrivedOn("nicIn")) {
-    handleNicIn(dynamic_unique_ptr_cast<inet::IdealMacFrame>(std::move(message)));
+    handleNicIn(dynamic_unique_ptr_cast<Packet>(std::move(message)));
   }
   else if (message->arrivedOn("applicationIn")) {
-    handleApplicationIn(dynamic_unique_ptr_cast<inet::IdealMacFrame>(std::move(message)));
+    handleApplicationIn(dynamic_unique_ptr_cast<Packet>(std::move(message)));
   }
   else {
     throw cRuntimeError{"Received unexpected message \"%s\" on gate \"%s\"", message->getFullName(),
@@ -74,28 +77,28 @@ void IdealRangingNicDriver::handleIncommingMessage(omnetpp::cMessage* newMessage
   }
 }
 
-void IdealRangingNicDriver::receiveSignal(omnetpp::cComponent* source, omnetpp::simsignal_t signalID, long value,
-                                          omnetpp::cObject* details)
+void IdealRangingNicDriver::receiveSignal(cComponent* source, simsignal_t signalID, long value,
+                                          cObject* details)
 {
-  if (signalID == inet::physicallayer::IRadio::transmissionStateChangedSignal) {
-    handleRadioStateChanged(static_cast<inet::physicallayer::IRadio::TransmissionState>(value));
+  if (signalID == physicallayer::IRadio::transmissionStateChangedSignal) {
+    handleRadioStateChanged(static_cast<physicallayer::IRadio::TransmissionState>(value));
   }
-  else if (signalID == inet::physicallayer::IRadio::receptionStateChangedSignal) {
-    handleRadioStateChanged(static_cast<inet::physicallayer::IRadio::ReceptionState>(value));
+  else if (signalID == physicallayer::IRadio::receptionStateChangedSignal) {
+    handleRadioStateChanged(static_cast<physicallayer::IRadio::ReceptionState>(value));
   }
   else {
     throw cRuntimeError{"Received unexpected signal \"%s\"", getSignalName(signalID)};
   }
 }
 
-void IdealRangingNicDriver::handleApplicationIn(std::unique_ptr<inet::IdealMacFrame> frame)
+void IdealRangingNicDriver::handleApplicationIn(std::unique_ptr<Packet> frame)
 {
   txFrame.reset(frame->dup());
   txCompletion.setFrame(txFrame.get());
   send(frame.release(), "nicOut");
 }
 
-void IdealRangingNicDriver::handleNicIn(std::unique_ptr<inet::IdealMacFrame> frame)
+void IdealRangingNicDriver::handleNicIn(std::unique_ptr<Packet> frame)
 {
   rxFrame.reset(frame->dup());
   rxCompletion.setFrame(rxFrame.get());
@@ -108,9 +111,9 @@ void IdealRangingNicDriver::handleNicIn(std::unique_ptr<inet::IdealMacFrame> fra
   send(frame.release(), "applicationOut");
 }
 
-void IdealRangingNicDriver::handleRadioStateChanged(inet::physicallayer::IRadio::TransmissionState newState)
+void IdealRangingNicDriver::handleRadioStateChanged(physicallayer::IRadio::TransmissionState newState)
 {
-  using inet::physicallayer::IRadio;
+  using physicallayer::IRadio;
   switch (newState) {
     case IRadio::TRANSMISSION_STATE_IDLE:
       if (previousTxState == IRadio::TRANSMISSION_STATE_TRANSMITTING) {
@@ -141,9 +144,9 @@ void IdealRangingNicDriver::handleRadioStateChanged(inet::physicallayer::IRadio:
   previousTxState = newState;
 }
 
-void IdealRangingNicDriver::handleRadioStateChanged(inet::physicallayer::IRadio::ReceptionState newState)
+void IdealRangingNicDriver::handleRadioStateChanged(physicallayer::IRadio::ReceptionState newState)
 {
-  using inet::physicallayer::IRadio;
+  using physicallayer::IRadio;
   switch (newState) {
     case IRadio::RECEPTION_STATE_BUSY:
       // TODO
@@ -182,8 +185,8 @@ void IdealRangingNicDriver::clearRxCompletion()
   txCompletion.setOperationEndClockTimestamp(0);
   txCompletion.setOperationEndSimulationTimestamp(simTime());
 
-  txCompletion.setOperationBeginTruePosition(inet::Coord{});
-  txCompletion.setOperationEndTruePosition(inet::Coord{});
+  txCompletion.setOperationBeginTruePosition(Coord{});
+  txCompletion.setOperationEndTruePosition(Coord{});
 }
 
 void IdealRangingNicDriver::clearTxCompletion()
@@ -198,8 +201,8 @@ void IdealRangingNicDriver::clearTxCompletion()
   rxCompletion.setOperationEndClockTimestamp(0);
   rxCompletion.setOperationEndSimulationTimestamp(simTime());
 
-  rxCompletion.setOperationBeginTruePosition(inet::Coord{});
-  rxCompletion.setOperationEndTruePosition(inet::Coord{});
+  rxCompletion.setOperationBeginTruePosition(Coord{});
+  rxCompletion.setOperationEndTruePosition(Coord{});
 }
 
 }  // namespace smile

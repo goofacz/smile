@@ -18,7 +18,7 @@
 #pragma once
 
 #include <inet/common/geometry/common/Coord.h>
-#include <inet/linklayer/common/MACAddress.h>
+#include <inet/linklayer/common/MacAddress.h>
 #include <omnetpp.h>
 #include <experimental/filesystem>
 #include <fstream>

@@ -17,9 +17,9 @@
 
 package smile;
 
-import inet.linklayer.contract.IWirelessNic;
-import inet.networklayer.common.InterfaceTable;
-import inet.networklayer.generic.GenericRoutingTable;
+import inet.linklayer.contract.IWirelessInterface;
+// FIXME import inet.networklayer.common.InterfaceTable;
+// FIXME import inet.networklayer.generic.GenericRoutingTable;
 import inet.mobility.contract.IMobility;
 
 module RadioNode like IRadioNode
@@ -27,7 +27,7 @@ module RadioNode like IRadioNode
     parameters:
         @networkNode();
         @display("i=device/device");
-        *.interfaceTableModule = default(absPath(".interfaceTable"));
+        // FIXME *.interfaceTableModule = default(absPath(".interfaceTable"));
         string physicalNicType = default("");
         string mobilityType = default("");
         string applicationType = default("");
@@ -39,13 +39,13 @@ module RadioNode like IRadioNode
         input radioIn @directIn;
 
     submodules:
-        interfaceTable: InterfaceTable;
-        routingTable: GenericRoutingTable;
+        // FIXME interfaceTable: InterfaceTable;
+        // FIXME routingTable: GenericRoutingTable;
         mobility: <mobilityType> like IMobility;
         application: <applicationType> like IApplication;
         clock: <clockType> like IClock;
         nicDriver: <nicDriverType> like IRangingNicDriver;
-        nic: <nicType> like IWirelessNic;
+        nic: <nicType> like IWirelessInterface;
 
     connections:
         radioIn --> nic.radioIn;

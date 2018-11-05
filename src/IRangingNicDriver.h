@@ -17,7 +17,7 @@
 
 #pragma once
 
-#include <inet/linklayer/common/MACAddress.h>
+#include <inet/linklayer/common/MacAddress.h>
 #include <omnetpp.h>
 
 namespace smile {
@@ -43,10 +43,10 @@ class IRangingNicDriver
   IRangingNicDriver& operator=(const IRangingNicDriver& source) = delete;
   IRangingNicDriver& operator=(IRangingNicDriver&& source) = delete;
 
-  static const simsignal_t txCompletedSignalId;
-  static const simsignal_t rxCompletedSignalId;
+  static const omnetpp::simsignal_t txCompletedSignalId;
+  static const omnetpp::simsignal_t rxCompletedSignalId;
 
-  virtual inet::MACAddress getMacAddress() const = 0;
+  virtual inet::MacAddress getMacAddress() const = 0;
 
  protected:
   IRangingNicDriver() = default;

@@ -19,6 +19,8 @@
 #include <inet/common/ModuleAccess.h>
 #include <cassert>
 
+using namespace inet;
+
 namespace smile {
 
 Define_Module(Application);
@@ -26,18 +28,18 @@ Define_Module(Application);
 void Application::initialize(int stage)
 {
   ClockDecorator<cSimpleModule>::initialize(stage);
-  if (stage == inet::INITSTAGE_LOCAL) {
-    mobility = inet::getModuleFromPar<inet::IMobility>(par("mobilityModule"), this, true);
-    nicDriver = inet::getModuleFromPar<IRangingNicDriver>(par("nicDriverModule"), this, true);
+  if (stage == INITSTAGE_LOCAL) {
+    mobility = getModuleFromPar<IMobility>(par("mobilityModule"), this, true);
+    nicDriver = getModuleFromPar<IRangingNicDriver>(par("nicDriverModule"), this, true);
   }
 }
 
 int Application::numInitStages() const
 {
-  return inet::INITSTAGE_APPLICATION_LAYER + 1;
+  return INITSTAGE_APPLICATION_LAYER + 1;
 }
 
-inet::Coord Application::getCurrentTruePosition() const
+Coord Application::getCurrentTruePosition() const
 {
   return mobility->getCurrentPosition();
 }

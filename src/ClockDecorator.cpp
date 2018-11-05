@@ -17,6 +17,8 @@
 
 #include "ClockDecorator.h"
 
+using namespace omnetpp;
+
 namespace smile {
 namespace clock_decorator_details {
 

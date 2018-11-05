@@ -18,7 +18,7 @@
 #pragma once
 
 #include <inet/common/geometry/common/Coord.h>
-#include <inet/linklayer/ideal/IdealMacFrame_m.h>
+#include <inet/linklayer/acking/AckingMacHeader_m.h>
 #include <omnetpp.h>
 #include <memory>
 #include <type_traits>
@@ -45,31 +45,31 @@ class IdealApplication : public Application
   void initialize(int stage) override;
 
   template <typename Frame, typename... FrameArguments>
-  std::unique_ptr<Frame> createFrame(const inet::MACAddress& destinationAddress, FrameArguments&&... frameArguments);
+  std::unique_ptr<Frame> createFrame(const inet::MacAddress& destinationAddress, FrameArguments&&... frameArguments);
 
   virtual void handleTxCompletionSignal(const IdealTxCompletion& completion);
 
   virtual void handleRxCompletionSignal(const IdealRxCompletion& completion);
 
-  const inet::MACAddress& getMacAddress() const;
+  const inet::MacAddress& getMacAddress() const;
 
  private:
-  static void initializeFrame(inet::IdealMacFrame& frame, const inet::MACAddress& destinationAddress,
-                              const inet::MACAddress& sourceAddress);
+  static void initializeFrame(inet::AckingMacHeader& frame, const inet::MacAddress& destinationAddress,
+                              const inet::MacAddress& sourceAddress);
 
   void receiveSignal(omnetpp::cComponent* source, omnetpp::simsignal_t signalID, cObject* value,
                      omnetpp::cObject* details) override;
 
-  inet::MACAddress macAddress;
+  inet::MacAddress macAddress;
 };
 
 template <typename Frame, typename... FrameArguments>
-std::unique_ptr<Frame> IdealApplication::createFrame(const inet::MACAddress& destinationAddress,
+std::unique_ptr<Frame> IdealApplication::createFrame(const inet::MacAddress& destinationAddress,
                                                      FrameArguments&&... frameArguments)
 {
-  constexpr auto isDerived = std::is_base_of<inet::IdealMacFrame, Frame>::value;
-  constexpr auto isSame = std::is_same<inet::IdealMacFrame, Frame>::value;
-  static_assert(isDerived || isSame, "IdealApplication::createFrame requires Frame to derive from inet::IdealMacFrame");
+  constexpr auto isDerived = std::is_base_of<inet::AckingMacHeader, Frame>::value;
+  constexpr auto isSame = std::is_same<inet::AckingMacHeader, Frame>::value;
+  static_assert(isDerived || isSame, "IdealApplication::createFrame requires Frame to derive from inet::AckingMacHeader");
 
   auto frame = std::make_unique<Frame>(std::forward<FrameArguments>(frameArguments)...);
   const auto& nicDriver = getNicDriver();

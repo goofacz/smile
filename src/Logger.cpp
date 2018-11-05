@@ -19,6 +19,8 @@
 #include <inet/common/INETDefs.h>
 #include <algorithm>
 
+using namespace omnetpp;
+
 namespace smile {
 
 Define_Module(Logger);

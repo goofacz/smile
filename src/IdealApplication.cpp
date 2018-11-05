@@ -22,6 +22,9 @@
 #include <algorithm>
 #include "utilities.h"
 
+using namespace inet;
+using namespace omnetpp;
+
 namespace smile {
 
 Define_Module(IdealApplication);
@@ -29,13 +32,13 @@ Define_Module(IdealApplication);
 void IdealApplication::initialize(int stage)
 {
   Application::initialize(stage);
-  if (stage == inet::INITSTAGE_LOCAL) {
+  if (stage == INITSTAGE_LOCAL) {
     auto nicDriverModule = check_and_cast<cModule*>(&getNicDriver());
     nicDriverModule->subscribe(IRangingNicDriver::txCompletedSignalId, this);
     nicDriverModule->subscribe(IRangingNicDriver::rxCompletedSignalId, this);
   }
 
-  if (stage == inet::INITSTAGE_LINK_LAYER_2) {
+  if (stage == INITSTAGE_LINK_LAYER_2) {
     const auto& nicDriver = getNicDriver();
     macAddress = nicDriver.getMacAddress();
   }
@@ -51,25 +54,25 @@ void IdealApplication::handleRxCompletionSignal(const IdealRxCompletion&)
   EV_WARN_C("IdealApplication") << "Dummy handler handleRxCompletionSignal() was called" << endl;
 }
 
-const inet::MACAddress& IdealApplication::getMacAddress() const
+const MacAddress& IdealApplication::getMacAddress() const
 {
   return macAddress;
 }
 
-void IdealApplication::initializeFrame(inet::IdealMacFrame& frame, const inet::MACAddress& destinationAddress,
-                                       const inet::MACAddress& sourceAddress)
+void IdealApplication::initializeFrame(AckingMacHeader& frame, const MacAddress& destinationAddress,
+                                       const MacAddress& sourceAddress)
 {
-  auto controlInformation = std::make_unique<inet::Ieee802Ctrl>();
-  controlInformation->setSourceAddress(sourceAddress);
-  controlInformation->setDest(destinationAddress);
+  // FIXME auto controlInformation = std::make_unique<Ieee802Ctrl>();
+  // controlInformation->setSourceAddress(sourceAddress);
+  // controlInformation->setDest(destinationAddress);
 
   frame.setSrc(sourceAddress);
   frame.setDest(destinationAddress);
-  frame.setControlInfo(controlInformation.release());
+  // FIMXE frame.setControlInfo(controlInformation.release());
 }
 
-void IdealApplication::receiveSignal(omnetpp::cComponent* source, omnetpp::simsignal_t signalID, cObject* value,
-                                     omnetpp::cObject* details)
+void IdealApplication::receiveSignal(cComponent* source, simsignal_t signalID, cObject* value,
+                                     cObject* details)
 {
   if (signalID == IRangingNicDriver::txCompletedSignalId) {
     auto completion = check_and_cast<const IdealTxCompletion*>(value);

@@ -18,6 +18,8 @@
 #include "IdealClock.h"
 #include <inet/common/INETDefs.h>
 
+using namespace omnetpp;
+
 namespace smile {
 
 Define_Module(IdealClock);

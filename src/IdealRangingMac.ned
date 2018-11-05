@@ -17,9 +17,9 @@
 
 package smile;
 
-import inet.linklayer.ideal.IdealMac;
+import inet.linklayer.acking.AckingMac;
 
-simple IdealRangingMac extends IdealMac 
+simple IdealRangingMac extends AckingMac 
 {
     parameters:
         @class(smile::IdealRangingMac);

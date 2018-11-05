@@ -15,22 +15,22 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 //
 cplusplus	{{
-#include <inet/linklayer/ideal/IdealMacFrame_m.h>
+#include <inet/common/packet/Packet.h>
 #include <inet/common/geometry/common/Coord.h>
 #include "IRangingNicDriver.h"
 
-using IdealMacFramePointer = const inet::IdealMacFrame*;
+using PacketPtr = const inet::Packet*;
 }}
 
 namespace smile;
 
 class noncobject IRangingNicDriver::IdealRxCompletionStatus;
-class noncobject IdealMacFramePointer;
+class noncobject PacketPtr;
 class noncobject inet::Coord;
 
 class IdealRxCompletion {
     IRangingNicDriver::IdealRxCompletionStatus status = IRangingNicDriver::IdealRxCompletionStatus::SUCCESS;
-    IdealMacFramePointer frame = nullptr;
+    PacketPtr frame = nullptr;
     simtime_t operationBeginClockTimestamp = 0;
     simtime_t operationBeginSimulationTimestamp = 0;
     simtime_t operationEndClockTimestamp = 0;

@@ -16,22 +16,22 @@
 //
 
 cplusplus	{{
-#include <inet/linklayer/ideal/IdealMacFrame_m.h>
+#include <inet/common/packet/Packet.h>
 #include <inet/common/geometry/common/Coord.h>
 #include "IRangingNicDriver.h"
 
-using IdealMacFramePointer = const inet::IdealMacFrame*;
+using PacketPtr = const inet::Packet*;
 }}
 
 namespace smile;
 
 class noncobject IRangingNicDriver::IdealTxCompletionStatus;
-class noncobject IdealMacFramePointer;
+class noncobject PacketPtr;
 class noncobject inet::Coord;
 
 class IdealTxCompletion {
     IRangingNicDriver::IdealTxCompletionStatus status = IRangingNicDriver::IdealTxCompletionStatus::SUCCESS;
-    IdealMacFramePointer frame = nullptr;
+    PacketPtr frame = nullptr;
     simtime_t operationBeginClockTimestamp = 0;
     simtime_t operationBeginSimulationTimestamp = 0;
     simtime_t operationEndClockTimestamp = 0;

@@ -17,7 +17,7 @@
 
 #pragma once
 
-#include <inet/linklayer/ideal/IdealMacFrame_m.h>
+#include <inet/linklayer/acking/AckingMacHeader_m.h>
 #include <inet/mobility/contract/IMobility.h>
 #include <inet/physicallayer/contract/packetlevel/IRadio.h>
 #include <omnetpp.h>
@@ -39,7 +39,7 @@ class IdealRangingNicDriver : public ClockDecorator<omnetpp::cSimpleModule>, pub
   IdealRangingNicDriver& operator=(const IdealRangingNicDriver& source) = delete;
   IdealRangingNicDriver& operator=(IdealRangingNicDriver&& source) = delete;
 
-  inet::MACAddress getMacAddress() const override;
+  inet::MacAddress getMacAddress() const override;
 
  protected:
   using ClockDecorator<omnetpp::cSimpleModule>::receiveSignal;
@@ -52,9 +52,9 @@ class IdealRangingNicDriver : public ClockDecorator<omnetpp::cSimpleModule>, pub
   void receiveSignal(omnetpp::cComponent* source, omnetpp::simsignal_t signalID, long value,
                      omnetpp::cObject* details) override final;
 
-  void handleApplicationIn(std::unique_ptr<inet::IdealMacFrame> frame);
+  void handleApplicationIn(std::unique_ptr<inet::Packet> frame);
 
-  void handleNicIn(std::unique_ptr<inet::IdealMacFrame> frame);
+  void handleNicIn(std::unique_ptr<inet::Packet> frame);
 
   void handleRadioStateChanged(inet::physicallayer::IRadio::TransmissionState newState);
 
@@ -66,8 +66,8 @@ class IdealRangingNicDriver : public ClockDecorator<omnetpp::cSimpleModule>, pub
 
   IdealTxCompletion txCompletion;
   IdealRxCompletion rxCompletion;
-  std::unique_ptr<inet::IdealMacFrame> txFrame;
-  std::unique_ptr<inet::IdealMacFrame> rxFrame;
+  std::unique_ptr<inet::Packet> txFrame;
+  std::unique_ptr<inet::Packet> rxFrame;
   inet::physicallayer::IRadio* radio{nullptr};
   cModule* nic{nullptr};
   cModule* mac{nullptr};
