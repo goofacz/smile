@@ -18,14 +18,14 @@
 #pragma once
 
 #include <omnetpp.h>
-#include <experimental/optional>
+#include <optional>
 
 namespace smile {
 
 class IClock
 {
  public:
-  using OptionalSimTime = std::experimental::optional<omnetpp::SimTime>;
+  using OptionalSimTime = std::optional<omnetpp::SimTime>;
 
  public:
   IClock(const IClock& source) = delete;

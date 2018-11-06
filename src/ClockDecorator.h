@@ -33,7 +33,8 @@ namespace clock_decorator_details {
 struct Message final
 {
   Message() = default;
-  Message(std::unique_ptr<omnetpp::cMessage> newMessage, const omnetpp::SimTime& newClockTimestamp, omnetpp::cGate* newGate);
+  Message(std::unique_ptr<omnetpp::cMessage> newMessage, const omnetpp::SimTime& newClockTimestamp,
+          omnetpp::cGate* newGate);
 
   Message(const Message& source) = delete;
   Message(Message&& source) = default;
@@ -70,7 +71,8 @@ class ClockDecorator : public BaseModule, public omnetpp::cListener
 
   void sendDelayed(omnetpp::cMessage* message, omnetpp::simtime_t delay, int gateID) override final;
 
-  void sendDelayed(omnetpp::cMessage* message, omnetpp::simtime_t delay, const char* gateName, int gateIndex = -1) override final;
+  void sendDelayed(omnetpp::cMessage* message, omnetpp::simtime_t delay, const char* gateName,
+                   int gateIndex = -1) override final;
 
   void sendDelayed(omnetpp::cMessage* message, omnetpp::simtime_t delay, omnetpp::cGate* outputGate) override final;
 
@@ -81,14 +83,16 @@ class ClockDecorator : public BaseModule, public omnetpp::cListener
 
   void handleMessage(omnetpp::cMessage* message) override final;
 
-  void receiveSignal(omnetpp::cComponent* source, omnetpp::simsignal_t signalID, const omnetpp::SimTime& value, omnetpp::cObject* details) override;
+  void receiveSignal(omnetpp::cComponent* source, omnetpp::simsignal_t signalID, const omnetpp::SimTime& value,
+                     omnetpp::cObject* details) override;
 
   virtual void handleSelfMessage(omnetpp::cMessage* message);
 
   virtual void handleIncommingMessage(omnetpp::cMessage* message);
 
  private:
-  void scheduleMessage(std::unique_ptr<omnetpp::cMessage> message, const omnetpp::SimTime& clockTimestamp, omnetpp::cGate* gate);
+  void scheduleMessage(std::unique_ptr<omnetpp::cMessage> message, const omnetpp::SimTime& clockTimestamp,
+                       omnetpp::cGate* gate);
 
   void handleSendScheduledMessagesSelfMessage();
 
@@ -114,9 +118,9 @@ ClockDecorator<BaseModule>::~ClockDecorator()
 template <typename BaseModule>
 void ClockDecorator<BaseModule>::scheduleAt(omnetpp::simtime_t clockTimestamp, omnetpp::cMessage* message)
 {
-    EV_DEBUG << "Calling ClockDecorator<BaseModule>::scheduleAt()" << omnetpp::endl;
-  const auto simulationTime = clock->convertToSimulationTimestamp(clockTimestamp);
-  if (simulationTime) {
+  EV_DEBUG << "Calling ClockDecorator<BaseModule>::scheduleAt()" << omnetpp::endl;
+
+  if (const auto simulationTime = clock->convertToSimulationTimestamp(clockTimestamp)) {
     BaseModule::scheduleAt(*simulationTime, message);
   }
   else {
@@ -128,8 +132,7 @@ template <typename BaseModule>
 void ClockDecorator<BaseModule>::sendDelayed(omnetpp::cMessage* message, omnetpp::simtime_t delay, int gateID)
 {
   const auto clockTimestamp = clockTime() + delay;
-  const auto simulationTime = clock->convertToSimulationTimestamp(clockTimestamp);
-  if (simulationTime) {
+  if (clock->convertToSimulationTimestamp(clockTimestamp)) {
     BaseModule::sendDelayed(message, delay, gateID);
   }
   else {
@@ -139,7 +142,8 @@ void ClockDecorator<BaseModule>::sendDelayed(omnetpp::cMessage* message, omnetpp
 }
 
 template <typename BaseModule>
-void ClockDecorator<BaseModule>::sendDelayed(omnetpp::cMessage* message, omnetpp::simtime_t delay, const char* gateName, int gateIndex)
+void ClockDecorator<BaseModule>::sendDelayed(omnetpp::cMessage* message, omnetpp::simtime_t delay, const char* gateName,
+                                             int gateIndex)
 {
   const auto clockTimestamp = clockTime() + delay;
   const auto simulationTime = clock->convertToSimulationTimestamp(clockTimestamp);
@@ -153,7 +157,8 @@ void ClockDecorator<BaseModule>::sendDelayed(omnetpp::cMessage* message, omnetpp
 }
 
 template <typename BaseModule>
-void ClockDecorator<BaseModule>::sendDelayed(omnetpp::cMessage* message, omnetpp::simtime_t delay, omnetpp::cGate* outputGate)
+void ClockDecorator<BaseModule>::sendDelayed(omnetpp::cMessage* message, omnetpp::simtime_t delay,
+                                             omnetpp::cGate* outputGate)
 {
   const auto clockTimestamp = clockTime() + delay;
   const auto simulationTime = clock->convertToSimulationTimestamp(clockTimestamp);
@@ -204,8 +209,8 @@ void ClockDecorator<BaseModule>::handleMessage(omnetpp::cMessage* message)
 }
 
 template <typename BaseModule>
-void ClockDecorator<BaseModule>::receiveSignal(omnetpp::cComponent* source, omnetpp::simsignal_t signalID, const omnetpp::SimTime& value,
-        omnetpp::cObject* details)
+void ClockDecorator<BaseModule>::receiveSignal(omnetpp::cComponent* source, omnetpp::simsignal_t signalID,
+                                               const omnetpp::SimTime& value, omnetpp::cObject* details)
 {
   EV_DEBUG << "Received signal " << BaseModule::getSignalName(signalID) << omnetpp::endl;
 
@@ -233,8 +238,8 @@ void ClockDecorator<BaseModule>::handleIncommingMessage(omnetpp::cMessage* messa
 }
 
 template <typename BaseModule>
-void ClockDecorator<BaseModule>::scheduleMessage(std::unique_ptr<omnetpp::cMessage> message, const omnetpp::SimTime& clockTimestamp,
-        omnetpp::cGate* gate)
+void ClockDecorator<BaseModule>::scheduleMessage(std::unique_ptr<omnetpp::cMessage> message,
+                                                 const omnetpp::SimTime& clockTimestamp, omnetpp::cGate* gate)
 {
   if (scheduledMessages.empty()) {
     clockModule->subscribe(IClock::windowUpdateSignal, this);
