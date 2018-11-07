@@ -17,40 +17,42 @@
 
 #pragma once
 
-#include <inet/common/geometry/common/Coord.h>
 #include <inet/mobility/contract/IMobility.h>
+#include <inet/physicallayer/contract/packetlevel/IRadio.h>
 #include <omnetpp.h>
 #include "ClockDecorator.h"
-#include "IApplication.h"
-#include "IRangingNicDriver.h"
+#include "Logger.h"
 
 namespace smile {
 
-class Application : public ClockDecorator<omnetpp::cSimpleModule>, public IApplication
+class ApplicationBase : public ClockDecorator<omnetpp::cSimpleModule>
 {
  public:
-  Application() = default;
-  Application(const Application& source) = delete;
-  Application(Application&& source) = delete;
-  ~Application() = default;
+  ApplicationBase() = default;
+  ApplicationBase(const ApplicationBase& source) = delete;
+  ApplicationBase(ApplicationBase&& source) = delete;
+  ~ApplicationBase() = default;
 
-  Application& operator=(const Application& source) = delete;
-  Application& operator=(Application&& source) = delete;
+  ApplicationBase& operator=(const ApplicationBase& source) = delete;
+  ApplicationBase& operator=(ApplicationBase&& source) = delete;
 
  protected:
   using ClockDecorator<omnetpp::cSimpleModule>::receiveSignal;
 
   void initialize(int stage) override;
 
-  inet::Coord getCurrentTruePosition() const;
-
-  IRangingNicDriver& getNicDriver();
+  inet::physicallayer::IRadio& getRadio();
+  Logger& getLlogger();
+  IClock& getClock();
+  inet::IMobility& getMobility();
 
  private:
   int numInitStages() const final;
 
+  inet::physicallayer::IRadio* radio{nullptr};
+  Logger* logger{nullptr};
+  IClock* clock{nullptr};
   inet::IMobility* mobility{nullptr};
-  IRangingNicDriver* nicDriver{nullptr};
 };
 
 }  // namespace smile

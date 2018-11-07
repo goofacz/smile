@@ -17,23 +17,24 @@
 
 package smile;
 
+import inet.applications.contract.IApp;
+
 //
 // Base module for applications running on radio nodes intended for inheritance. Application should
 // be used to process and generate MAC frames on each radio node.
 //
-simple Application like IApplication
+simple ApplicationBase like IApp
 {
-    parameters:
-        @class(smile::Application);
-        @display("i=block/app");
-        string name = default(""); // Name of this application used in GUI (optional)
-        string nicDriverModule = default("^.nicDriver"); // Path to nicDriver relative to this module
-        string loggerModule = default("logger"); // Path to Logger module
-        string clockModule = default("^.clock"); // Path to clock relative to this module
-        string mobilityModule = default("^.mobility"); // Path to mobility relative to this module
+parameters:
+  @class(smile::ApplicationBase);
+  @display("i=block/app");
+  string name = default("");  // Name of this application used in GUI (optional)
+  string wirelessInterfaceModule = default("^.wirelessInterface");  // Path to NIC relative to this module
+  string loggerModule = default("logger");  // Path to Logger module
+  string clockModule = default("^.clock");  // Path to clock relative to this module
+  string mobilityModule = default("^.mobility");  // Path to mobility relative to this module
 
-	gates:
-	    // Used only by IdealApplication
-	    input in @loose; // Input for MAC frames, used by @see IdealApplication
-	    output out @loose; // Output for MAC frames, used by @see IdealApplication
+gates:
+  input socketIn @loose;
+  output socketOut @loose;
 }
