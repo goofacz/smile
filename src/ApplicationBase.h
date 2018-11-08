@@ -43,7 +43,6 @@ class ApplicationBase : public ClockDecorator<omnetpp::cSimpleModule>
 
   inet::physicallayer::IRadio& getRadio();
   Logger& getLlogger();
-  IClock& getClock();
   inet::IMobility& getMobility();
 
  private:
@@ -51,7 +50,6 @@ class ApplicationBase : public ClockDecorator<omnetpp::cSimpleModule>
 
   inet::physicallayer::IRadio* radio{nullptr};
   Logger* logger{nullptr};
-  IClock* clock{nullptr};
   inet::IMobility* mobility{nullptr};
 };
 

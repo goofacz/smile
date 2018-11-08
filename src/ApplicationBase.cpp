@@ -41,7 +41,6 @@ void ApplicationBase::initialize(int stage)
     }
 
     logger = getModuleFromPar<Logger>(par("loggerModule"), this, true);
-    clock = getModuleFromPar<IClock>(par("clockModule"), this, true);
     mobility = getModuleFromPar<IMobility>(par("mobilityModule"), this, true);
   }
 }
