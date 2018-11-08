@@ -120,7 +120,8 @@ void ClockDecorator<BaseModule>::scheduleAt(omnetpp::simtime_t clockTimestamp, o
 {
   EV_DEBUG << "Calling ClockDecorator<BaseModule>::scheduleAt()" << omnetpp::endl;
 
-  if (const auto simulationTime = clock->convertToSimulationTimestamp(clockTimestamp)) {
+  const auto simulationTime = clock->convertToSimulationTimestamp(clockTimestamp);
+  if (simulationTime) {
     BaseModule::scheduleAt(*simulationTime, message);
   }
   else {
@@ -132,7 +133,8 @@ template <typename BaseModule>
 void ClockDecorator<BaseModule>::sendDelayed(omnetpp::cMessage* message, omnetpp::simtime_t delay, int gateID)
 {
   const auto clockTimestamp = clockTime() + delay;
-  if (clock->convertToSimulationTimestamp(clockTimestamp)) {
+  const auto simulationTime = clock->convertToSimulationTimestamp(clockTimestamp);
+  if (simulationTime) {
     BaseModule::sendDelayed(message, delay, gateID);
   }
   else {
