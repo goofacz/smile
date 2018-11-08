@@ -20,7 +20,7 @@
 #include <inet/common/geometry/common/Coord.h>
 #include <inet/linklayer/common/MacAddress.h>
 #include <omnetpp.h>
-#include <experimental/filesystem>
+#include <filesystem>
 #include <fstream>
 #include <iterator>
 #include <utility>
@@ -57,11 +57,11 @@ class Logger : public omnetpp::cSimpleModule
 
   ExistingFilePolicy getExistingFilePolicy() const;
 
-  std::experimental::filesystem::path createDirectory() const;
-  void openFile(const std::experimental::filesystem::path& directoryPath);
+  std::filesystem::path createDirectory() const;
+  void openFile(const std::filesystem::path& directoryPath);
 
   ExistingFilePolicy existingFilePolicy{ExistingFilePolicy::ABORT};
-  std::experimental::filesystem::path filePath;
+  std::filesystem::path filePath;
   std::ofstream logStream;
 };
 

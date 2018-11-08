@@ -88,37 +88,34 @@ Logger::ExistingFilePolicy Logger::getExistingFilePolicy() const
   return existingFilePolicy;
 }
 
-std::experimental::filesystem::path Logger::createDirectory() const
+std::filesystem::path Logger::createDirectory() const
 {
-  using namespace std::experimental;
-
-  filesystem::path path{par("directoryPath").stdstringValue()};
+  std::filesystem::path path{par("directoryPath").stdstringValue()};
 
   try {
     path.make_preferred();
 
-    if (!filesystem::exists(path)) {
+    if (!std::filesystem::exists(path)) {
       std::error_code errorCode;
-      const auto result = filesystem::create_directories(path, errorCode);
+      const auto result = std::filesystem::create_directories(path, errorCode);
       if (!result) {
         throw cRuntimeError{"Cannot create directory \"%s\": %s", path.c_str(), errorCode.message().c_str()};
       }
     }
 
-    if (!filesystem::is_directory(path)) {
+    if (!std::filesystem::is_directory(path)) {
       throw cRuntimeError{"Cannot open log file, \"%s\" is not a directory", path.c_str()};
     }
 
     return path;
   }
-  catch (const filesystem::filesystem_error& error) {
+  catch (const std::filesystem::filesystem_error& error) {
     throw cRuntimeError{"Failed to create or open directory \"%s\": %s", path.c_str(), error.what()};
   }
 }
 
-void Logger::openFile(const std::experimental::filesystem::path& directoryPath)
+void Logger::openFile(const std::filesystem::path& directoryPath)
 {
-  using namespace std::experimental;
   try {
     // Prepare & verify file path
     const auto fileName = par("fileName").stdstringValue();
@@ -129,7 +126,7 @@ void Logger::openFile(const std::experimental::filesystem::path& directoryPath)
     filePath = directoryPath;
     filePath.append(fileName);
 
-    if (filesystem::exists(filePath)) {
+    if (std::filesystem::exists(filePath)) {
       if (getExistingFilePolicy() == ExistingFilePolicy::ABORT) {
         throw cRuntimeError{"Log file \"%s\" already exists, aborting simulation", filePath.c_str()};
       }
@@ -146,7 +143,7 @@ void Logger::openFile(const std::experimental::filesystem::path& directoryPath)
 
     logStream.open(filePath, mode);
   }
-  catch (const filesystem::filesystem_error& error) {
+  catch (const std::filesystem::filesystem_error& error) {
     throw cRuntimeError{"Failed to create or open log file: %s", error.what()};
   }
   catch (const std::ios_base::failure& error) {
