@@ -57,12 +57,6 @@ Logger& ApplicationBase::getLlogger()
   return *logger;
 }
 
-IClock& ApplicationBase::getClock()
-{
-  assert(clock);
-  return *clock;
-}
-
 inet::IMobility& ApplicationBase::getMobility()
 {
   assert(mobility);
