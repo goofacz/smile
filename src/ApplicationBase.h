@@ -41,9 +41,9 @@ class ApplicationBase : public ClockDecorator<omnetpp::cSimpleModule>
 
   void initialize(int stage) override;
 
-  inet::physicallayer::IRadio& getRadio();
-  Logger& getLlogger();
-  inet::IMobility& getMobility();
+  inet::physicallayer::IRadio* getRadio();
+  Logger* getLlogger();
+  inet::IMobility* getMobility();
 
  private:
   int numInitStages() const final;

@@ -45,22 +45,22 @@ void ApplicationBase::initialize(int stage)
   }
 }
 
-inet::physicallayer::IRadio& ApplicationBase::getRadio()
+inet::physicallayer::IRadio* ApplicationBase::getRadio()
 {
   assert(radio);
-  return *radio;
+  return radio;
 }
 
-Logger& ApplicationBase::getLlogger()
+Logger* ApplicationBase::getLlogger()
 {
   assert(logger);
-  return *logger;
+  return logger;
 }
 
-inet::IMobility& ApplicationBase::getMobility()
+inet::IMobility* ApplicationBase::getMobility()
 {
   assert(mobility);
-  return *mobility;
+  return mobility;
 }
 
 int ApplicationBase::numInitStages() const
