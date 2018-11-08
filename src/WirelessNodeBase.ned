@@ -17,40 +17,33 @@
 
 package smile;
 
+import inet.applications.contract.IApp;
 import inet.linklayer.contract.IWirelessInterface;
-// FIXME import inet.networklayer.common.InterfaceTable;
-// FIXME import inet.networklayer.generic.GenericRoutingTable;
-import inet.mobility.contract.IMobility;
+import inet.networklayer.common.InterfaceTable;
+import inet.node.base.NodeBase;
 
-module RadioNode like IRadioNode
+module WirelessNodeBase extends NodeBase
 {
-    parameters:
-        @networkNode();
-        @display("i=device/device");
-        // FIXME *.interfaceTableModule = default(absPath(".interfaceTable"));
-        string physicalNicType = default("");
-        string mobilityType = default("");
-        string applicationType = default("");
-        string clockType = default("");
-        string nicDriverType = default("");
-        string nicType = default("");
+  parameters:
+    @networkNode();
+    @display("i=device/device");
+    string interfaceTableModule = default(absPath(".interfaceTable"));
+    string physicalNicType = default("");
+    string applicationType = default("");
+    string clockType = default("");
+    string wirelessInterfaceType = default("");
 
-    gates:
-        input radioIn @directIn;
+  gates:
+    input radioIn @directIn;
 
-    submodules:
-        // FIXME interfaceTable: InterfaceTable;
-        // FIXME routingTable: GenericRoutingTable;
-        mobility: <mobilityType> like IMobility;
-        application: <applicationType> like IApplication;
-        clock: <clockType> like IClock;
-        nicDriver: <nicDriverType> like IRangingNicDriver;
-        nic: <nicType> like IWirelessInterface;
+  submodules:
+    interfaceTable: InterfaceTable;
+    application: <applicationType> like IApp;
+    clock: <clockType> like IClock;
+    wirelessInterface: <wirelessInterfaceType> like IWirelessInterface;
 
-    connections:
-        radioIn --> nic.radioIn;
-        nic.upperLayerIn <-- nicDriver.nicOut;
-        nic.upperLayerOut --> nicDriver.nicIn;
-        nicDriver.applicationOut --> application.in;
-        nicDriver.applicationIn <-- application.out;
+  connections:
+    radioIn --> wirelessInterface.radioIn;
+    wirelessInterface.upperLayerIn <-- application.socketOut;
+    wirelessInterface.upperLayerOut --> application.socketIn;
 }
