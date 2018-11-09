@@ -15,23 +15,13 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 //
 
-#include "IdealClock.h"
-#include <inet/common/INETDefs.h>
+package smile;
 
-using namespace omnetpp;
-
-namespace smile {
-
-Define_Module(IdealClock);
-
-omnetpp::SimTime IdealClock::getClockTimestamp()
+//
+// This module implements perfect clock, that internally uses global simulation clock.
+//
+simple PerfectClock extends Clock
 {
-  return simTime();
+    parameters:
+        @class(smile::PerfectClock);
 }
-
-IdealClock::OptionalSimTime IdealClock::convertToSimulationTimestamp(const SimTime& timestamp)
-{
-  return timestamp;
-}
-
-}  // namespace smile

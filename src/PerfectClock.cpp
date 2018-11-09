@@ -14,26 +14,24 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 //
-#pragma once
 
-#include <omnetpp.h>
-#include "Clock.h"
+#include <inet/common/INETDefs.h>
+#include "PerfectClock.h"
+
+using namespace omnetpp;
 
 namespace smile {
 
-class IdealClock : public Clock
+Define_Module(PerfectClock);
+
+omnetpp::SimTime PerfectClock::getClockTimestamp()
 {
- public:
-  IdealClock() = default;
-  IdealClock(const IdealClock& source) = delete;
-  IdealClock(IdealClock&& source) = delete;
-  ~IdealClock() override = default;
+  return simTime();
+}
 
-  IdealClock& operator=(const IdealClock& source) = delete;
-  IdealClock& operator=(IdealClock&& source) = delete;
-
-  omnetpp::SimTime getClockTimestamp() override;
-  OptionalSimTime convertToSimulationTimestamp(const omnetpp::SimTime& timestamp) override;
-};
+PerfectClock::OptionalSimTime PerfectClock::convertToSimulationTimestamp(const SimTime& timestamp)
+{
+  return timestamp;
+}
 
 }  // namespace smile
