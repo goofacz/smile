@@ -39,12 +39,12 @@ void TimeMeasurementApplicationBase::initialize(int stage)
   }
 }
 
-void TimeMeasurementApplicationBase::onTxOperationBegin()
+void TimeMeasurementApplicationBase::onTxOperationBegin(const ITransmission* transmision)
 {
   // nop
 }
 
-void TimeMeasurementApplicationBase::onRxOperationBegin()
+void TimeMeasurementApplicationBase::onRxOperationBegin(const ITransmission* reception)
 {
   // nop
 }
@@ -52,17 +52,18 @@ void TimeMeasurementApplicationBase::onRxOperationBegin()
 void TimeMeasurementApplicationBase::receiveSignal(omnetpp::cComponent* source, omnetpp::simsignal_t signalID,
                                                    long value, omnetpp::cObject* details)
 {
+    auto radio {getRadio()};
   if (signalID == IRadio::transmissionStateChangedSignal) {
     if (txCurrentState == IRadio::TransmissionState::TRANSMISSION_STATE_IDLE &&
         value == IRadio::TransmissionState::TRANSMISSION_STATE_TRANSMITTING) {
-      onTxOperationBegin();
+      onTxOperationBegin(radio->getTransmissionInProgress());
     }
     txCurrentState = static_cast<IRadio::TransmissionState>(value);
   }
   else if (signalID == IRadio::receptionStateChangedSignal) {
     if (rxCurrentState == IRadio::ReceptionState::RECEPTION_STATE_IDLE &&
         value == IRadio::ReceptionState::RECEPTION_STATE_RECEIVING) {
-      onRxOperationBegin();
+      onRxOperationBegin(radio->getReceptionInProgress());
     }
     rxCurrentState = static_cast<IRadio::ReceptionState>(value);
   }

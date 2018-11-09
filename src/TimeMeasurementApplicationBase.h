@@ -35,8 +35,8 @@ class TimeMeasurementApplicationBase : public ApplicationBase
  protected:
   void initialize(int stage) override;
 
-  virtual void onTxOperationBegin();
-  virtual void onRxOperationBegin();
+  virtual void onTxOperationBegin(const inet::physicallayer::ITransmission* transmision);
+  virtual void onRxOperationBegin(const inet::physicallayer::ITransmission* reception);
 
  private:
   void receiveSignal(omnetpp::cComponent* source, omnetpp::simsignal_t signalID, long value,
