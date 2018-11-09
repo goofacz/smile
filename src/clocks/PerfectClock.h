@@ -14,14 +14,26 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 //
+#pragma once
 
-package smile;
+#include <omnetpp.h>
+#include "Clock.h"
 
-//
-// This module implements perfect clock, that internally uses global simulation clock.
-//
-simple PerfectClock extends Clock
+namespace smile::clocks {
+
+class PerfectClock : public Clock
 {
-    parameters:
-        @class(smile::PerfectClock);
-}
+ public:
+  PerfectClock() = default;
+  PerfectClock(const PerfectClock& source) = delete;
+  PerfectClock(PerfectClock&& source) = delete;
+  ~PerfectClock() override = default;
+
+  PerfectClock& operator=(const PerfectClock& source) = delete;
+  PerfectClock& operator=(PerfectClock&& source) = delete;
+
+  omnetpp::SimTime getClockTimestamp() override;
+  OptionalSimTime convertToSimulationTimestamp(const omnetpp::SimTime& timestamp) override;
+};
+
+}  // namespace smile::clocks

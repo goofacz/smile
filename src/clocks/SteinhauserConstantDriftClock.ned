@@ -34,7 +34,7 @@
 //  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
 
-package smile.steinhauser_clock;
+package smile.clocks;
 
 //
 // Module implements clock model described in 
@@ -45,10 +45,13 @@ package smile.steinhauser_clock;
 // Original implementation available at https://github.com/JenSte/omnet-ptp
 //
 
-simple SteinhauserBoundedDriftClock extends SteinhauserClock {
+simple SteinhauserConstantDriftClock extends SteinhauserClock 
+{
     parameters:
-        double drift_distribution_range = default(uniform(10e-6, 20e-6));
+        // Specify absolute range of drift for clock. SMILe will randomly select drift's sign and value.
+        // Default range is +/- <10, 20> PPM
+        double constant_drift_range = default(uniform(10e-6, 20e-6));
 
         // Do not modify this is internal formulas below
-        volatile double __drift_distribution = select(intuniform(0, 1), -drift_distribution_range, drift_distribution_range);
+        double __constant_drift = select(intuniform(0, 1), -constant_drift_range, constant_drift_range);
 }

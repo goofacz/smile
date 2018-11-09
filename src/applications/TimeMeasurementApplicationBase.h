@@ -48,4 +48,4 @@ class TimeMeasurementApplicationBase : public ApplicationBase
       inet::physicallayer::IRadio::ReceptionState::RECEPTION_STATE_UNDEFINED};
 };
 
-}  // namespace smile
+}  // namespace smile::applications

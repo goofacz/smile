@@ -37,15 +37,150 @@
 #include "SteinhauserClock.h"
 #include <inet/common/INETDefs.h>
 #include <exception>
-#include "DriftSource.h"
-#include "StorageWindow.h"
 
 using namespace omnetpp;
 
-namespace smile {
-namespace steinhauser_clock {
+namespace smile::clocks{
 
 Define_Module(SteinhauserClock);
+
+double SteinhauserClock::DriftSource::nextValue()
+{
+  const double driftLimit = -0.999999;
+  const double n = next();
+
+  // limit drift to values > -1, so the time can't go back
+  if (n < driftLimit) {
+    return driftLimit;
+  }
+
+  return n;
+}
+
+SteinhauserClock::ConstantDrift::ConstantDrift(double drift) : drift(drift) {}
+
+double SteinhauserClock::ConstantDrift::next()
+{
+  return drift;
+}
+
+SteinhauserClock::BoundedDrift::BoundedDrift(const cPar& distribution) : distribution(distribution) {}
+
+double SteinhauserClock::BoundedDrift::next()
+{
+  return distribution.doubleValue();
+}
+
+SteinhauserClock::BoundedDriftVariation::BoundedDriftVariation(const cPar& distribution, double max_drift_variation,
+                                                               double start_value, const simtime_t& tint) :
+    BoundedDrift(distribution),
+    max_drift_change(tint.dbl() * max_drift_variation),
+    last_drift(start_value)
+{}
+
+double SteinhauserClock::BoundedDriftVariation::next()
+{
+  double drift = BoundedDrift::next();
+
+  double diff = drift - last_drift;
+
+  // limit the drift
+  if (diff > max_drift_change) {
+    drift = last_drift + max_drift_change;
+  }
+  else if (diff < -max_drift_change) {
+    drift = last_drift - max_drift_change;
+  }
+
+  last_drift = drift;
+  return drift;
+}
+
+SteinhauserClock::StorageWindow::StorageWindow(const SteinhauserClock::Properties& properties, DriftSource* source) :
+    properties(properties),
+    source(source)
+{
+  data.resize(properties.s());
+
+  std::vector<HoldPoint>::iterator it = data.begin();
+
+  driftVector.setName("drift");
+  timeVector.setName("hardware_time");
+  deviationVector.setName("time_deviation");
+  driftHistogram.setName("drift_values");
+
+  timeVector.setUnit("s");
+  deviationVector.setUnit("s");
+
+  simtime_t now = simTime();
+
+  it->realTime = now;
+  it->hardwareTime = now;
+  it->drift = source->nextValue();
+
+  recordVectors(now, now, it->drift);
+
+  fillRange(it + 1, data.end());
+}
+
+SteinhauserClock::StorageWindow::~StorageWindow()
+{
+  delete source;
+}
+
+void SteinhauserClock::StorageWindow::finish()
+{
+  driftHistogram.recordAs("drift_distribution");
+}
+
+void SteinhauserClock::StorageWindow::update()
+{
+  data = std::vector<HoldPoint>(data.begin() + properties.u(), data.end());
+  data.resize(properties.s());
+
+  fillRange(data.begin() + (properties.s() - properties.u()), data.end());
+}
+
+void SteinhauserClock::StorageWindow::fillRange(std::vector<HoldPoint>::iterator first,
+                                                std::vector<HoldPoint>::iterator last)
+{
+  while (first != last) {
+    std::vector<HoldPoint>::iterator pre = first - 1;
+
+    first->realTime = pre->realTime + properties.tint();
+    first->hardwareTime = pre->hardwareTime + properties.tint() * (1 + pre->drift);
+    first->drift = source->nextValue();
+    recordVectors(first->realTime, first->hardwareTime, first->drift);
+
+    first++;
+  }
+
+  _hardwareTimeEnd = data[data.size() - 1].hardwareTime + properties.tint() * (1 + data[data.size() - 1].drift);
+}
+
+void SteinhauserClock::StorageWindow::recordVectors(const simtime_t& realTime, const simtime_t& hardwareTime,
+                                                    double drift)
+{
+  driftHistogram.collect(drift);
+
+  driftVector.recordWithTimestamp(realTime, drift);
+  timeVector.recordWithTimestamp(realTime, hardwareTime);
+  deviationVector.recordWithTimestamp(realTime, hardwareTime - realTime);
+}
+
+const SteinhauserClock::StorageWindow::HoldPoint& SteinhauserClock::StorageWindow::at(size_t idx) const
+{
+  if (idx > data.size() - 1) {
+    throw std::logic_error("StorageWindow::HoldPoint: index out of bounds");
+  }
+
+  return data[idx];
+}
+
+size_t SteinhauserClock::StorageWindow::indexOf(const simtime_t& t) const
+{
+  return (t - data[0].realTime) / properties.tint();
+}
 
 void SteinhauserClock::Properties::set(const simtime_t& tint, size_t u)
 {
@@ -227,4 +362,3 @@ Clock::OptionalSimTime SteinhauserClock::convertToSimulationTimestamp(const omne
 }
 
 }  // namespace steinhauser_clock
-}  // namespace smile

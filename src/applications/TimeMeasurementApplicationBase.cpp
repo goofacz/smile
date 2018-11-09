@@ -72,4 +72,4 @@ void TimeMeasurementApplicationBase::receiveSignal(omnetpp::cComponent* source, 
   }
 }
 
-}  // namespace smile
+}  // namespace smile::applications
