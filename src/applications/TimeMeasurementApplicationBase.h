@@ -19,7 +19,7 @@
 
 #include "ApplicationBase.h"
 
-namespace smile {
+namespace smile::applications {
 
 class TimeMeasurementApplicationBase : public ApplicationBase
 {
@@ -42,8 +42,10 @@ class TimeMeasurementApplicationBase : public ApplicationBase
   void receiveSignal(omnetpp::cComponent* source, omnetpp::simsignal_t signalID, long value,
                      omnetpp::cObject* details) override;
 
-  inet::physicallayer::IRadio::TransmissionState txCurrentState{inet::physicallayer::IRadio::TransmissionState::TRANSMISSION_STATE_UNDEFINED};
-  inet::physicallayer::IRadio::ReceptionState rxCurrentState{inet::physicallayer::IRadio::ReceptionState::RECEPTION_STATE_UNDEFINED};
+  inet::physicallayer::IRadio::TransmissionState txCurrentState{
+      inet::physicallayer::IRadio::TransmissionState::TRANSMISSION_STATE_UNDEFINED};
+  inet::physicallayer::IRadio::ReceptionState rxCurrentState{
+      inet::physicallayer::IRadio::ReceptionState::RECEPTION_STATE_UNDEFINED};
 };
 
 }  // namespace smile

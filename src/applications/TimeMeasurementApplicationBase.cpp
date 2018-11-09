@@ -21,7 +21,7 @@ using namespace inet;
 using namespace inet::physicallayer;
 using namespace omnetpp;
 
-namespace smile {
+namespace smile::applications {
 
 Define_Module(TimeMeasurementApplicationBase);
 
@@ -52,7 +52,7 @@ void TimeMeasurementApplicationBase::onRxOperationBegin(const ITransmission* rec
 void TimeMeasurementApplicationBase::receiveSignal(omnetpp::cComponent* source, omnetpp::simsignal_t signalID,
                                                    long value, omnetpp::cObject* details)
 {
-    auto radio {getRadio()};
+  auto radio{getRadio()};
   if (signalID == IRadio::transmissionStateChangedSignal) {
     if (txCurrentState == IRadio::TransmissionState::TRANSMISSION_STATE_IDLE &&
         value == IRadio::TransmissionState::TRANSMISSION_STATE_TRANSMITTING) {

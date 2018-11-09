@@ -15,10 +15,10 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 //
 
-package smile;
+package smile.applications;
 
-simple TimeMeasurementApplicationBase extends ApplicationBase
+simple TimeMeasurementApplicationBase extends smile.ApplicationBase
 {
 	parameters:
-		@class(smile::TimeMeasurementApplicationBase);
+		@class(smile::applications::TimeMeasurementApplicationBase);
 }
