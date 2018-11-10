@@ -27,20 +27,16 @@ module WirelessNodeBase extends NodeBase
   parameters:
     @networkNode();
     @display("i=device/device");
-    string interfaceTableModule = default(absPath(".interfaceTable"));
-    string physicalNicType = default("");
-    string applicationType = default("");
-    string clockType = default("");
-    string wirelessInterfaceType = default("");
 
   gates:
     input radioIn @directIn;
 
   submodules:
     interfaceTable: InterfaceTable;
-    application: <applicationType> like IApp;
-    clock: <clockType> like IClock;
-    wirelessInterface: <wirelessInterfaceType> like IWirelessInterface;
+    logger: Logger;
+    application: <default("")> like IApp;
+    clock: <default("")> like IClock;
+    wirelessInterface: <default("")> like IWirelessInterface;
 
   connections:
     radioIn --> wirelessInterface.radioIn;
