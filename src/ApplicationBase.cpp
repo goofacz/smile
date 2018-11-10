@@ -30,7 +30,7 @@ void ApplicationBase::initialize(int stage)
   ClockDecorator<cSimpleModule>::initialize(stage);
   if (stage == INITSTAGE_LOCAL) {
     try {
-      const auto wirelessInterface = getModuleFromPar<cSimpleModule>(par("wirelessInterfaceModule"), this, true);
+      const auto wirelessInterface = getModuleFromPar<cModule>(par("wirelessInterfaceModule"), this, true);
       radio = dynamic_cast<physicallayer::IRadio*>(wirelessInterface->getModuleByPath(".radio"));
       if (!radio) {
         throw cRuntimeError("Module on path '%s' was not found");
