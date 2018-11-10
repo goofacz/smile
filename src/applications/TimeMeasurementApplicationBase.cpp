@@ -52,10 +52,12 @@ void TimeMeasurementApplicationBase::onRxOperationBegin(const ITransmission* rec
 void TimeMeasurementApplicationBase::receiveSignal(omnetpp::cComponent* source, omnetpp::simsignal_t signalID,
                                                    long value, omnetpp::cObject* details)
 {
-  auto radio{getRadio()};
+  ApplicationBase::receiveSignal(source, signalID, value, details);
+
   if (signalID == IRadio::transmissionStateChangedSignal) {
     if (txCurrentState == IRadio::TransmissionState::TRANSMISSION_STATE_IDLE &&
         value == IRadio::TransmissionState::TRANSMISSION_STATE_TRANSMITTING) {
+      auto radio{getRadio()};
       onTxOperationBegin(radio->getTransmissionInProgress());
     }
     txCurrentState = static_cast<IRadio::TransmissionState>(value);
@@ -63,12 +65,10 @@ void TimeMeasurementApplicationBase::receiveSignal(omnetpp::cComponent* source, 
   else if (signalID == IRadio::receptionStateChangedSignal) {
     if (rxCurrentState == IRadio::ReceptionState::RECEPTION_STATE_IDLE &&
         value == IRadio::ReceptionState::RECEPTION_STATE_RECEIVING) {
+      auto radio{getRadio()};
       onRxOperationBegin(radio->getReceptionInProgress());
     }
     rxCurrentState = static_cast<IRadio::ReceptionState>(value);
-  }
-  else {
-    throw cRuntimeError{"Received unexpected signal \"%s\"", getSignalName(signalID)};
   }
 }
 
