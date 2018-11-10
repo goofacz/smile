@@ -1,0 +1,16 @@
+#
+# Usage:
+#    make -f makemakefiles
+# or, for Microsoft Visual C++:
+#    nmake -f makemakefiles MMOPT=-n
+#
+
+MAKEMAKE=opp_makemake $(MMOPT)
+
+INET_PROJ=../inet
+
+all:
+	cd samples && $(MAKEMAKE) --nolink -f --deep -O out -KINET_PROJ=../../inet -DINET_IMPORT -I. -I$$\(INET_PROJ\)/src -L$$\(INET_PROJ\)/src -L../out/$$\(CONFIGNAME\)/samples/src -L../out/$$\(CONFIGNAME\)/src -lINET$$\(D\) -d src -X.
+	cd samples/src && $(MAKEMAKE) --make-so -f --deep -o samples -O out -KINET_PROJ=../../../inet -DINET_IMPORT -I../../src -I. -I$$\(INET_PROJ\)/src -L$$\(INET_PROJ\)/src -L../../out/$$\(CONFIGNAME\)/src -lINET$$\(D\)
+	$(MAKEMAKE) --nolink -f --deep -O out -KINET_PROJ=../inet -DINET_IMPORT -I. -I$$\(INET_PROJ\)/src -L$$\(INET_PROJ\)/src -Lout/$$\(CONFIGNAME\)/samples/src -Lout/$$\(CONFIGNAME\)/src -lINET$$\(D\) -d samples -d src -X.
+	cd src && $(MAKEMAKE) --make-so -f --deep -o smile -O out -KINET_PROJ=../../inet -DINET_IMPORT -I. -I$$\(INET_PROJ\)/src -L$$\(INET_PROJ\)/src -L../out/$$\(CONFIGNAME\)/samples/src -lstdc++fs -lINET$$\(D\)
