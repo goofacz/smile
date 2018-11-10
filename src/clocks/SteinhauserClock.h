@@ -324,4 +324,4 @@ class SteinhauserClock : public Clock
   OptionalSimTime convertToSimulationTimestamp(const omnetpp::SimTime& timestamp) override;
 };
 
-}  // namespace steinhauser_clock
+}  // namespace smile::clocks

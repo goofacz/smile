@@ -40,7 +40,7 @@
 
 using namespace omnetpp;
 
-namespace smile::clocks{
+namespace smile::clocks {
 
 Define_Module(SteinhauserClock);
 
@@ -361,4 +361,4 @@ Clock::OptionalSimTime SteinhauserClock::convertToSimulationTimestamp(const omne
   return hp.realTime + (timestamp - hp.hardwareTime) / (1 + hp.drift);
 }
 
-}  // namespace steinhauser_clock
+}  // namespace smile::clocks
