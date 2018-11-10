@@ -222,9 +222,6 @@ void ClockDecorator<BaseModule>::receiveSignal(omnetpp::cComponent* source, omne
       BaseModule::scheduleAt(omnetpp::simTime(), sendScheduledMessagesSelfMessage.get());
     }
   }
-  else {
-    throw omnetpp::cRuntimeError{"Received unexpected signal \"%s\"", BaseModule::getSignalName(signalID)};
-  }
 }
 
 template <typename BaseModule>
